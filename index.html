@@ -1644,11 +1644,11 @@ function updateMonsters(dt) {
         if (m.boss) { updateBoss(m, dt, toP, dist); continue; }
         // ---- Flying monsters (wraith, gargoyle): hover & dive, no gravity ----
         if (m.flying) {
-            const targetY = player.pos.y + 3.2 + Math.sin(m.t * 1.2) * 0.6;
+            const targetY = player.pos.y + 3.2 + Math.sin(m.t * 0.8) * 0.6;
             const n = toP.lengthSq() > 0.001 ? toP.clone().normalize() : new THREE.Vector3(0, 0, -1);
-            m.vel.x += (n.x * m.spd - m.vel.x) * Math.min(1, 5 * dt);
-            m.vel.z += (n.z * m.spd - m.vel.z) * Math.min(1, 5 * dt);
-            m.vel.y += ((targetY - m.pos.y) * 1.5 - m.vel.y) * Math.min(1, 4 * dt);
+            m.vel.x += (n.x * m.spd * 0.7 - m.vel.x) * Math.min(1, 5 * dt);
+            m.vel.z += (n.z * m.spd * 0.7 - m.vel.z) * Math.min(1, 5 * dt);
+            m.vel.y += ((targetY - m.pos.y) * 1.0 - m.vel.y) * Math.min(1, 4 * dt);
             m.pos.add(m.vel.clone().multiplyScalar(dt));
             m.mesh.position.copy(m.pos);
             if (m.ranged) {
@@ -1889,13 +1889,13 @@ function updateBoss(m, dt, toP, dist) {
     }
     if (i === 2) {
         // Ember Wyrm: flies, drops fireballs
-        const targetY = 28 + Math.sin(m.t * 0.8) * 2;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.6) * 9, 0, Math.sin(m.t * 0.6) * 9);
+        const targetY = 28 + Math.sin(m.t * 0.4) * 2;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.3) * 9, 0, Math.sin(m.t * 0.3) * 9);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.6 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.6 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.8 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.3 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.3 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.4 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -1943,13 +1943,13 @@ function updateBoss(m, dt, toP, dist) {
     if (i === 5) {
         // Void Sovereign: the final boss. Hovering, fires a dense ring of void
         // bolts plus a homing beam shot. The hardest pattern in the game.
-        const targetY = 29 + Math.sin(m.t * 0.9) * 2.5;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.7) * 8, 0, Math.sin(m.t * 0.7) * 8);
+        const targetY = 29 + Math.sin(m.t * 0.45) * 2.5;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.35) * 8, 0, Math.sin(m.t * 0.35) * 8);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.7 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.7 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.9 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.35 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.35 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.45 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         m.fireCd -= dt;
@@ -1974,13 +1974,13 @@ function updateBoss(m, dt, toP, dist) {
     if (i === 6) {
         // Storm Caller: a hovering wraith that circles the player and rains
         // lightning from the sky. Dodge the glowing strike zones, then punish.
-        const targetY = 27 + Math.sin(m.t * 1.1) * 2.5;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.8) * 11, 0, Math.sin(m.t * 0.8) * 11);
+        const targetY = 27 + Math.sin(m.t * 0.55) * 2.5;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.4) * 11, 0, Math.sin(m.t * 0.4) * 11);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.8 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.8 * dt;
-        m.vel.y += (targetY - m.pos.y) * 1.0 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.4 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.4 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.5 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2056,13 +2056,13 @@ function updateBoss(m, dt, toP, dist) {
     if (i === 9) {
         // Sun Tyrant: the ultimate boss. Hovers high, fires a continuous spiral
         // of sun bolts, and periodically descends to slam. The hardest pattern.
-        const targetY = 30 + Math.sin(m.t * 0.7) * 3;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.5) * 10, 0, Math.sin(m.t * 0.5) * 10);
+        const targetY = 30 + Math.sin(m.t * 0.35) * 3;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.25) * 10, 0, Math.sin(m.t * 0.25) * 10);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.7 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.7 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.9 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.35 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.35 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.45 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         m.fireCd -= dt;
@@ -2088,19 +2088,19 @@ function updateBoss(m, dt, toP, dist) {
     }
     if (i === 10) {
         // Phantom Reaper: hovers, dashes through the player, leaves a bolt trail.
-        const targetY = 26 + Math.sin(m.t * 1.0) * 2;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.9) * 10, 0, Math.sin(m.t * 0.9) * 10);
+        const targetY = 26 + Math.sin(m.t * 0.5) * 2;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.45) * 10, 0, Math.sin(m.t * 0.45) * 10);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.7 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.7 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.9 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.35 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.35 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.45 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.chargeCd <= 0 && dist < 30) {
             m.chargeCd = 3.0;
             const dir = player.pos.clone().sub(m.pos).normalize();
-            m.vel.add(dir.multiplyScalar(20));
+            m.vel.add(dir.multiplyScalar(12));
             sfx('boss');
         }
         if (m.fireCd <= 0) {
@@ -2111,13 +2111,13 @@ function updateBoss(m, dt, toP, dist) {
         if (m.pos.distanceTo(player.pos) < 3 && m.atkCd <= 0) { m.atkCd = 1.0; damagePlayer(m.dmg, 'Phantom Reaper'); }
     } else if (i === 11) {
         // Crimson Drake: flying, strafes, rains fireballs in an arc, charges.
-        const targetY = 27 + Math.sin(m.t * 0.8) * 2.5;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.7) * 11, 0, Math.sin(m.t * 0.7) * 11);
+        const targetY = 27 + Math.sin(m.t * 0.4) * 2.5;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.35) * 11, 0, Math.sin(m.t * 0.35) * 11);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.6 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.6 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.8 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.3 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.3 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.4 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2132,7 +2132,7 @@ function updateBoss(m, dt, toP, dist) {
         if (m.chargeCd <= 0 && dist < 25) {
             m.chargeCd = 5;
             const dir = player.pos.clone().sub(m.pos).normalize();
-            m.vel.add(dir.multiplyScalar(16));
+            m.vel.add(dir.multiplyScalar(10));
             sfx('boss');
         }
         if (m.pos.distanceTo(player.pos) < 3 && m.atkCd <= 0) { m.atkCd = 1.0; damagePlayer(m.dmg, 'Crimson Drake'); }
@@ -2161,13 +2161,13 @@ function updateBoss(m, dt, toP, dist) {
         if (dist < 3.4 && m.atkCd <= 0) { m.atkCd = 1.3; damagePlayer(m.dmg, 'Abyssal Leviathan'); }
     } else if (i === 13) {
         // Storm-Eyed Titan: hovers high, continuous spiral of lightning, periodic strike.
-        const targetY = 30 + Math.sin(m.t * 0.9) * 2;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.8) * 12, 0, Math.sin(m.t * 0.8) * 12);
+        const targetY = 30 + Math.sin(m.t * 0.45) * 2;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.4) * 12, 0, Math.sin(m.t * 0.4) * 12);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.7 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.7 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.9 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.35 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.35 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.45 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2206,13 +2206,13 @@ function updateBoss(m, dt, toP, dist) {
         if (dist < 2.6 && m.atkCd <= 0) { m.atkCd = 1.1; damagePlayer(m.dmg, 'Frostbane Sovereign'); }
     } else if (i === 15) {
         // Void Revenant: hovers, orbits, ring of void bolts, dashes.
-        const targetY = 28 + Math.sin(m.t * 0.8) * 2.5;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.75) * 10, 0, Math.sin(m.t * 0.75) * 10);
+        const targetY = 28 + Math.sin(m.t * 0.4) * 2.5;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.375) * 10, 0, Math.sin(m.t * 0.375) * 10);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.7 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.7 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.9 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.35 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.35 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.45 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2228,19 +2228,19 @@ function updateBoss(m, dt, toP, dist) {
         if (m.chargeCd <= 0 && dist < 28) {
             m.chargeCd = 3.5;
             const dir = player.pos.clone().sub(m.pos).normalize();
-            m.vel.add(dir.multiplyScalar(18));
+            m.vel.add(dir.multiplyScalar(11));
             sfx('boss');
         }
         if (m.pos.distanceTo(player.pos) < 3 && m.atkCd <= 0) { m.atkCd = 1.0; damagePlayer(m.dmg, 'Void Revenant'); }
     } else if (i === 16) {
         // Emberfall Dragon: flying, strafes, continuous spiral of fireballs, dives.
-        const targetY = 29 + Math.sin(m.t * 0.7) * 3;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.6) * 11, 0, Math.sin(m.t * 0.6) * 11);
+        const targetY = 29 + Math.sin(m.t * 0.35) * 3;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.3) * 11, 0, Math.sin(m.t * 0.3) * 11);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.6 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.6 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.8 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.3 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.3 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.4 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2252,19 +2252,19 @@ function updateBoss(m, dt, toP, dist) {
         if (m.chargeCd <= 0) {
             m.chargeCd = 4;
             const dir = player.pos.clone().sub(m.pos).normalize();
-            m.vel.add(dir.multiplyScalar(22));
+            m.vel.add(dir.multiplyScalar(13));
             sfx('boss');
         }
         if (m.pos.distanceTo(player.pos) < 3 && m.atkCd <= 0) { m.atkCd = 1.0; damagePlayer(m.dmg, 'Emberfall Dragon'); }
     } else if (i === 17) {
         // Twin Moon Warden: hovers, slow orbit, dual spiral, moon slam AoE.
-        const targetY = 30 + Math.sin(m.t * 0.6) * 3;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.55) * 12, 0, Math.sin(m.t * 0.55) * 12);
+        const targetY = 30 + Math.sin(m.t * 0.3) * 3;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.275) * 12, 0, Math.sin(m.t * 0.275) * 12);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.6 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.6 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.8 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.3 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.3 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.4 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
@@ -2307,13 +2307,13 @@ function updateBoss(m, dt, toP, dist) {
         if (dist < 3.6 && m.atkCd <= 0) { m.atkCd = 1.4; damagePlayer(m.dmg, 'Omnivore'); }
     } else if (i === 19) {
         // GODSLAYER: final boss. Hovers high, continuous golden spiral, ring of 16.
-        const targetY = 32 + Math.sin(m.t * 0.5) * 3;
-        const orbit = new THREE.Vector3(Math.cos(m.t * 0.4) * 10, 0, Math.sin(m.t * 0.4) * 10);
+        const targetY = 32 + Math.sin(m.t * 0.25) * 3;
+        const orbit = new THREE.Vector3(Math.cos(m.t * 0.2) * 10, 0, Math.sin(m.t * 0.2) * 10);
         const center = player.pos.clone().add(orbit);
-        m.vel.x += (center.x - m.pos.x) * 0.6 * dt;
-        m.vel.z += (center.z - m.pos.z) * 0.6 * dt;
-        m.vel.y += (targetY - m.pos.y) * 0.7 * dt;
-        m.vel.multiplyScalar(1 - 0.5 * dt);
+        m.vel.x += (center.x - m.pos.x) * 0.3 * dt;
+        m.vel.z += (center.z - m.pos.z) * 0.3 * dt;
+        m.vel.y += (targetY - m.pos.y) * 0.35 * dt;
+        m.vel.multiplyScalar(1 - 1.0 * dt);
         m.pos.add(m.vel.clone().multiplyScalar(dt));
         m.mesh.position.copy(m.pos);
         if (m.fireCd <= 0) {
