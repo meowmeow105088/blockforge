@@ -49,4 +49,10 @@ Just open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari). No
 - Single-file HTML/CSS/JS (~180 KB)
 - [Three.js](https://threejs.org/) r128 via CDN for 3D rendering
 - Web Audio API for procedurally generated sound effects
-- localStorage for save / load
+- localStorage for save / load 
+## How to Commit
+
+- cd blockforge
+- git add .
+- git commit -m "your message"
+- git push
