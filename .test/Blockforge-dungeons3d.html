@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Blockforge — The legacy of the Seven Worlds (3D)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #05070d;
+  font-family: 'Segoe UI', system-ui, Roboto, Tahoma, sans-serif; color: #fff; user-select: none;
+  -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+:root { --accent:#7fe3c4; --accent2:#f2b134; --panel:rgba(11,16,27,.88); --line:rgba(255,255,255,.16);
+  --ink:#e8eefb; --dim:#93a3c2; }
+#scene { position: fixed; inset: 0; display: block; touch-action: none; }
+.hidden { display: none !important; }
+#hud { position: fixed; inset: 0; z-index: 20; pointer-events: none; font-size: 13px; }
+#crosshair { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 21;
+  pointer-events: none; font-size: 20px; color: rgba(255,255,255,.85); text-shadow: 0 0 4px #000; }
+#breakRing { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 36px; height: 36px;
+  z-index: 21; pointer-events: none; display: none; }
+#breakRing svg { transform: rotate(-90deg); }
+#damageFlash { position: fixed; inset: 0; pointer-events: none; z-index: 22;
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(255,0,0,.5) 100%); opacity: 0; transition: opacity .12s; }
+#fragRail { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.fragSlot { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 4px 11px 4px 7px; backdrop-filter: blur(6px); opacity: .45; }
+.fragSlot.have { opacity: 1; }
+.fragSlot.active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 14px rgba(127,227,196,.35); }
+.fragSlot .dot { width: 15px; height: 15px; border-radius: 50%; background: #1a2233; border: 1px dashed #4a5670; }
+.fragSlot.have .dot { background: var(--c); box-shadow: 0 0 10px var(--c); border: none; }
+.fragSlot .fname { font-size: .66rem; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
+.fragSlot.have .fname { color: var(--ink); }
+.fragSlot.active .fname { font-weight: 700; color: var(--accent); }
+#worldTag { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); text-align: center; }
+#wtNum { font-size: .54rem; letter-spacing: 4px; color: var(--dim); }
+#wtName { font-size: 1.15rem; font-weight: 800; letter-spacing: 3px; text-shadow: 0 0 16px var(--accent); }
+#wtEpithet { font-size: .58rem; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; }
+#statBlock { position: absolute; top: 12px; right: 12px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 13px; width: 220px; backdrop-filter: blur(6px); }
+#statBlock .row { display: flex; justify-content: space-between; font-size: .66rem; letter-spacing: .5px;
+  color: var(--dim); margin-top: 3px; }
+.bar { height: 11px; background: #111a2b; border: 1px solid rgba(255,255,255,.08); border-radius: 6px;
+  overflow: hidden; margin-top: 3px; }
+.bar > i { display: block; height: 100%; border-radius: 6px; transition: width .18s; width: 100%; }
+#hpFill { background: linear-gradient(90deg,#e23b4e,#ff8a5b); }
+#focusFill { background: linear-gradient(90deg,#2f8fd6,#8fd0ff); }
+#bossWrap { position: absolute; left: 50%; top: 56px; transform: translateX(-50%); width: min(560px, 74vw); display: none; }
+#bossName { font-size: .66rem; letter-spacing: 2.5px; text-transform: uppercase; color: #ffb3b3;
+  text-align: center; margin-bottom: 4px; font-weight: 700; text-shadow: 0 0 8px #000; }
+#bossBar { height: 12px; background: #1a0d12; border: 1px solid rgba(255,80,80,.4); border-radius: 7px; overflow: hidden; }
+#bossFill { display: block; height: 100%; background: linear-gradient(90deg,#7a1f2b,#ff5b6e,#ffd08a);
+  width: 100%; box-shadow: 0 0 12px #ff5b6e; transition: width .12s; }
+#coreTag { position: absolute; left: 50%; top: 38px; transform: translateX(-50%); font-size: .6rem;
+  letter-spacing: 1.5px; color: #93a3c2; text-transform: uppercase; text-shadow: 0 0 6px #000; }
+#hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); text-align: center;
+  max-width: 94vw; pointer-events: none; }
+#hint .big { font-size: 1rem; font-weight: 700; letter-spacing: 1px; text-shadow: 0 2px 8px #000; }
+#hint .sub { font-size: .72rem; color: var(--dim); margin-top: 3px; letter-spacing: .5px; }
+#hint .keys { font-size: .62rem; color: #6c7c9c; margin-top: 6px; letter-spacing: .6px; }
+#hint .keys b { color: #b7c6e4; }
+#muteBtn { position: absolute; bottom: 12px; left: 12px; pointer-events: auto; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: .66rem; padding: 6px 10px; }
+#toast { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); z-index: 25; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.toast { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 18px;
+  font-size: .8rem; letter-spacing: .5px; box-shadow: 0 6px 22px rgba(0,0,0,.4); animation: tin .3s ease; }
+.toast.big { font-size: 1.05rem; font-weight: 700; letter-spacing: 1.5px; border-color: var(--accent); }
+@keyframes tin { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+#banner { position: fixed; left: 0; right: 0; top: 34%; z-index: 26; text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity .4s; }
+#banner.show { opacity: 1; }
+#bannerTitle { font-size: clamp(1.6rem,5vw,3rem); font-weight: 900; letter-spacing: 6px;
+  text-shadow: 0 0 30px rgba(0,0,0,.8), 0 0 18px var(--accent); }
+#bannerSub { font-size: .9rem; letter-spacing: 2px; color: var(--dim); margin-top: 8px; }
+.ov { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+  padding: 18px; background: radial-gradient(ellipse at center, rgba(6,10,20,.72), rgba(3,5,11,.94));
+  backdrop-filter: blur(7px); }
+.card { background: rgba(9,13,23,.94); border: 1px solid var(--line); border-radius: 18px;
+  padding: 30px 34px; width: min(620px, 94vw); max-height: 88vh; overflow-y: auto;
+  box-shadow: 0 24px 70px rgba(0,0,0,.55); text-align: center; }
+.tag { font-size: .62rem; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.card h1 { font-size: clamp(1.8rem,6vw,3rem); font-weight: 900; letter-spacing: 6px;
+  background: linear-gradient(90deg,#7fe3c4,#f2b134); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; }
+.card h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: 3px; margin-bottom: 8px; }
+.subtitle { font-size: .8rem; letter-spacing: 3px; color: var(--dim); text-transform: uppercase; margin-top: 6px; }
+.intro, .lore { font-size: .88rem; line-height: 1.6; color: #c3cde3; margin: 14px 0; }
+.lore { font-style: italic; color: #aeb9d4; }
+.memory { border-left: 2px solid var(--accent2); background: rgba(242,177,52,.07); border-radius: 0 10px 10px 0;
+  padding: 12px 16px; margin: 16px 0; text-align: left; }
+.memory .lbl { display: block; font-size: .58rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 6px; }
+.memory span.tx { font-size: .82rem; line-height: 1.55; color: #d8c9a0; font-style: italic; display: block; }
+.objective { font-size: .82rem; color: var(--ink); margin: 14px 0 4px; line-height: 1.5; }
+.btnrow { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+.btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.22); color: var(--ink);
+  font-size: .82rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; padding: 13px 28px;
+  border-radius: 11px; cursor: pointer; transition: transform .12s, background .12s; }
+.btn:hover { transform: scale(1.04); }
+.btn.primary { background: linear-gradient(90deg,#33c9a0,#7fe3c4); border: none; color: #06231d; }
+.btn.primary:hover { box-shadow: 0 8px 26px rgba(127,227,196,.4); }
+.btn.big { font-size: 1rem; padding: 15px 40px; }
+.keys { font-size: .64rem; color: #6c7c9c; margin-top: 18px; line-height: 1.7; letter-spacing: .5px; }
+.keys b { color: #b7c6e4; }
+.fragStrip { display: flex; gap: 10px; justify-content: center; margin: 20px 0 6px; flex-wrap: wrap; }
+.fragStrip .fd { width: 16px; height: 16px; border-radius: 50%; border: 1px dashed #4a5670; }
+.plist { list-style: none; margin: 12px 0; text-align: left; display: inline-block; }
+.plist li { font-size: .78rem; color: #c3cde3; margin: 5px 0; letter-spacing: .5px; }
+.plist b { color: var(--ink); }
+#touch { position: fixed; inset: 0; z-index: 30; pointer-events: none; display: none; }
+body.touch #touch { display: block; }
+#mMove { position: absolute; left: 24px; bottom: 30px; width: 130px; height: 130px; border: 2px solid
+  rgba(255,255,255,.24); border-radius: 50%; background: rgba(255,255,255,.05); pointer-events: auto; }
+#mKnob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px;
+  border-radius: 50%; background: rgba(255,255,255,.3); }
+#mLook { position: absolute; right: 0; top: 0; width: 62%; height: 100%; pointer-events: auto; }
+.tbtn { position: absolute; width: 62px; height: 62px; border-radius: 50%; border: 2px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.07); color: #fff; font-size: .6rem; font-weight: 700; letter-spacing: .5px;
+  pointer-events: auto; display: flex; align-items: center; justify-content: center; text-align: center; }
+.tbtn:active { background: rgba(255,255,255,.22); }
+#mAtk { right: 24px; bottom: 118px; }
+#mMine { right: 98px; bottom: 118px; }
+#mPlace { right: 24px; bottom: 44px; }
+#mJump { right: 98px; bottom: 44px; }
+#mSprint { right: 172px; bottom: 118px; }
+#mFocus { right: 172px; bottom: 44px; }
+#mLookHint { position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 31; font-size: .8rem;
+  color: #fff; background: rgba(0,0,0,.5); padding: 10px 18px; border-radius: 10px; opacity: 0; transition: opacity .4s;
+  pointer-events: none; }
+#mLookHint.show { opacity: 1; }
+@media (max-width: 760px) { .card { padding: 22px 20px; } }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="crosshair" class="hidden">+</div>
+<div id="breakRing">
+  <svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none"
+    stroke="rgba(255,255,255,.25)" stroke-width="3"/><circle id="breakArc" cx="18" cy="18" r="15" fill="none"
+    stroke="#ffd24a" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.25" stroke-dashoffset="94.25"/></svg>
+</div>
+<div id="damageFlash"></div>
+<div id="hud" class="hidden">
+  <div id="fragRail"></div>
+  <div id="worldTag"><div id="wtNum"></div><div id="wtName"></div><div id="wtEpithet"></div></div>
+  <div id="statBlock">
+    <div class="row"><span>VITALITY</span><span id="hpNum">100/100</span></div>
+    <div class="bar"><i id="hpFill"></i></div>
+    <div class="row"><span>FOCUS</span><span id="focusNum">100/100</span></div>
+    <div class="bar"><i id="focusFill"></i></div>
+    <div class="row" style="margin-top:8px"><span>FRAGMENTS</span><span id="fragCount">0 / 7</span></div>
+    <div class="row" style="margin-top:2px"><span>WORLD</span><span id="worldNum">1 / 7</span></div>
+  </div>
+  <div id="bossWrap"><div id="bossName"></div><div id="bossBar"><i id="bossFill"></i></div><div id="coreTag"></div></div>
+  <div id="hint"><div class="big" id="hintBig"></div><div class="sub" id="hintSub"></div><div class="keys" id="hintKeys"></div></div>
+  <button id="muteBtn">♪ Sound: On</button>
+</div>
+<div id="toast"></div>
+<div id="banner"><div id="bannerTitle"></div><div id="bannerSub"></div></div>
+<div id="touch">
+  <div id="mMove"><div id="mKnob"></div></div>
+  <div id="mLook"></div>
+  <div class="tbtn" id="mAtk">BREAK</div>
+  <div class="tbtn" id="mMine">HOLD</div>
+  <div class="tbtn" id="mPlace">PLACE</div>
+  <div class="tbtn" id="mJump">JUMP</div>
+  <div class="tbtn" id="mSprint">RUN</div>
+  <div class="tbtn" id="mFocus">FOCUS</div>
+  <div id="mLookHint">drag right side to look around</div>
+</div>
+<div id="title" class="ov">
+  <div class="card">
+    <div class="tag">The Legend of the Seven Worlds · 3D Voxel</div>
+    <h1>BLOCKFORGE</h1>
+    <div class="subtitle">Dungeons of the Seven Worlds</div>
+    <p class="intro">
+      You wake on a shattered island with a cracked hammer and no memory. The Worldcore is broken.
+      Its seven powers are scattered across seven dying worlds. Explore each voxel biome, gather the
+      <em>fragments</em>, reforge your hammer, and face the guardian of each world — before the
+      <em>Null</em> swallows the last of creation.
+    </p>
+    <div class="fragStrip" id="titleFrags"></div>
+    <div id="continueRow" class="btnrow hidden"><button class="btn" id="continueBtn">Continue Journey</button></div>
+    <div class="btnrow"><button class="btn primary big" id="startBtn">Begin the Journey</button></div>
+    <div class="keys" id="titleKeys"></div>
+  </div>
+</div>
+<div id="dialog" class="ov hidden">
+  <div class="card">
+    <div class="tag" id="dlgTag"></div>
+    <h2 id="dlgTitle"></h2>
+    <p class="lore" id="dlgLore"></p>
+    <div class="memory" id="dlgMemory"><span class="lbl" id="dlgMemLbl"></span><span class="tx" id="dlgMemText"></span></div>
+    <p class="objective" id="dlgObjective"></p>
+    <div class="btnrow"><button class="btn primary" id="dlgEnter">Enter the World</button></div>
+  </div>
+</div>
+<div id="pause" class="ov hidden">
+  <div class="card">
+    <h2>PAUSED</h2>
+    <div class="tag">The Forge waits</div>
+    <ul class="plist">
+      <li><b>Move</b> — W A S D</li>
+      <li><b>Look</b> — Mouse</li>
+      <li><b>Jump / Sprint</b> — Space / Shift</li>
+      <li><b>Mine</b> — Hold LMB</li>
+      <li><b>Place</b> — RMB (1–6 picks block)</li>
+      <li><b>Focus Power</b> — E</li>
+      <li><b>Pause</b> — P / Esc</li>
+    </ul>
+    <div class="btnrow"><button class="btn primary" id="resumeBtn">Resume</button>
+      <button class="btn" id="pauseSave">Save</button>
+      <button class="btn" id="quitBtn">Quit to Title</button></div>
+  </div>
+</div>
+<div id="death" class="ov hidden">
+  <div class="card">
+    <div class="tag" style="color:#ff6b6b">The Null takes another</div>
+    <h2 style="background:linear-gradient(90deg,#ef4444,#991b1b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">YOU HAVE FALLEN</h2>
+    <p class="lore" id="deathStats"></p>
+    <div class="btnrow"><button class="btn primary" id="respawnBtn">Rise Again</button>
+      <button class="btn" id="deathTitle">Return to Title</button></div>
+  </div>
+</div>
+<div id="ending" class="ov hidden">
+  <div class="card">
+    <div class="tag">The Worldcore is Reforged</div>
+    <h2 style="background:linear-gradient(90deg,#7fe3c4,#ffd24a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">THE SEVENTH WORLD</h2>
+    <p class="lore" id="endLore"></p>
+    <div class="memory" id="endMem"><span class="lbl" id="endMemLbl"></span><span class="tx" id="endMemText"></span></div>
+    <div class="btnrow"><button class="btn primary" id="endRestart">Begin Anew</button>
+      <button class="btn" id="endTitle">Title</button></div>
+  </div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/three.module.js"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+// ==================== CONSTANTS & BLOCKS ====================
+const WORLD = 96, CHUNK = 16, CH = WORLD / CHUNK, MAXH = 40;
+const SAVE_KEY = 'blockforge_dungeons3d_v1';
+const BLOCKS = {
+  0: null,
+  1: { name: 'Grass',    color: 0x5da944, hardness: 0.5,  drop: 1 },
+  2: { name: 'Dirt',     color: 0x8a5f3c, hardness: 0.5,  drop: 2 },
+  3: { name: 'Stone',    color: 0x8d9099, hardness: 1.3,  drop: 3 },
+  4: { name: 'Sand',     color: 0xd8c88a, hardness: 0.5,  drop: 4 },
+  5: { name: 'Water',    color: 0x3f6fd8, hardness: 9999 },
+  6: { name: 'Wood',     color: 0x6e4a28, hardness: 0.9,  drop: 6 },
+  7: { name: 'Leaves',   color: 0x3e7d2e, hardness: 0.15, drop: null },
+  8: { name: 'Obsidian', color: 0x2b2140, hardness: 2.5,  drop: 8 },
+  9: { name: 'Gold',     color: 0xffc93c, hardness: 2.0,  drop: 3, glow: true },
+  10: { name: 'Snow',    color: 0xeef3ff, hardness: 0.6,  drop: 10 },
+  11: { name: 'Magma',   color: 0xff5a24, hardness: 2.4,  drop: 11, glow: true, hazard: true },
+  12: { name: 'Crystal', color: 0x79d4ff, hardness: 2.0,  drop: 12, glow: true },
+  13: { name: 'Gear',    color: 0x9aa0aa, hardness: 2.6,  drop: 13 },
+  14: { name: 'Cloud',   color: 0xf7f7ef, hardness: 0.7,  drop: 14 },
+  15: { name: 'Coil',    color: 0x2f4a5a, hardness: 2.8,  drop: 15 },
+  16: { name: 'Rift',    color: 0x7a4ad0, hardness: 9999, glow: true },
+  17: { name: 'Axiom',   color: 0xdfe2ea, hardness: 3.0,  drop: 17 },
+  18: { name: 'Bloom',   color: 0x8fe07a, hardness: 1.0,  drop: null, glow: true },
+  19: { name: 'Boulder', color: 0x6b6b72, hardness: 1.6,  drop: 3 },
+};
+const PALETTE = [1, 2, 3, 4, 6, 19];
+let HOTBAR = [1, 2, 3, 4, 6, 19];
+const blockCounts = {}; for (const id in BLOCKS) if (BLOCKS[id]) blockCounts[id] = 0;
+HOTBAR.forEach(b => blockCounts[b] = 20);
+let seed = 1337;
+function hash2(x, z) {
+  let h = (x * 374761393 + z * 668265263 + seed * 69069) | 0;
+  h = (h ^ (h >> 13)) | 0; h = (h * 1274126177) | 0;
+  return ((h ^ (h >> 16)) >>> 0) / 4294967295;
+}
+function smooth(t) { return t * t * (3 - 2 * t); }
+function vnoise(x, z, scale) {
+  const xs = x / scale, zs = z / scale;
+  const x0 = Math.floor(xs), z0 = Math.floor(zs);
+  const tx = smooth(xs - x0), tz = smooth(zs - z0);
+  const a = hash2(x0, z0), b = hash2(x0 + 1, z0);
+  const c = hash2(x0, z0 + 1), d = hash2(x0 + 1, z0 + 1);
+  return a + (b - a) * tx + (c - a) * tz + (a - b - c + d) * tx * tz;
+}
+const world = new Map();
+function idx(x, y, z) { return x + z * CHUNK + y * CHUNK * CHUNK; }
+function getBlock(x, y, z) {
+  if (y < 0) return 3; if (y >= MAXH) return 0;
+  if (x < 0 || z < 0 || x >= WORLD || z >= WORLD) return 0;
+  const cx = x >> 4, cz = z >> 4;
+  const c = world.get(cx + cz * CH);
+  if (!c) return 0;
+  return c[idx(x & 15, y, z & 15)];
+}
+const dirty = new Set();
+function setBlockData(x, y, z, v) {
+  if (y < 0 || y >= MAXH) return;
+  if (x < 0 || z < 0 || x >= WORLD || z >= WORLD) return;
+  const cx = x >> 4, cz = z >> 4;
+  let c = world.get(cx + cz * CH);
+  if (!c) { c = new Uint8Array(CHUNK * CHUNK * MAXH); world.set(cx + cz * CH, c); }
+  c[idx(x & 15, y, z & 15)] = v;
+  const mark = (kx, kz) => { if (kx >= 0 && kz >= 0 && kx < CH && kz < CH) dirty.add(kx + kz * CH); };
+  mark(cx, cz);
+  if ((x & 15) === 0) mark(cx - 1, cz); if ((x & 15) === 15) mark(cx + 1, cz);
+  if ((z & 15) === 0) mark(cx, cz - 1); if ((z & 15) === 15) mark(cx, cz + 1);
+}
+const AR = 16;
+const ACX = WORLD / 2, ACZ = WORLD / 2;
+function inArena(x, z) { return Math.abs(x - ACX) <= AR && Math.abs(z - ACZ) <= AR; }
+const SPAWN = new THREE.Vector3(ACX + 2.0, 24, ACZ + 2.0);
+const BOSS_SPAWN = new THREE.Vector3(ACX - 2.0, 24, ACZ - 2.0);
+// ==================== WORLDS (lore + palette + boss) ====================
+const WORLDS = [
+  { id:'verdantia', name:'VERDANTIA', power:'LIFE', epithet:'World of Life', color:'#57d977',
+    sky:0x4f9a63, fog:0x4f9a63, sun:2.0,
+    boss:'The Rootwarden', bossColor:'#8fe07a', bossKind:'rootwarden', coreColor:0x6dff9a,
+    focus:'Nature, restoration, exploration',
+    intro:'You follow a river upstream through a forest that should not still be alive. The trees lean toward you. A grey stain of the Null creeps over the southern grove, and at the world\u2019s heart a great tree strains against the darkness.',
+    objective:'Reach the Heartwood and destroy the <b>Rootwarden\u2019s core</b>. <b>Mine</b> the <b>BLOOM</b> barriers to expose it.',
+    memoryLbl:'First Memory',
+    memory:'Auren beside Elarion in the First Forge. \u201cThe Worldcore is failing. We cannot keep building as if nothing will happen.\u201d Elarion looks toward the seven worlds. \u201cAnd what happens to the people who depend on us?\u201d Auren has no answer.' },
+  { id:'pyroclast', name:'PYROCLAST', power:'CREATION', epithet:'World That Never Sleeps', color:'#ff7a2f',
+    sky:0x7a3d1e, fog:0x7a3d1e, sun:1.7,
+    boss:'The Molten King', bossColor:'#ffb15a', bossKind:'moltenking', coreColor:0xffb15a,
+    focus:'Mining, forging, advanced crafting',
+    intro:'Blackstone walls and rivers of molten light. Beneath the city the old forge still runs, and at the volcano\u2019s throat a colossal guardian guards the Ember.',
+    objective:'Forge across the <b>OBSIDIAN</b> platforms and destroy the <b>Molten King\u2019s core</b>. Lava sears you \u2014 keep moving.',
+    memoryLbl:'Recovered Memory',
+    memory:'Veyron beside Brakkor. \u201cIt can repair almost anything.\u201d \u201cWhat can it not repair?\u201d Veyron looks at the crystal. \u201cSomething that has forgotten how to exist.\u201d' },
+  { id:'nivara', name:'NIVARA', power:'TIME', epithet:'World Outside Time', color:'#79d4ff',
+    sky:0x4d88b0, fog:0x4d88b0, sun:1.6,
+    boss:'The Chronowarden', bossColor:'#bfe9ff', bossKind:'chronowarden', coreColor:0x9fd8ff,
+    focus:'Time puzzles, frozen ruins',
+    intro:'A frozen palace of ice, clockwork and blue crystal. The air shivers in repeating moments, and a guardian of ice and gears guards the Frost. Its <b>ICE SHELLS</b> will hold \u2014 break them, or it will undo you.',
+    objective:'Shatter the <b>ICE SHELLS</b> and destroy the <b>Chronowarden\u2019s core</b>. Watch for the slow, then the strike.',
+    memoryLbl:'The Clockmaker\u2019s Recording',
+    memory:'Iskarya: \u201cI believed that preserving the past was the same as protecting the future. But a moment preserved forever is not a life. It is only a memory pretending to be alive.\u201d' },
+  { id:'solara', name:'SOLARA', power:'LIGHT', epithet:'World of Hidden Truths', color:'#ffd24a',
+    sky:0xc79a35, fog:0xc79a35, sun:2.3,
+    boss:'The Dawn Sentinel', bossColor:'#ffe58a', bossKind:'dawnsentinel', coreColor:0xffe58a,
+    focus:'Light puzzles, hidden paths',
+    intro:'Golden towers floating above an ocean of cloud. Some regions drown in daylight; others are shadows that move on their own. The Dawn Sentinel guards the Sun, and its <b>DUSK SHIELDS</b> bend the light \u2014 you cannot strike what you cannot see.',
+    objective:'Break the <b>DUSK SHIELDS</b> and destroy the <b>Dawn Sentinel\u2019s core</b>.',
+    memoryLbl:'The Truth Revealed',
+    memory:'The Architects concealed the Worldcore\u2019s decay from the seven worlds \u2014 and from themselves. The light you walked through was never meant to reach you.' },
+  { id:'umbrath', name:'UMBRATH', power:'SPACE', epithet:'The Folded Realm', color:'#d0b3ff',
+    sky:0x4b3373, fog:0x4b3373, sun:1.4,
+    boss:'The Rift Warden', bossColor:'#d0b3ff', bossKind:'riftwarden', coreColor:0xd0b3ff,
+    focus:'Portals, dimensional exploration',
+    intro:'A reality folded in on itself. Portals open without warning; entire regions exist in several places at once. The Null presses through the cracks. The Rift Warden guards the Void, and its <b>RIFT BARRIERS</b> fold space to keep you out.',
+    objective:'Unfold the <b>RIFT BARRIERS</b> and destroy the <b>Rift Warden\u2019s core</b>.',
+    memoryLbl:'A Warning',
+    memory:'Through the folded light you glimpse it: the Null is no longer a memory. It has reached the edges of the realms, and it is consuming reality one block at a time.' },
+  { id:'voltrix', name:'VOLTRIX', power:'ENERGY', epithet:'World of Energy', color:'#5ad0ff',
+    sky:0x2f5f80, fog:0x2f5f80, sun:1.5,
+    boss:'The Prime Engine', bossColor:'#8fe6ff', bossKind:'primeengine', coreColor:0x8fe6ff,
+    focus:'Machinery, automation, energy systems',
+    intro:'An industrial world where enormous machines stand motionless beneath electric storms. The reactors still produce power, and no one remains to tell them when to stop. ORION has tried to rebuild the Worldcore for a thousand years.',
+    objective:'Redirect the <b>ENERGY</b> and destroy the <b>Prime Engine\u2019s core</b>.',
+    memoryLbl:'Hidden Recording \u2014 ORION',
+    memory:'Veyron, to the machine: \u201cIf Auren attempts to interfere with the Eternal Engine, stop him.\u201d \u201cIs Auren an enemy?\u201d Veyron pauses. \u201cNo. He is my friend. But he is going to make me lose everything.\u201d' },
+  { id:'axiom', name:'AXIOM', power:'REALITY', epithet:'World That Created the Rules', color:'#f2f2f2',
+    sky:0x7d83ad, fog:0x7d83ad, sun:1.6,
+    boss:'Vaelora\u2019s Echo', bossColor:'#ffffff', bossKind:'vaelora', coreColor:0xffffff,
+    focus:'Reality puzzles, combining all powers',
+    intro:'No forests, no oceans. Only enormous geometric structures drifting through a pale, endless sky. Here the laws of reality have begun to fail. Vaelora\u2019s Echo guards the Origin.',
+    objective:'Stabilize the arena and destroy <b>Vaelora\u2019s Echo</b>. Then face the truth.',
+    memoryLbl:'The Truth',
+    memory:'Vaelora\u2019s voice, made of white light: \u201cYou have crossed six worlds and learned what each requires. But you have not yet learned what reality is for.\u201d' },
+];
+const BOSS = [
+  { hp: 340, dmg: 9,  spd: 2.4 }, { hp: 480, dmg: 12, spd: 2.6 }, { hp: 640, dmg: 14, spd: 2.8 },
+  { hp: 820, dmg: 16, spd: 3.0 }, { hp: 1000, dmg: 18, spd: 3.2 }, { hp: 1250, dmg: 21, spd: 3.4 },
+  { hp: 1600, dmg: 24, spd: 3.6 },
+];
+// ==================== THREE SETUP ====================
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); });
+canvas.addEventListener('webglcontextrestored', () => { renderer.onContextRestored(); });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(innerWidth, innerHeight);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x4f9a63);
+scene.fog = new THREE.Fog(0x4f9a63, 40, 160);
+const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.1, 400);
+camera.rotation.order = 'YXZ';
+const sun = new THREE.DirectionalLight(0xfff2d8, 2.0);
+sun.position.set(120, 160, 60);
+scene.add(sun, new THREE.AmbientLight(0xaebfe8, 1.45));
+const hemi = new THREE.HemisphereLight(0xbcd4f5, 0x5a5a3a, 0.9);
+scene.add(hemi);
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+const blockMat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide });
+const FACES = [
+  { dir: [1, 0, 0], corners: [[1, 0, 1], [1, 1, 1], [1, 0, 0], [1, 1, 0]], sh: 0.9 },
+  { dir: [-1, 0, 0], corners: [[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1]], sh: 0.9 },
+  { dir: [0, 1, 0], corners: [[0, 1, 0], [1, 1, 0], [0, 1, 1], [1, 1, 1]], sh: 1.15 },
+  { dir: [0, -1, 0], corners: [[0, 0, 1], [1, 0, 1], [0, 0, 0], [1, 0, 0]], sh: 0.85 },
+  { dir: [0, 0, 1], corners: [[0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]], sh: 0.82 },
+  { dir: [0, 0, -1], corners: [[1, 0, 0], [0, 0, 0], [1, 1, 0], [0, 1, 0]], sh: 0.82 },
+];
+const blockColors = new Map();
+for (const k in BLOCKS) if (BLOCKS[k]) blockColors.set(+k, new THREE.Color(BLOCKS[k].color));
+const meshes = new Map();
+function buildChunkMesh(cx, cz) {
+  const key = cx + cz * CH;
+  const c = world.get(key);
+  if (!c) return;
+  const old = meshes.get(key);
+  if (old) {
+    if (old.solid) { scene.remove(old.solid); old.solid.geometry.dispose(); }
+    if (old.water) { scene.remove(old.water); old.water.geometry.dispose(); }
+  }
+  const pPos = [], pCol = [], pInd = [], wPos = [], wInd = [];
+  const vx = cx * CHUNK, vz = cz * CHUNK;
+  const topY = new Int16Array(CHUNK * CHUNK);
+  for (let lz = 0; lz < CHUNK; lz++) for (let lx = 0; lx < CHUNK; lx++) {
+    let t = -1;
+    for (let ly = MAXH - 1; ly >= 0; ly--) if (c[idx(lx, ly, lz)]) { t = ly; break; }
+    topY[lx + lz * CHUNK] = t;
+  }
+  for (let lz = 0; lz < CHUNK; lz++) for (let lx = 0; lx < CHUNK; lx++) {
+    const t = topY[lx + lz * CHUNK];
+    if (t < 0) continue;
+    const x = vx + lx, z = vz + lz;
+    for (let ly = 0; ly <= t; ly++) {
+      const b = c[idx(lx, ly, lz)];
+      if (!b) continue;
+      if (b === 5) {
+        if (getBlock(x, ly + 1, z) !== 5) {
+          const base = wPos.length / 3, y0 = ly + 0.86;
+          wPos.push(lx, y0, lz + 1, lx + 1, y0, lz + 1, lx, y0, lz, lx + 1, y0, lz);
+          wInd.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+        }
+        continue;
+      }
+      const baseC = blockColors.get(b);
+      if (!baseC) continue;
+      const shade = 1.02 + hash2(x * 7 + ly, z * 13) * 0.12;
+      for (let fi = 0; fi < FACES.length; fi++) {
+        const f = FACES[fi];
+        const nb = getBlock(x + f.dir[0], ly + f.dir[1], z + f.dir[2]);
+        if (nb !== 0 && nb !== 5) continue;
+        const base = pPos.length / 3;
+        const s = f.sh * shade;
+        for (let ci = 0; ci < 4; ci++) {
+          const cnr = f.corners[ci];
+          pPos.push(lx + cnr[0], ly + cnr[1], lz + cnr[2]);
+          pCol.push(baseC.r * s, baseC.g * s, baseC.b * s);
+        }
+        pInd.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+      }
+    }
+  }
+  const entry = { solid: null, water: null };
+  if (pInd.length) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(pCol, 3));
+    g.setIndex(pInd);
+    g.computeBoundingSphere();
+    const m = new THREE.Mesh(g, blockMat);
+    m.position.set(vx, 0, vz);
+    m.computeBoundingSphere();
+    scene.add(m); entry.solid = m;
+  }
+  if (wInd.length) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(wPos, 3));
+    g.setIndex(wInd);
+    const m = new THREE.Mesh(g, waterMat);
+    m.position.set(vx, 0, vz);
+    scene.add(m); entry.water = m;
+  }
+  meshes.set(key, entry);
+}
+const waterMat = new THREE.MeshLambertMaterial({ color: 0x3f6fd8, transparent: true, opacity: 0.62, side: THREE.DoubleSide });
+const CULL_DIST = 170, CULL_DIST2 = CULL_DIST * CULL_DIST;
+function updateCulling() {
+  const pcx = player.pos.x / CHUNK, pcz = player.pos.z / CHUNK;
+  for (const [key, e] of meshes) {
+    const dx = (key % CH) - pcx, dz = Math.floor(key / CH) - pcz;
+    const show = (dx * dx + dz * dz) * CHUNK * CHUNK <= CULL_DIST2;
+    if (e.solid) e.solid.visible = show;
+    if (e.water) e.water.visible = show;
+  }
+}
+function rebuildAllChunks() {
+  for (const key of new Set(Array.from(meshes.keys()))) buildChunkMesh(key % CH, Math.floor(key / CH));
+}
+// ==================== CORE (boss health holder) ====================
+let coreObj = null, coreBaseY = 15, coreGlow = null, bossActive = false;
+// expose to globalThis so cross-scope reads are safe (and for the smoke test)
+globalThis.coreObj = coreObj; globalThis.coreBaseY = coreBaseY;
+function buildCore() {
+  if (coreObj) { scene.remove(coreObj); coreObj.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+  const g = new THREE.Group();
+  const w = WORLDS[game.worldIndex];
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.75, 0), new THREE.MeshBasicMaterial({ color: w.coreColor }));
+  g.add(core);
+  const halo = new THREE.Mesh(new THREE.SphereGeometry(1.25, 16, 16),
+    new THREE.MeshBasicMaterial({ color: w.coreColor, transparent: true, opacity: 0.16 }));
+  g.add(halo);
+  g.userData.core = core; g.userData.halo = halo;
+  scene.add(g);
+  coreObj = g;
+  globalThis.coreObj = coreObj;
+  if (coreGlow) scene.remove(coreGlow);
+  coreGlow = new THREE.PointLight(w.coreColor, 2.4, 40);
+  scene.add(coreGlow);
+}
+// ==================== WORLD GENERATION ====================
+function heightAt(x, z) {
+  const base = 12;
+  const a = vnoise(x * 0.1, z * 0.1, 34) * 10;
+  const b = vnoise(x * 0.05, z * 0.05, 90) * 14;
+  return Math.floor(base + a + b);
+}
+function generateChunk(cx, cz) {
+  const c = new Uint8Array(CHUNK * CHUNK * MAXH);
+  const treeLeaves = [];
+  for (let lz = 0; lz < CHUNK; lz++) for (let lx = 0; lx < CHUNK; lx++) {
+    const x = cx * CHUNK + lx, z = cz * CHUNK + lz;
+    if (inArena(x, z)) continue; // arena is built separately
+    const h = Math.min(MAXH - 2, heightAt(x, z));
+    for (let y = 0; y < h; y++) {
+      let b;
+      if (y < h - 2) b = 3;
+      else if (y < h) b = 2;
+      else b = 1;
+      // per-world surface & features
+      if (game.worldIndex === 1) { b = y < h - 2 ? 3 : (y < h ? 2 : (vnoise(x * 0.2, z * 0.2, 8) < 0.42 ? 11 : 8)); }
+      else if (game.worldIndex === 2) { b = y < h - 2 ? 3 : (y < h ? 10 : 10); }
+      else if (game.worldIndex === 3) { b = y < h - 2 ? 3 : (y < h ? 14 : 14); }
+      else if (game.worldIndex === 4) { b = y < h - 2 ? 3 : (y < h ? 8 : (vnoise(x * 0.2, z * 0.2, 12) < 0.5 ? 16 : 8)); }
+      else if (game.worldIndex === 5) { b = y < h - 2 ? 15 : (y < h ? 13 : 15); }
+      else if (game.worldIndex === 6) { b = 17; }
+      c[idx(lx, y, lz)] = b;
+    }
+    const top = h;
+    // vegetation
+    if (c[idx(lx, top, lz)] === 1 && vnoise(x * 0.15 + 21, z * 0.15 + 45, 60) > 0.55) {
+      if (hash2(x, z) < 0.18 && h < MAXH - 8) {
+        const th = 4 + Math.floor(hash2(x + 9, z - 5) * 4);
+        for (let y = 1; y <= th && top + y < MAXH; y++) c[idx(lx, top + y, lz)] = 6;
+        for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) for (let oz = -1; oz <= 1; oz++) {
+          if (Math.abs(ox) === 1 && Math.abs(oz) === 1 && oy === -1) continue;
+          const tx = x + ox, tz = z + oz, ty = top + th + oy;
+          if (ty < MAXH && (!c[idx(tx & 15, ty, tz & 15)] || true)) {
+            if (tx >> 4 === cx && tz >> 4 === cz && (ox || oz)) { if (!c[idx(tx & 15, ty, tz & 15)]) c[idx(tx & 15, ty, tz & 15)] = 7; }
+            else if (ox && oz) treeLeaves.push([tx, ty, tz]);
+          }
+        }
+      }
+    }
+    // crystal / ore features
+    if (game.worldIndex === 2 && hash2(x * 3, z * 5) < 0.05 && top < MAXH - 4)
+      for (let y = 1; y <= 3 && top + y < MAXH; y++) c[idx(lx, top + y, lz)] = 12;
+    if (game.worldIndex === 3 && hash2(x * 4, z * 6) < 0.04) { const ty = top + 1; if (ty < MAXH) c[idx(lx, ty, lz)] = 9; }
+    if (game.worldIndex === 6 && hash2(x * 5, z * 7) < 0.06) { const ty = top + 1 + Math.floor(hash2(x, z) * 3); if (ty < MAXH) c[idx(lx, ty, lz)] = 17; }
+  }
+  world.set(cx + cz * CH, c);
+  for (const [x, y, z] of treeLeaves) if (getBlock(x, y, z) === 0) setBlockData(x, y, z, 7);
+}
+function clearArena() {
+  for (let x = ACX - AR - 1; x <= ACX + AR + 1; x++) for (let z = ACZ - AR - 1; z <= ACZ + AR + 1; z++)
+    for (let y = 0; y < MAXH; y++) if (getBlock(x, y, z)) setBlockData(x, y, z, 0);
+}
+function buildArena() {
+  clearArena();
+  const FLOOR = 12;
+  const wi = game.worldIndex;
+  const wall = wi === 1 ? 8 : wi === 2 ? 10 : wi === 3 ? 14 : wi === 4 ? 16 : wi === 5 ? 15 : wi === 6 ? 17 : 3;
+  const floor = wi === 1 ? 3 : wi === 2 ? 8 : wi === 3 ? 10 : wi === 4 ? 14 : wi === 5 ? 15 : wi === 6 ? 17 : 1;
+  for (let x = ACX - AR; x <= ACX + AR; x++) for (let z = ACZ - AR; z <= ACZ + AR; z++) {
+    const onEdge = Math.abs(x - ACX) >= AR - 1 || Math.abs(z - ACZ) >= AR - 1;
+    for (let y = FLOOR; y < FLOOR + (onEdge ? 7 : 1); y++) setBlockData(x, y, z, onEdge ? wall : floor);
+  }
+  // hazards
+  if (wi === 1) { for (let x = ACX - 10; x <= ACX + 10; x++) for (let z = ACZ - 10; z <= ACZ + 10; z++) if (hash2(x * 7, z * 3) < 0.12) setBlockData(x, FLOOR, z, 11); }
+  // core pedestal + core
+  const cy = FLOOR + 3;
+  for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) setBlockData(ACX + dx, FLOOR + 1, ACZ + dz, wall);
+  for (let y = FLOOR + 2; y <= cy; y++) { setBlockData(ACX, y, ACZ, 8); }
+  coreObj.position.set(ACX + 0.5, cy + 0.5, ACZ + 0.5);
+  coreBaseY = cy + 0.5;
+}
+// ==================== PLAYER ====================
+const player = {
+  pos: SPAWN.clone(), vel: new THREE.Vector3(),
+  yaw: Math.PI, pitch: -0.1,
+  hp: 100, maxHp: 100, focus: 100, maxFocus: 100,
+  onGround: false, dead: false,
+  hurtCd: 0, focusT: 0,
+};
+const P_HW = 0.3, P_H = 1.8, EYE = 1.62;
+const mVec = { x: 0, y: 0 };
+function solidAt(x, y, z) {
+  const b = getBlock(Math.floor(x), Math.floor(y), Math.floor(z));
+  return b !== 0 && b !== 5;
+}
+function collides(p) {
+  const x0 = Math.floor(p.x - P_HW), x1 = Math.floor(p.x + P_HW);
+  const y0 = Math.floor(p.y), y1 = Math.floor(p.y + P_H);
+  const z0 = Math.floor(p.z - P_HW), z1 = Math.floor(p.z + P_HW);
+  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++)
+    if (solidAt(x + 0.5, y + 0.5, z + 0.5)) return true;
+  return false;
+}
+function movePlayer(dt) {
+  if (player.dead) return;
+  const sprint = keys['ShiftLeft'] && player.focus > 10;
+  const slowMul = player.slowT > 0 ? 0.5 : 1;
+  if (player.slowT > 0) player.slowT -= dt;
+  const speed = (sprint ? 7.2 : 4.6) * slowMul;
+  let fx = mVec.x, fz = mVec.y;
+  if (keys['KeyW']) fz -= 1; if (keys['KeyS']) fz += 1;
+  if (keys['KeyA']) fx -= 1; if (keys['KeyD']) fx += 1;
+  const len = Math.hypot(fx, fz) || 1;
+  fx = fx / len; fz = fz / len;
+  const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+  player.vel.x = (fx * cy - fz * sy) * speed;
+  player.vel.z = (-fx * sy - fz * cy) * speed;
+  if (keys['Space'] && player.onGround) player.vel.y = 8.2;
+  player.vel.y -= 24 * dt;
+  if (player.vel.y < -40) player.vel.y = -40;
+  let np = player.pos.clone(); np.x += player.vel.x * dt;
+  if (collides(np)) { np.x = player.pos.x; player.vel.x = 0; } else player.pos.x = np.x;
+  np = player.pos.clone(); np.z += player.vel.z * dt;
+  if (collides(np)) { np.z = player.pos.z; player.vel.z = 0; } else player.pos.z = np.z;
+  np = player.pos.clone(); np.y += player.vel.y * dt;
+  if (collides(np)) {
+    if (player.vel.y < 0) { player.onGround = true; player.pos.y = Math.floor(np.y) + 1.001; }
+    player.vel.y = 0;
+  } else {
+    player.pos.y = np.y;
+    player.onGround = solidAt(player.pos.x, player.pos.y - 0.06, player.pos.z);
+  }
+  // lava / hazard
+  const fb = getBlock(Math.floor(player.pos.x), Math.floor(player.pos.y + 0.6), Math.floor(player.pos.z));
+  if (fb && BLOCKS[fb] && BLOCKS[fb].hazard && player.hurtCd <= 0) { damagePlayer(20, 'molten ground'); }
+  // focus regen
+  player.focusT += dt;
+  if (player.focusT > 0.5) { player.focusT = 0; player.focus = Math.min(player.maxFocus, player.focus + 2); }
+  if (player.pos.y < -20) { killPlayer('Swallowed by the void'); return; }
+  camera.position.set(player.pos.x, player.pos.y + EYE, player.pos.z);
+  camera.rotation.set(player.pitch, player.yaw, 0);
+}
+function damagePlayer(amount, source) {
+  if (player.dead || player.hurtCd > 0) return;
+  player.hp -= amount;
+  player.hurtCd = 0.6;
+  sfx('hurt');
+  flashDamage();
+  shake = Math.min(0.6, shake + 0.25);
+  if (player.hp <= 0) { player.hp = 0; killPlayer(source); }
+  updateHud();
+}
+let shake = 0;
+function flashDamage() {
+  const el = document.getElementById('damageFlash');
+  el.style.opacity = 0.7;
+  setTimeout(() => { el.style.opacity = 0; }, 140);
+}
+function killPlayer(cause) {
+  if (player.dead) return;
+  player.dead = true;
+  document.getElementById('deathStats').textContent =
+    (cause || 'The Null claims another soul\u2026') + ` \u00b7 reached ${WORLDS[game.worldIndex].name} with ${game.fragments.length}/7 fragments`;
+  document.getElementById('death').classList.remove('hidden');
+  document.getElementById('crosshair').classList.add('hidden');
+  if (document.pointerLockElement) document.exitPointerLock();
+  sfx('death');
+}
+function respawn() {
+  player.dead = false;
+  player.hp = player.maxHp;
+  player.focus = player.maxFocus;
+  player.pos.copy(SPAWN);
+  player.vel.set(0, 0, 0);
+  player.hurtCd = 2;
+  document.getElementById('death').classList.add('hidden');
+  document.getElementById('crosshair').classList.remove('hidden');
+  if (!mobileActive) canvas.requestPointerLock();
+  toast('You rise again.');
+}
+// ==================== BLOCK INTERACTION ====================
+let selSlot = 0;
+const highlight = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(1.002, 1.002, 1.002)),
+  new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })
+);
+scene.add(highlight);
+// DDA voxel raycast from the camera. Returns hit block + adjacent empty cell.
+function raycastBlock(maxDist = 7) {
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  const o = camera.position.clone();
+  let x = Math.floor(o.x), y = Math.floor(o.y), z = Math.floor(o.z);
+  const stepX = dir.x > 0 ? 1 : -1, stepY = dir.y > 0 ? 1 : -1, stepZ = dir.z > 0 ? 1 : -1;
+  const tDX = Math.abs(1 / (dir.x || 1e-9)), tDY = Math.abs(1 / (dir.y || 1e-9)), tDZ = Math.abs(1 / (dir.z || 1e-9));
+  let tMX = (dir.x > 0 ? (x + 1 - o.x) : (o.x - x)) * tDX;
+  let tMY = (dir.y > 0 ? (y + 1 - o.y) : (o.y - y)) * tDY;
+  let tMZ = (dir.z > 0 ? (z + 1 - o.z) : (o.z - z)) * tDZ;
+  let px = x, py = y, pz = z, t = 0;
+  for (let i = 0; i < 128; i++) {
+    const b = getBlock(x, y, z);
+    if (b !== 0 && b !== 5 && t <= maxDist) {
+      return { x, y, z, block: b, px, py, pz };
+    }
+    px = x; py = y; pz = z;
+    if (tMX < tMY && tMX < tMZ) { x += stepX; t = tMX; tMX += tDX; }
+    else if (tMY < tMZ) { y += stepY; t = tMY; tMY += tDY; }
+    else { z += stepZ; t = tMZ; tMZ += tDZ; }
+  }
+  return null;
+}
+function onBreakPress() {
+  if (player.dead || !gameStarted) return;
+  const hitB = raycastBlock(7);
+  if (hitB) { breakTarget = { x: hitB.x, y: hitB.y, z: hitB.z }; breakProgress = 0; }
+  sfx('swing');
+}
+function placeBlock() {
+  if (player.dead || !gameStarted) return;
+  const hitB = raycastBlock(7);
+  if (!hitB) return;
+  const type = HOTBAR[selSlot];
+  if (!type || !BLOCKS[type]) return;
+  if ((blockCounts[type] || 0) <= 0) return;
+  const x = hitB.px, y = hitB.py, z = hitB.pz;
+  if (y < 1 || y >= MAXH - 1) return;
+  const p0 = player.pos;
+  if (x + 1 > p0.x - P_HW && x < p0.x + P_HW && y + 1 > p0.y && y < p0.y + P_H && z + 1 > p0.z - P_HW && z < p0.z + P_HW) return;
+  if (getBlock(x, y, z) !== 0) return;
+  setBlockData(x, y, z, type);
+  blockCounts[type] = (blockCounts[type] || 0) - 1;
+  sfx('place');
+}
+let breakTarget = null, breakProgress = 0;
+function updateBreak(dt) {
+  if (player.dead || !gameStarted) { breakTarget = null; breakProgress = 0; highlight.visible = false; return; }
+  const hitB = raycastBlock(7);
+  const ring = document.getElementById('breakRing');
+  const arc = document.getElementById('breakArc');
+  if (!hitB) { breakTarget = null; breakProgress = 0; ring.style.display = 'none'; highlight.visible = false; return; }
+  highlight.visible = true;
+  highlight.position.set(hitB.x + 0.5, hitB.y + 0.5, hitB.z + 0.5);
+  const holding = mouseL && (!breakTarget || (breakTarget.x === hitB.x && breakTarget.y === hitB.y && breakTarget.z === hitB.z));
+  if (holding) {
+    breakTarget = { x: hitB.x, y: hitB.y, z: hitB.z };
+    const hard = BLOCKS[hitB.block] ? BLOCKS[hitB.block].hardness : 1;
+    breakProgress += dt / hard;
+    if (breakProgress >= 1) {
+      // dropping a core-adjacent bloom barrier or hitting the boss core triggers logic elsewhere
+      setBlockData(hitB.x, hitB.y, hitB.z, 0);
+      if (hitB.block === 18) { sfx('break'); toast('Bloom barrier shattered'); }
+      else sfx('break');
+      breakTarget = null; breakProgress = 0;
+    }
+    ring.style.display = 'block';
+    arc.style.strokeDashoffset = 94.25 * (1 - breakProgress);
+  } else {
+    breakTarget = null; breakProgress = 0;
+    ring.style.display = 'none';
+  }
+}
+function coreHit() {
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  const toC = coreObj.position.clone().sub(camera.position);
+  const dist = toC.length();
+  if (dist > 9) return false;
+  return toC.normalize().dot(dir) > 0.72;
+}
+// ==================== PROJECTILES ====================
+const projectiles = [];
+function makeProjectile(pos, vel, opts) {
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10),
+    new THREE.MeshBasicMaterial({ color: opts.color }));
+  mesh.position.copy(pos);
+  scene.add(mesh);
+  return { mesh, vel: vel.clone(), dist: 0, life: opts.life || 4, opts };
+}
+function updateProjectiles(dt) {
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    p.mesh.position.addScaledVector(p.vel, dt);
+    p.dist += p.vel.length() * dt;
+    p.life -= dt;
+    const pos = p.mesh.position;
+    let dead = p.life <= 0 || p.dist > (p.opts.range || 40);
+    if (!dead && solidAt(pos.x, pos.y, pos.z)) dead = true;
+    if (!dead && p.opts.from === 'boss' &&
+      pos.distanceTo(player.pos.clone().add(new THREE.Vector3(0, 0.9, 0))) < 0.9) {
+      damagePlayer(p.opts.dmg, 'the guardian');
+      dead = true;
+    }
+    if (dead) { scene.remove(p.mesh); p.mesh.geometry.dispose(); projectiles.splice(i, 1); }
+  }
+}
+// ==================== FOCUS POWER ====================
+let focusCd = 0;
+function useFocus() {
+  if (player.dead || !gameStarted || focusCd > 0) return;
+  if (player.focus < 40) { toast('Not enough Focus'); return; }
+  player.focus -= 40;
+  focusCd = 5;
+  const w = WORLDS[game.worldIndex];
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  sfx('shoot');
+  if (bossActive) {
+    const b = BOSS[game.worldIndex];
+    const dmg = 22 + game.worldIndex * 4;
+    if (coreObj && coreHit()) dealCoreDamage(dmg, camera.position);
+    else if (boss) dealBossDamage(dmg, dir);
+    // a burst of energy bolts
+    for (let k = -1; k <= 1; k++) {
+      const d = dir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), k * 0.18);
+      projectiles.push(makeProjectile(camera.position.clone().add(d.clone().multiplyScalar(1)),
+        d.multiplyScalar(26), { dmg: 12, from: 'player', color: 0xffffff, range: 26, life: 1 }));
+    }
+  } else {
+    // outside a fight: a short teleport hop forward
+    const step = dir.clone().multiplyScalar(3.2);
+    for (let s = 0; s < 4; s++) {
+      const np = player.pos.clone().add(step.clone().multiplyScalar(0.25));
+      if (collides(np)) break;
+      player.pos.copy(np);
+    }
+    toast('Focus surge — you dash forward');
+  }
+}
+function dealCoreDamage(dmg, from) {
+  if (!bossActive || !coreObj) return;
+  const b = BOSS[game.worldIndex];
+  b.hp -= dmg;
+  shake = Math.min(0.5, shake + 0.12);
+  sfx('hit');
+  spawnBurst(coreObj.position, WORLDS[game.worldIndex].coreColor, 6);
+  if (b.hp <= 0) bossDefeated();
+}
+// ==================== BOSS ====================
+let boss = null;
+function box(w, h, d, color) {
+  return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ color }));
+}
+function makeBossMesh(kind, colorHex) {
+  const g = new THREE.Group();
+  const body = box(1.2, 1.8, 0.8, colorHex); body.position.y = 1.4; g.add(body);
+  const head = box(0.8, 0.8, 0.8, colorHex); head.position.y = 2.9; g.add(head);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.1, 0.06), eyeMat); e.position.set(s * 0.2, 2.95, 0.42); g.add(e); }
+  for (const s of [-1, 1]) { const arm = box(0.3, 1.2, 0.3, colorHex); arm.position.set(s * 0.95, 1.5, 0); g.add(arm); }
+  if (kind === 'moltenking' || kind === 'dawnsentinel' || kind === 'primeengine' || kind === 'vaelora') {
+    for (const s of [-1, 1]) { const wing = box(0.15, 1.0, 1.2, colorHex); wing.position.set(s * 1.1, 2.2, 0.2); wing.rotation.z = s * 0.3; g.add(wing); }
+  }
+  if (kind === 'rootwarden') { for (const s of [-1, 1]) { const r = box(0.2, 1.6, 0.2, 0x5a7a3a); r.position.set(s * 0.8, 2.6, 0); r.rotation.z = s * 0.5; g.add(r); } }
+  if (kind === 'riftwarden') { for (const s of [-1, 1]) { const c = box(0.12, 1.4, 0.12, colorHex); c.position.set(s * 1.0, 3.0, 0); c.rotation.z = s * -0.4; g.add(c); } }
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.5 }));
+  glow.position.y = 1.4; g.add(glow);
+  return g;
+}
+function spawnBoss() {
+  const wi = game.worldIndex;
+  const w = WORLDS[wi];
+  const mesh = makeBossMesh(w.bossKind, w.bossColor);
+  mesh.position.copy(BOSS_SPAWN);
+  scene.add(mesh);
+  boss = { mesh, pos: BOSS_SPAWN.clone(), vel: new THREE.Vector3(), t: 0, atkCd: 1.5, fireCd: 2.0, chargeCd: 3 };
+  bossActive = true;
+  document.getElementById('bossName').textContent = w.boss;
+  document.getElementById('coreTag').textContent = 'destroy the core to claim the ' + w.power + ' fragment';
+  document.getElementById('bossWrap').style.display = 'block';
+  showBanner(w.boss.toUpperCase(), w.epithet);
+  sfx('boss');
+}
+function removeBoss() {
+  if (boss) { scene.remove(boss.mesh); boss.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); boss = null; }
+}
+function dealBossDamage(dmg) {
+  if (!boss) return;
+  const b = BOSS[game.worldIndex];
+  b.hp -= dmg * 0.4;
+  spawnBurst(boss.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0)), WORLDS[game.worldIndex].bossColor, 4);
+  sfx('hit');
+  if (b.hp <= 0) bossDefeated();
+}
+function updateBoss(dt) {
+  if (!boss || !bossActive) return;
+  const wi = game.worldIndex, kind = WORLDS[wi].bossKind, b = BOSS[wi];
+  boss.t += dt; boss.atkCd -= dt; boss.fireCd -= dt; boss.chargeCd -= dt;
+  const toP = player.pos.clone().sub(boss.pos); toP.y = 0;
+  const dist = toP.length();
+  boss.mesh.rotation.y = Math.atan2(toP.x, toP.z);
+  const spd = b.spd;
+  const approach = (want) => {
+    const t = toP.clone().normalize().multiplyScalar(spd * want);
+    boss.vel.x += (t.x - boss.vel.x) * Math.min(1, 5 * dt);
+    boss.vel.z += (t.z - boss.vel.z) * Math.min(1, 5 * dt);
+    boss.pos.addScaledVector(boss.vel, dt);
+  };
+  const melee = () => { if (dist < 3.4 && boss.atkCd <= 0) { boss.atkCd = 1.4; damagePlayer(b.dmg, WORLDS[wi].boss); } };
+  const shoot = (dir3, color, n) => { for (let k = 0; k < (n || 1); k++) projectiles.push(makeProjectile(boss.pos.clone().add(new THREE.Vector3(0, 1.5, 0)), dir3, { dmg: b.dmg, from: 'boss', color, range: 32 })); };
+  const pd = player.pos.clone().sub(boss.pos).setY(0).normalize();
+  if (kind === 'rootwarden') {
+    approach(1);
+    if (boss.fireCd <= 0) { boss.fireCd = 2.2; for (let a = 0; a < 6; a++) { const ang = a / 6 * Math.PI * 2; shoot(new THREE.Vector3(Math.sin(ang), 0.1, Math.cos(ang)).multiplyScalar(7), 0x8fe07a, 1); } sfx('shoot'); }
+    melee();
+  } else if (kind === 'moltenking') {
+    approach(0.8);
+    if (boss.fireCd <= 0) { boss.fireCd = 2.0; for (let k = -1; k <= 1; k++) shoot(pd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), k * 0.2).multiplyScalar(16), 0xff6a2a, 1); sfx('shoot'); }
+    melee();
+  } else if (kind === 'chronowarden') {
+    const want = dist < 10 ? -1 : dist > 16 ? 1 : 0;
+    if (want !== 0) approach(want); else { boss.vel.multiplyScalar(1 - 3 * dt); boss.pos.addScaledVector(boss.vel, dt); }
+    if (boss.fireCd <= 0) { boss.fireCd = 3.2; slowPlayer(2.2); shoot(pd.clone().multiplyScalar(14), 0xbfe9ff, 1); sfx('shoot'); }
+    melee();
+  } else if (kind === 'dawnsentinel') {
+    approach(dist > 6 ? 0.7 : -0.5);
+    if (boss.fireCd <= 0) { boss.fireCd = 1.6; for (let k = -2; k <= 2; k++) shoot(pd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), k * 0.25).multiplyScalar(15), 0xffe58a, 1); sfx('shoot'); }
+    melee();
+  } else if (kind === 'riftwarden') {
+    approach(0.9);
+    if (boss.chargeCd <= 0) { boss.chargeCd = 4; boss.vel.add(toP.clone().normalize().multiplyScalar(16)); sfx('shoot'); }
+    if (boss.fireCd <= 0) { boss.fireCd = 2.4; shoot(pd.clone().multiplyScalar(13), 0xd0b3ff, 1); sfx('shoot'); }
+    if (dist < 2.6 && boss.atkCd <= 0) { boss.atkCd = 1.2; damagePlayer(b.dmg + 6, 'rift collapse'); }
+  } else if (kind === 'primeengine') {
+    approach(0.5);
+    if (boss.fireCd <= 0) { boss.fireCd = 1.0; const ang = boss.t * 2; shoot(new THREE.Vector3(Math.sin(ang), 0.15, Math.cos(ang)).multiplyScalar(14), 0x8fe6ff, 1); }
+    melee();
+  } else if (kind === 'vaelora') {
+    const orbit = new THREE.Vector3(Math.cos(boss.t * 0.5) * 8, 0, Math.sin(boss.t * 0.5) * 8);
+    const target = player.pos.clone().add(orbit);
+    boss.vel.x += (target.x - boss.pos.x) * 1.4 * dt;
+    boss.vel.z += (target.z - boss.pos.z) * 1.4 * dt;
+    boss.pos.addScaledVector(boss.vel, dt);
+    if (boss.fireCd <= 0) { boss.fireCd = 2.2; for (let k = 0; k < 8; k++) { const ang = k / 8 * Math.PI * 2; shoot(new THREE.Vector3(Math.sin(ang), 0, Math.cos(ang)).multiplyScalar(10), 0xffffff, 1); } sfx('shoot'); }
+    if (dist < 3 && boss.atkCd <= 0) { boss.atkCd = 1.3; damagePlayer(b.dmg + 4, 'reality shear'); }
+  }
+  boss.pos.x = Math.max(ACX - AR + 2, Math.min(ACX + AR - 2, boss.pos.x));
+  boss.pos.z = Math.max(ACZ - AR + 2, Math.min(ACZ + AR - 2, boss.pos.z));
+  boss.mesh.position.copy(boss.pos);
+  document.getElementById('bossFill').style.width = Math.max(0, BOSS[wi].hp / BOSS[wi].maxHp * 100) + '%';
+}
+function slowPlayer(dur) { player.slowT = dur; }
+// ==================== PARTICLES ====================
+const particles = [];
+function spawnBurst(pos, color, n) {
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.18), new THREE.MeshBasicMaterial({ color }));
+    m.position.copy(pos);
+    scene.add(m);
+    particles.push({ mesh: m, vel: new THREE.Vector3((Math.random() - 0.5) * 6, Math.random() * 5, (Math.random() - 0.5) * 6), life: 0.8 + Math.random() * 0.4 });
+  }
+}
+function updateParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt;
+    p.vel.y -= 14 * dt;
+    p.mesh.position.addScaledVector(p.vel, dt);
+    if (p.life <= 0) { scene.remove(p.mesh); p.mesh.geometry.dispose(); particles.splice(i, 1); }
+  }
+}
+// ==================== GAME STATE & FLOW ====================
+const game = {
+  state: 'title', // title | dialog | playing | ending
+  worldIndex: 0,
+  fragments: [],
+  saveData: null,
+  muted: false,
+};
+let gameStarted = false;
+function loadWorld(i) {
+  game.worldIndex = i;
+  const w = WORLDS[i];
+  seed = 1337 + i * 991;
+  world.clear();
+  for (const [key, e] of meshes) {
+    if (e.solid) { scene.remove(e.solid); e.solid.geometry.dispose(); }
+    if (e.water) { scene.remove(e.water); e.water.geometry.dispose(); }
+  }
+  meshes.clear();
+  removeBoss();
+  bossActive = false;
+  projectiles.length = 0; particles.length = 0;
+  BOSS[i].maxHp = BOSS[i].hp; BOSS[i].hp = BOSS[i].hp;
+  // palette per world
+  const pal = [1, 2, 3, 4, 6, 19];
+  if (i === 1) HOTBAR = [3, 8, 11, 9, 2, 19];
+  else if (i === 2) HOTBAR = [3, 10, 12, 8, 2, 19];
+  else if (i === 3) HOTBAR = [14, 3, 9, 4, 8, 19];
+  else if (i === 4) HOTBAR = [8, 16, 3, 4, 2, 19];
+  else if (i === 5) HOTBAR = [15, 13, 3, 4, 2, 19];
+  else if (i === 6) HOTBAR = [17, 3, 4, 2, 6, 19];
+  else HOTBAR = [1, 2, 3, 4, 6, 19];
+  for (const k in blockCounts) blockCounts[k] = 0;
+  HOTBAR.forEach(b => blockCounts[b] = 30);
+  selSlot = 0;
+  // build chunks
+  for (let cz = 0; cz < CH; cz++) for (let cx = 0; cx < CH; cx++) generateChunk(cx, cz);
+  buildArena();
+  for (let cz = 0; cz < CH; cz++) for (let cx = 0; cx < CH; cx++) buildChunkMesh(cx, cz);
+  buildCore();
+  // lighting / sky
+  scene.background = new THREE.Color(w.sky);
+  scene.fog.color = new THREE.Color(w.fog);
+  sun.intensity = w.sun;
+  // player
+  player.pos.copy(SPAWN);
+  player.vel.set(0, 0, 0);
+  player.yaw = Math.atan2(-1, 0); player.pitch = -0.1;
+  player.hp = player.maxHp;
+  player.focus = player.maxFocus;
+  player.dead = false;
+  player.hurtCd = 1.5;
+  // HUD
+  updateWorldTag();
+  updateFragRail();
+  updateHud();
+  document.getElementById('hintBig').textContent = w.boss;
+  document.getElementById('hintSub').textContent = w.epithet;
+  document.getElementById('hintKeys').innerHTML = '<b>WASD</b> move · <b>Mouse</b> look · hold <b>LMB</b> mine · <b>RMB</b> place · <b>E</b> focus';
+  document.getElementById('bossWrap').style.display = 'none';
+}
+function bossDefeated() {
+  if (!bossActive) return;
+  bossActive = false;
+  const wi = game.worldIndex;
+  const w = WORLDS[wi];
+  removeBoss();
+  document.getElementById('bossWrap').style.display = 'none';
+  sfx('playerlvl');
+  shake = 0.8;
+  // collect fragment
+  if (!game.fragments.includes(wi)) { game.fragments.push(wi); }
+  updateFragRail();
+  updateHud();
+  showBanner(w.boss.toUpperCase() + ' DEFEATED', w.power + ' fragment reclaimed');
+  if (wi === 6) {
+    setTimeout(showEnding, 1400);
+  } else {
+    game.state = 'dialog';
+    gameStarted = false;
+    if (document.pointerLockElement) document.exitPointerLock();
+    document.getElementById('crosshair').classList.add('hidden');
+    setTimeout(() => openDialog(wi + 1), 1200);
+    saveGame();
+  }
+}
+function openDialog(i) {
+  const w = WORLDS[i];
+  document.getElementById('dlgTag').textContent = 'World ' + (i + 1) + ' of 7 · ' + w.power;
+  document.getElementById('dlgTitle').textContent = w.name;
+  document.getElementById('dlgLore').textContent = w.intro;
+  document.getElementById('dlgMemLbl').textContent = w.memoryLbl;
+  document.getElementById('dlgMemText').textContent = w.memory;
+  document.getElementById('dlgObjective').innerHTML = w.objective;
+  document.getElementById('dialog').classList.remove('hidden');
+}
+function enterWorld(i) {
+  document.getElementById('dialog').classList.add('hidden');
+  loadWorld(i);
+  game.state = 'playing';
+  gameStarted = true;
+  document.getElementById('hud').classList.remove('hidden');
+  document.getElementById('crosshair').classList.remove('hidden');
+  if (!mobileActive) canvas.requestPointerLock();
+  toast('You enter ' + WORLDS[i].name);
+  setTimeout(spawnBoss, 1500);
+}
+function showEnding() {
+  gameStarted = false;
+  if (document.pointerLockElement) document.exitPointerLock();
+  document.getElementById('crosshair').classList.add('hidden');
+  document.getElementById('endLore').textContent =
+    'Seven powers rekindle. The hammer whole again, the Worldcore turns. You step through the light into the space between worlds — and remember your name. Auren. The Eighth World is not a place the world built. It is a place you choose to build.';
+  document.getElementById('endMemLbl').textContent = 'The Eighth World';
+  document.getElementById('endMemText').textContent =
+    'You are not the one who came here to save the world. You are the one who came to become it.';
+  document.getElementById('ending').classList.remove('hidden');
+  clearSave();
+}
+// ==================== HUD ====================
+function updateWorldTag() {
+  const w = WORLDS[game.worldIndex];
+  document.getElementById('wtNum').textContent = 'WORLD ' + (game.worldIndex + 1) + ' / 7';
+  document.getElementById('wtName').textContent = w.name;
+  document.getElementById('wtEpithet').textContent = w.epithet;
+  document.getElementById('worldNum').textContent = (game.worldIndex + 1) + ' / 7';
+}
+function updateFragRail() {
+  const rail = document.getElementById('fragRail');
+  rail.innerHTML = '';
+  WORLDS.forEach((w, i) => {
+    const have = game.fragments.includes(i);
+    const el = document.createElement('div');
+    el.className = 'fragSlot' + (have ? ' have' : '') + (i === game.worldIndex ? ' active' : '');
+    el.style.setProperty('--c', w.color);
+    el.innerHTML = '<div class="dot"></div><div class="fname">' + w.power + '</div>';
+    rail.appendChild(el);
+  });
+  const strip = document.getElementById('titleFrags');
+  strip.innerHTML = '';
+  WORLDS.forEach((w, i) => {
+    const d = document.createElement('div');
+    d.className = 'fd' + (game.fragments.includes(i) ? ' on' : '');
+    if (game.fragments.includes(i)) { d.style.background = w.color; d.style.color = w.color; }
+    strip.appendChild(d);
+  });
+}
+function updateHud() {
+  document.getElementById('hpNum').textContent = Math.ceil(player.hp) + '/' + player.maxHp;
+  document.getElementById('hpFill').style.width = Math.max(0, player.hp / player.maxHp * 100) + '%';
+  document.getElementById('focusNum').textContent = Math.ceil(player.focus) + '/' + player.maxFocus;
+  document.getElementById('focusFill').style.width = Math.max(0, player.focus / player.maxFocus * 100) + '%';
+  document.getElementById('fragCount').textContent = game.fragments.length + ' / 7';
+}
+function toast(msg, big) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (big ? ' big' : '');
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .5s'; el.style.opacity = 0; }, 3200);
+  setTimeout(() => el.remove(), 3800);
+}
+function showBanner(title, sub) {
+  const el = document.getElementById('banner');
+  document.getElementById('bannerTitle').textContent = title;
+  document.getElementById('bannerSub').textContent = sub || '';
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3500);
+}
+// ==================== AUDIO ====================
+let actx = null;
+function sfx(name) {
+  if (game.muted) return;
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+    const P = {
+      hit:    { f: 220, f2: 160, d: 0.08, v: 0.12, type: 'square' },
+      swing:  { f: 500, f2: 250, d: 0.07, v: 0.05, type: 'triangle' },
+      shoot:  { f: 700, f2: 300, d: 0.12, v: 0.08, type: 'sawtooth' },
+      break:  { f: 140, f2: 90,  d: 0.1,  v: 0.1,  type: 'square' },
+      place:  { f: 300, f2: 400, d: 0.06, v: 0.07, type: 'sine' },
+      hurt:   { f: 180, f2: 70,  d: 0.25, v: 0.18, type: 'sawtooth' },
+      pickup: { f: 800, f2: 1200, d: 0.09, v: 0.07, type: 'sine' },
+      lvlup:  { f: 520, f2: 1040, d: 0.3, v: 0.12, type: 'triangle' },
+      playerlvl: { f: 440, f2: 1320, d: 0.5, v: 0.14, type: 'triangle' },
+      death:  { f: 200, f2: 40,  d: 0.8,  v: 0.2,  type: 'sawtooth' },
+      boss:   { f: 90,  f2: 45,  d: 0.7,  v: 0.25, type: 'sawtooth' },
+    }[name] || { f: 440, f2: 440, d: 0.1, v: 0.05, type: 'sine' };
+    o.type = P.type;
+    o.frequency.setValueAtTime(P.f, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(30, P.f2), t + P.d);
+    g.gain.setValueAtTime(P.v, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + P.d);
+    o.start(t); o.stop(t + P.d + 0.02);
+  } catch (e) { /* audio unavailable */ }
+}
+// ==================== SAVE ====================
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      worldIndex: game.worldIndex,
+      fragments: game.fragments,
+    }));
+    return true;
+  } catch (e) { return false; }
+}
+function loadSave() {
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY)); return d && typeof d.worldIndex === 'number' ? d : null; }
+  catch (e) { return null; }
+}
+function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+// ==================== INPUT ====================
+const keys = {};
+let mouseL = false, pointerLocked = false, mobileActive = false;
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Escape') { if (gameStarted && !player.dead) togglePause(); return; }
+  if (!gameStarted || player.dead) return;
+  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyE') { useFocus(); return; }
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= HOTBAR.length && HOTBAR[n - 1]) { selSlot = n - 1; }
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('mousedown', e => {
+  if (!pointerLocked || !gameStarted || player.dead) return;
+  if (e.button === 0) { mouseL = true; onBreakPress(); }
+  if (e.button === 2) placeBlock();
+});
+addEventListener('mouseup', e => { if (e.button === 0) mouseL = false; });
+addEventListener('contextmenu', e => e.preventDefault());
+addEventListener('mousemove', e => {
+  if (!pointerLocked) return;
+  player.yaw -= e.movementX * 0.0022;
+  player.pitch -= e.movementY * 0.0022;
+  player.pitch = Math.max(-1.55, Math.min(1.55, player.pitch));
+});
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = document.pointerLockElement === canvas;
+  if (gameStarted && !player.dead && !pointerLocked && !mobileActive) {
+    document.getElementById('pause').classList.remove('hidden');
+  }
+});
+canvas.addEventListener('click', () => {
+  if (gameStarted && !player.dead && !pointerLocked && !mobileActive) canvas.requestPointerLock();
+});
+// ---------- MOBILE ----------
+const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+if (isTouch) {
+  mobileActive = true;
+  document.body.classList.add('touch');
+  document.getElementById('mLookHint').classList.add('show');
+  setTimeout(() => document.getElementById('mLookHint').classList.remove('show'), 4000);
+  const mMove = document.getElementById('mMove'), mKnob = document.getElementById('mKnob');
+  let moveId = null;
+  const setKnob = (dx, dy) => { mKnob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; mVec.x = dx / 48; mVec.y = -dy / 48; };
+  mMove.addEventListener('touchstart', e => { e.preventDefault(); moveId = e.changedTouches[0].identifier; setKnob(0, 0); }, { passive: false });
+  mMove.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+      if (t.identifier !== moveId) continue;
+      const r = mMove.getBoundingClientRect();
+      let dx = t.clientX - (r.left + r.width / 2), dy = t.clientY - (r.top + r.height / 2);
+      const m = Math.hypot(dx, dy), max = 48;
+      if (m > max) { dx = dx / m * max; dy = dy / m * max; }
+      setKnob(dx, dy);
+    }
+  }, { passive: false });
+  const endMove = e => { for (const t of e.changedTouches) if (t.identifier === moveId) { moveId = null; setKnob(0, 0); } };
+  mMove.addEventListener('touchend', endMove); mMove.addEventListener('touchcancel', endMove);
+  const mLook = document.getElementById('mLook');
+  let lookId = null, lastX = 0, lastY = 0;
+  mLook.addEventListener('touchstart', e => { e.preventDefault(); lookId = e.changedTouches[0].identifier; lastX = e.changedTouches[0].clientX; lastY = e.changedTouches[0].clientY; }, { passive: false });
+  mLook.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+      if (t.identifier !== lookId) continue;
+      player.yaw -= (t.clientX - lastX) * 0.006;
+      player.pitch -= (t.clientY - lastY) * 0.006;
+      player.pitch = Math.max(-1.55, Math.min(1.55, player.pitch));
+      lastX = t.clientX; lastY = t.clientY;
+    }
+  }, { passive: false });
+  const endLook = e => { for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null; };
+  mLook.addEventListener('touchend', endLook); mLook.addEventListener('touchcancel', endLook);
+  const bindHold = (id, onDown, onUp) => {
+    const el = document.getElementById(id);
+    el.addEventListener('touchstart', e => { e.preventDefault(); onDown && onDown(); }, { passive: false });
+    const up = e => { e.preventDefault(); onUp && onUp(); };
+    el.addEventListener('touchend', up, { passive: false });
+    el.addEventListener('touchcancel', up, { passive: false });
+  };
+  bindHold('mAtk', () => { mouseL = true; onBreakPress(); }, () => { mouseL = false; });
+  bindHold('mMine', () => { mouseL = true; onBreakPress(); }, () => { mouseL = false; });
+  bindHold('mSprint', () => { keys['ShiftLeft'] = true; }, () => { keys['ShiftLeft'] = false; });
+  bindHold('mJump', () => { keys['Space'] = true; }, () => { keys['Space'] = false; });
+  document.getElementById('mPlace').addEventListener('touchstart', e => { e.preventDefault(); placeBlock(); }, { passive: false });
+  document.getElementById('mFocus').addEventListener('touchstart', e => { e.preventDefault(); useFocus(); }, { passive: false });
+}
+// ==================== PAUSE ====================
+let manualPause = false;
+function togglePause() {
+  if (!gameStarted || player.dead) return;
+  const vis = !document.getElementById('pause').classList.contains('hidden');
+  if (vis) doResume(); else doPause();
+}
+function doPause() {
+  manualPause = true;
+  document.getElementById('pause').classList.remove('hidden');
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+function doResume() {
+  manualPause = false;
+  document.getElementById('pause').classList.add('hidden');
+  if (!mobileActive) canvas.requestPointerLock();
+}
+function backToTitle() {
+  manualPause = false;
+  gameStarted = false;
+  game.state = 'title';
+  document.getElementById('pause').classList.add('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('crosshair').classList.add('hidden');
+  if (document.pointerLockElement) document.exitPointerLock();
+  refreshTitle();
+  document.getElementById('title').classList.remove('hidden');
+}
+// ==================== MAIN LOOP ====================
+let last = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  let dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  const overlayPaused = !document.getElementById('pause').classList.contains('hidden');
+  const paused = manualPause || (!mobileActive && !pointerLocked && overlayPaused);
+  if (gameStarted && !player.dead && !paused) {
+    movePlayer(dt);
+    player.hurtCd = Math.max(0, player.hurtCd - dt);
+    focusCd = Math.max(0, focusCd - dt);
+    updateBreak(dt);
+    updateBoss(dt);
+    updateProjectiles(dt);
+    updateParticles(dt);
+  }
+  // core animation
+  if (coreObj) {
+    coreObj.rotation.y += dt * 1.2;
+    coreObj.position.y = coreBaseY + Math.sin(now / 500) * 0.2;
+    if (coreGlow) { coreGlow.position.copy(coreObj.position); coreGlow.intensity = 2.2 + Math.sin(now / 250) * 0.5; }
+  }
+  shake = Math.max(0, shake - dt * 2.4);
+  if (shake > 0) {
+    camera.position.x += (Math.random() - 0.5) * shake;
+    camera.position.y += (Math.random() - 0.5) * shake;
+  }
+  updateCulling();
+  renderer.render(scene, camera);
+}
+// ==================== BOOT ====================
+function refreshTitle() {
+  updateFragRail();
+  document.getElementById('titleKeys').innerHTML =
+    '<b>W A S D</b> move · <b>Mouse</b> look · <b>Space</b> jump · <b>Shift</b> run<br>' +
+    'hold <b>LMB</b> mine · <b>RMB</b> place block · <b>1–6</b> select · <b>E</b> focus power · <b>P</b> pause';
+  if (hasSave()) document.getElementById('continueRow').classList.remove('hidden');
+  else document.getElementById('continueRow').classList.add('hidden');
+}
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('title').classList.add('hidden');
+  game.state = 'dialog';
+  game.fragments = [];
+  openDialog(0);
+});
+document.getElementById('continueBtn').addEventListener('click', () => {
+  const s = loadSave();
+  if (!s) return;
+  document.getElementById('title').classList.add('hidden');
+  game.worldIndex = s.worldIndex;
+  game.fragments = s.fragments || [];
+  openDialog(s.worldIndex);
+});
+document.getElementById('dlgEnter').addEventListener('click', () => {
+  enterWorld(game.worldIndex);
+});
+document.getElementById('resumeBtn').addEventListener('click', doResume);
+document.getElementById('pauseSave').addEventListener('click', () => { if (saveGame()) toast('💾 Journey saved'); doResume(); });
+document.getElementById('quitBtn').addEventListener('click', () => { saveGame(); backToTitle(); });
+document.getElementById('respawnBtn').addEventListener('click', respawn);
+document.getElementById('deathTitle').addEventListener('click', backToTitle);
+document.getElementById('endRestart').addEventListener('click', () => {
+  document.getElementById('ending').classList.add('hidden');
+  game.fragments = [];
+  openDialog(0);
+  game.state = 'dialog';
+});
+document.getElementById('endTitle').addEventListener('click', () => {
+  document.getElementById('ending').classList.add('hidden');
+  backToTitle();
+});
+document.getElementById('muteBtn').addEventListener('click', () => {
+  game.muted = !game.muted;
+  document.getElementById('muteBtn').textContent = game.muted ? '♪ Sound: Off' : '♪ Sound: On';
+});
+// expose internals for automation / debugging (module scope keeps them off window)
+window.__bf = {
+  loadWorld, enterWorld, dealCoreDamage, dealBossDamage, spawnBoss, bossDefeated,
+  openDialog, useFocus, updateHud, killPlayer, respawn, updateBoss, updateProjectiles,
+  placeBlock, raycastBlock,
+  get game() { return game; },
+  get boss() { return boss; },
+  get bossActive() { return bossActive; },
+  get coreObj() { return coreObj; },
+  get player() { return player; },
+  get BOSS() { return BOSS; },
+  get WORLDS() { return WORLDS; },
+};
+// Preload every world (in lore order). Each loadWorld() fully rebuilds the
+// scene, so the last one (Axiom, world 7) is what stays visible behind the
+// title screen — a nice preview. This also exercises all 7 generators +
+// arenas at boot so any per-world build bug surfaces immediately.
+for (let i = 0; i < WORLDS.length; i++) loadWorld(i);
+refreshTitle();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

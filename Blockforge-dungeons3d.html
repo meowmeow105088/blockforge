@@ -316,7 +316,7 @@ const BOSS_SPAWN = new THREE.Vector3(ACX - 2.0, 24, ACZ - 2.0);
 // ==================== WORLDS (lore + palette + boss) ====================
 const WORLDS = [
   { id:'verdantia', name:'VERDANTIA', power:'LIFE', epithet:'World of Life', color:'#57d977',
-    sky:0x1c4a2e, fog:0x1c4a2e, sun:1.4,
+    sky:0x4f9a63, fog:0x4f9a63, sun:2.0,
     boss:'The Rootwarden', bossColor:'#8fe07a', bossKind:'rootwarden', coreColor:0x6dff9a,
     focus:'Nature, restoration, exploration',
     intro:'You follow a river upstream through a forest that should not still be alive. The trees lean toward you. A grey stain of the Null creeps over the southern grove, and at the world\u2019s heart a great tree strains against the darkness.',
@@ -324,7 +324,7 @@ const WORLDS = [
     memoryLbl:'First Memory',
     memory:'Auren beside Elarion in the First Forge. \u201cThe Worldcore is failing. We cannot keep building as if nothing will happen.\u201d Elarion looks toward the seven worlds. \u201cAnd what happens to the people who depend on us?\u201d Auren has no answer.' },
   { id:'pyroclast', name:'PYROCLAST', power:'CREATION', epithet:'World That Never Sleeps', color:'#ff7a2f',
-    sky:0x3a140a, fog:0x3a140a, sun:1.1,
+    sky:0x7a3d1e, fog:0x7a3d1e, sun:1.7,
     boss:'The Molten King', bossColor:'#ffb15a', bossKind:'moltenking', coreColor:0xffb15a,
     focus:'Mining, forging, advanced crafting',
     intro:'Blackstone walls and rivers of molten light. Beneath the city the old forge still runs, and at the volcano\u2019s throat a colossal guardian guards the Ember.',
@@ -332,7 +332,7 @@ const WORLDS = [
     memoryLbl:'Recovered Memory',
     memory:'Veyron beside Brakkor. \u201cIt can repair almost anything.\u201d \u201cWhat can it not repair?\u201d Veyron looks at the crystal. \u201cSomething that has forgotten how to exist.\u201d' },
   { id:'nivara', name:'NIVARA', power:'TIME', epithet:'World Outside Time', color:'#79d4ff',
-    sky:0x123348, fog:0x123348, sun:1.0,
+    sky:0x4d88b0, fog:0x4d88b0, sun:1.6,
     boss:'The Chronowarden', bossColor:'#bfe9ff', bossKind:'chronowarden', coreColor:0x9fd8ff,
     focus:'Time puzzles, frozen ruins',
     intro:'A frozen palace of ice, clockwork and blue crystal. The air shivers in repeating moments, and a guardian of ice and gears guards the Frost. Its <b>ICE SHELLS</b> will hold \u2014 break them, or it will undo you.',
@@ -340,7 +340,7 @@ const WORLDS = [
     memoryLbl:'The Clockmaker\u2019s Recording',
     memory:'Iskarya: \u201cI believed that preserving the past was the same as protecting the future. But a moment preserved forever is not a life. It is only a memory pretending to be alive.\u201d' },
   { id:'solara', name:'SOLARA', power:'LIGHT', epithet:'World of Hidden Truths', color:'#ffd24a',
-    sky:0x6a4e12, fog:0x6a4e12, sun:1.7,
+    sky:0xc79a35, fog:0xc79a35, sun:2.3,
     boss:'The Dawn Sentinel', bossColor:'#ffe58a', bossKind:'dawnsentinel', coreColor:0xffe58a,
     focus:'Light puzzles, hidden paths',
     intro:'Golden towers floating above an ocean of cloud. Some regions drown in daylight; others are shadows that move on their own. The Dawn Sentinel guards the Sun, and its <b>DUSK SHIELDS</b> bend the light \u2014 you cannot strike what you cannot see.',
@@ -348,7 +348,7 @@ const WORLDS = [
     memoryLbl:'The Truth Revealed',
     memory:'The Architects concealed the Worldcore\u2019s decay from the seven worlds \u2014 and from themselves. The light you walked through was never meant to reach you.' },
   { id:'umbrath', name:'UMBRATH', power:'SPACE', epithet:'The Folded Realm', color:'#d0b3ff',
-    sky:0x180a24, fog:0x180a24, sun:0.8,
+    sky:0x4b3373, fog:0x4b3373, sun:1.4,
     boss:'The Rift Warden', bossColor:'#d0b3ff', bossKind:'riftwarden', coreColor:0xd0b3ff,
     focus:'Portals, dimensional exploration',
     intro:'A reality folded in on itself. Portals open without warning; entire regions exist in several places at once. The Null presses through the cracks. The Rift Warden guards the Void, and its <b>RIFT BARRIERS</b> fold space to keep you out.',
@@ -356,7 +356,7 @@ const WORLDS = [
     memoryLbl:'A Warning',
     memory:'Through the folded light you glimpse it: the Null is no longer a memory. It has reached the edges of the realms, and it is consuming reality one block at a time.' },
   { id:'voltrix', name:'VOLTRIX', power:'ENERGY', epithet:'World of Energy', color:'#5ad0ff',
-    sky:0x0e2a3c, fog:0x0e2a3c, sun:0.9,
+    sky:0x2f5f80, fog:0x2f5f80, sun:1.5,
     boss:'The Prime Engine', bossColor:'#8fe6ff', bossKind:'primeengine', coreColor:0x8fe6ff,
     focus:'Machinery, automation, energy systems',
     intro:'An industrial world where enormous machines stand motionless beneath electric storms. The reactors still produce power, and no one remains to tell them when to stop. ORION has tried to rebuild the Worldcore for a thousand years.',
@@ -364,7 +364,7 @@ const WORLDS = [
     memoryLbl:'Hidden Recording \u2014 ORION',
     memory:'Veyron, to the machine: \u201cIf Auren attempts to interfere with the Eternal Engine, stop him.\u201d \u201cIs Auren an enemy?\u201d Veyron pauses. \u201cNo. He is my friend. But he is going to make me lose everything.\u201d' },
   { id:'axiom', name:'AXIOM', power:'REALITY', epithet:'World That Created the Rules', color:'#f2f2f2',
-    sky:0x2a2d42, fog:0x2a2d42, sun:1.0,
+    sky:0x7d83ad, fog:0x7d83ad, sun:1.6,
     boss:'Vaelora\u2019s Echo', bossColor:'#ffffff', bossKind:'vaelora', coreColor:0xffffff,
     focus:'Reality puzzles, combining all powers',
     intro:'No forests, no oceans. Only enormous geometric structures drifting through a pale, endless sky. Here the laws of reality have begun to fail. Vaelora\u2019s Echo guards the Origin.',
@@ -385,14 +385,14 @@ canvas.addEventListener('webglcontextrestored', () => { renderer.onContextRestor
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(innerWidth, innerHeight);
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x1c4a2e);
-scene.fog = new THREE.Fog(0x1c4a2e, 26, 96);
+scene.background = new THREE.Color(0x4f9a63);
+scene.fog = new THREE.Fog(0x4f9a63, 40, 160);
 const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.1, 400);
 camera.rotation.order = 'YXZ';
-const sun = new THREE.DirectionalLight(0xfff2d8, 1.4);
+const sun = new THREE.DirectionalLight(0xfff2d8, 2.0);
 sun.position.set(120, 160, 60);
-scene.add(sun, new THREE.AmbientLight(0x8090c0, 0.9));
-const hemi = new THREE.HemisphereLight(0x88aacc, 0x2a2a1a, 0.4);
+scene.add(sun, new THREE.AmbientLight(0xaebfe8, 1.45));
+const hemi = new THREE.HemisphereLight(0xbcd4f5, 0x5a5a3a, 0.9);
 scene.add(hemi);
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;

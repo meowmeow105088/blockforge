@@ -1,0 +1,5 @@
+LAUNCHING chrome
+WAITING for page target
+FOUND target, connecting WS
+WS connected, enabling domains
+  polling for boot (timeout 90s)...
