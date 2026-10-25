@@ -14,6 +14,8 @@ Just open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari). No
 - **30 bosses** — from the Gutter Colossus (level 3) all the way to the **Godslayer** (level 500). Each has a unique AI pattern, visual design, and escalating HP/damage/XP.
 - **Armor crafting** — forge Stone → Iron → Enchanted armor from materials dropped by monsters. Bosses drop shards for the Enchanted set.
 - **Drag-and-drop inventory** — open with `C`, rearrange your 36-slot grid, and craft with the recipes panel.
+- **Shadows** — real-time sun shadows, plus dark "shadow" hollows and thick forests that spawn mobs far more often (especially at night).
+- **Ladders & doors** — craft from wood. Place ladders against walls and climb with Space (S to descend); open/close doors by aiming at them and pressing the mine/attack button (hold mine to break them instead).
 - **Save / load** — auto-saves to localStorage; continue where you left off from the start screen.
 - **Day / night cycle** — the world darkens at night and monsters swarm.
 - **Touch controls** — mobile-friendly joystick and on-screen buttons.
@@ -27,7 +29,8 @@ Just open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari). No
 | `LMB (hold)` | Mine block |
 | `RMB` | Place block |
 | `LMB` | Attack · hold & release to fire bow |
-| `Space` | Jump |
+| `Space` | Jump · climb ladders (hold S to descend) |
+| `LMB / Mine @ Door` | Open/close a door · hold mine to break it |
 | `Shift` | Sprint |
 | `Q` | Switch class: Sword ⇄ Bow |
 | `E` | Cycle weapon tier |
