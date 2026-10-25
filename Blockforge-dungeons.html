@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Blockforge — Dungeons of the Seven Worlds</title>
+<style>
+  :root{
+    --accent:#7fe3c4; --accent2:#f2b134; --panel:rgba(12,17,28,.86); --line:rgba(255,255,255,.16);
+    --ink:#e8eefb; --dim:#93a3c2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#05070d;font-family:"Segoe UI",system-ui,Roboto,Tahoma,sans-serif;color:var(--ink);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  #game{position:fixed;inset:0;display:block;background:#05070d;touch-action:none}
+  .hidden{display:none!important}
+  #hud{position:fixed;inset:0;z-index:20;pointer-events:none;font-size:13px}
+  #fragRail{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+  .fragSlot{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 10px 4px 6px;backdrop-filter:blur(6px);opacity:.5}
+  .fragSlot.active{opacity:1;border-color:var(--accent);box-shadow:0 0 14px rgba(127,227,196,.35)}
+  .fragSlot .dot{width:16px;height:16px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+  .fragSlot.locked .dot{background:#1a2233;box-shadow:none;border:1px dashed #4a5670}
+  .fragSlot .fname{font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+  .fragSlot.active .fname{color:var(--ink);font-weight:700}
+  .fragSlot.active .power{color:var(--accent);font-size:.62rem;letter-spacing:.5px;margin-left:2px}
+  #statBlock{position:absolute;top:12px;right:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px;width:210px;backdrop-filter:blur(6px)}
+  #statBlock .row{display:flex;justify-content:space-between;font-size:.66rem;letter-spacing:.5px;color:var(--dim);margin-top:2px}
+  .bar{height:11px;background:#111a2b;border:1px solid rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-top:3px}
+  .bar>i{display:block;height:100%;border-radius:6px;transition:width .18s}
+  #hpFill{background:linear-gradient(90deg,#e23b4e,#ff8a5b);width:100%}
+  #focusFill{background:linear-gradient(90deg,#2f8fd6,#8fd0ff);width:100%}
+  #bossWrap{position:absolute;top:150px;right:12px;width:210px;display:none}
+  #bossName{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#ffb3b3;text-align:right;margin-bottom:3px;font-weight:700}
+  #bossBar{height:9px;background:#1a0d12;border:1px solid rgba(255,80,80,.35);border-radius:6px;overflow:hidden}
+  #bossFill{display:block;height:100%;background:linear-gradient(90deg,#7a1f2b,#ff5b6e,#ffd08a);width:100%;box-shadow:0 0 10px #ff5b6e}
+  #hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);text-align:center;max-width:94vw}
+  #hint .big{font-size:1rem;font-weight:700;letter-spacing:1px;text-shadow:0 2px 8px #000}
+  #hint .sub{font-size:.72rem;color:var(--dim);margin-top:3px;letter-spacing:.5px}
+  #hint .keys{font-size:.62rem;color:#6c7c9c;margin-top:5px;letter-spacing:.6px}
+  #hint .keys b{color:#b7c6e4}
+  #worldTag{position:absolute;left:50%;top:12px;transform:translateX(-50%);text-align:center;pointer-events:none}
+  #worldTag .num{font-size:.56rem;letter-spacing:3px;color:var(--dim)}
+  #worldTag .name{font-size:1.05rem;font-weight:800;letter-spacing:2px;text-shadow:0 0 16px var(--accent)}
+  #worldTag .epithet{font-size:.6rem;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+  #muteBtn{position:absolute;bottom:12px;left:12px;pointer-events:auto;background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:5px 10px;font-size:.72rem;cursor:pointer}
+  #muteBtn:hover{color:var(--ink)}
+  .ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:rgba(4,7,13,.82);backdrop-filter:blur(9px);padding:20px}
+  .ov .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.6);max-width:640px;width:100%;padding:30px 34px;text-align:center;max-height:90vh;overflow-y:auto}
+  .ov h1{font-size:1.7rem;letter-spacing:2px;font-weight:800}
+  .ov h2{font-size:1.3rem;letter-spacing:1px;font-weight:800;margin-bottom:6px}
+  .ov .tag{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+  .ov .lore{font-size:.92rem;line-height:1.7;color:#cdd9f0;text-align:left;margin:14px 0 6px}
+  .ov .lore em,.ov .lore b{color:var(--accent);font-weight:600}
+  .ov .memory{font-size:.85rem;line-height:1.7;color:#b9c6e2;text-align:left;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0;background:rgba(127,227,196,.06);border-radius:0 10px 10px 0}
+  .ov .memory .lbl{display:block;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .btn{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font-weight:700;letter-spacing:1px;font-size:.9rem;padding:12px 26px;border-radius:11px;transition:transform .12s,background .15s}
+  .btn:hover{background:rgba(255,255,255,.14);transform:scale(1.04)}
+  .btn.primary{background:linear-gradient(90deg,#2fb89a,#7fe3c4);color:#06231c;border-color:transparent;box-shadow:0 8px 26px rgba(47,184,154,.35)}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent}
+  .btn.big{font-size:1.05rem;padding:15px 40px}
+  #title .card{max-width:760px}
+  #title h1{font-size:2.6rem;background:linear-gradient(90deg,#7fe3c4,#f2b134);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #title .subtitle{font-size:.8rem;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-top:2px}
+  #title .intro{font-size:.95rem;line-height:1.8;color:#cdd9f0;margin:20px auto 6px;max-width:560px;text-align:center}
+  .fragStrip{display:flex;gap:9px;justify-content:center;margin:22px 0 6px;flex-wrap:wrap}
+  .fragChip{display:flex;flex-direction:column;align-items:center;gap:5px;width:82px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:9px 4px}
+  .fragChip .cd{width:18px;height:18px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+  .fragChip .cn{font-size:.58rem;letter-spacing:.5px;color:var(--dim);text-align:center;line-height:1.25}
+  .fragChip .cp{font-size:.52rem;color:#6c7c9c}
+  #title .keys{font-size:.72rem;color:#8798bb;margin-top:16px;line-height:1.9;letter-spacing:.4px}
+  #title .keys b{color:#dbe6ff}
+  #ending .card{max-width:720px}
+  #ending h1{font-size:2rem;background:linear-gradient(90deg,#f2b134,#ff6b6b,#7fe3c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #ending .endText{font-size:.94rem;line-height:1.85;color:#d3ddf2;text-align:left;margin:14px 0}
+  #ending .inscription{font-style:italic;color:var(--accent);font-size:1rem;margin:16px 0;line-height:1.6}
+  #ending .post{font-size:.9rem;line-height:1.9;color:#aab8d8;text-align:center;margin-top:20px;border-top:1px solid var(--line);padding-top:18px}
+  #ending .post b{color:#e2ecff}
+  #pause .card{max-width:480px}
+  .plist{list-style:none;text-align:left;margin:10px auto;max-width:340px;font-size:.82rem;line-height:2;color:#b9c6e2}
+  .plist b{color:#e2ecff;display:inline-block;min-width:96px}
+  #touch{position:fixed;inset:0;z-index:30;pointer-events:none;display:none}
+  #joyBase{position:absolute;left:26px;bottom:34px;width:120px;height:120px;border:2px solid rgba(255,255,255,.22);border-radius:50%;background:rgba(255,255,255,.05);pointer-events:auto}
+  #joyStick{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(255,255,255,.28);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  .tbtn{position:absolute;bottom:40px;width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.28);background:rgba(255,255,255,.07);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.5px;pointer-events:auto;text-align:center;line-height:1.1;padding-top:20px}
+  .tbtn:active{background:rgba(255,255,255,.2)}
+  #tbBreak{right:120px}
+  #tbPlace{right:26px}
+  #tbJump{right:73px;bottom:120px}
+  #tbFocus{right:26px;bottom:130px}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud" class="hidden">
+  <div id="fragRail"></div>
+  <div id="worldTag"><div class="num" id="wtNum"></div><div class="name" id="wtName"></div><div class="epithet" id="wtEpithet"></div></div>
+  <div id="statBlock">
+    <div class="row"><span>VITALITY</span><span id="hpNum">100/100</span></div>
+    <div class="bar"><i id="hpFill"></i></div>
+    <div class="row"><span>FOCUS</span><span id="focusNum">100/100</span></div>
+    <div class="bar"><i id="focusFill"></i></div>
+    <div class="row" style="margin-top:8px"><span>FRAGMENTS</span><span id="fragCount">0 / 7</span></div>
+  </div>
+  <div id="bossWrap"><div id="bossName"></div><div id="bossBar"><i id="bossFill"></i></div></div>
+  <div id="hint"><div class="big" id="hintBig"></div><div class="sub" id="hintSub"></div><div class="keys" id="hintKeys"></div></div>
+  <button id="muteBtn">♪ Sound: On</button>
+</div>
+<div id="touch" class="hidden">
+  <div id="joyBase"><div id="joyStick"></div></div>
+  <div class="tbtn" id="tbBreak">BREAK</div>
+  <div class="tbtn" id="tbPlace">PLACE</div>
+  <div class="tbtn" id="tbJump">JUMP</div>
+  <div class="tbtn" id="tbFocus">FOCUS</div>
+</div>
+<div id="title" class="ov">
+  <div class="card">
+    <div class="tag">The Legend of the Seven Worlds</div>
+    <h1>BLOCKFORGE</h1>
+    <div class="subtitle">Dungeons of the Seven Worlds</div>
+    <p class="intro">
+      You wake on a shattered island with a cracked hammer and no memory. The Worldcore is broken.
+      Its seven powers are scattered across seven dying worlds. Gather the <em>fragments</em>,
+      reforge your hammer, and face the guardian of each world — before the <em>Null</em>
+      swallows the last of creation.
+    </p>
+    <div class="fragStrip" id="titleFrags"></div>
+    <div id="continueRow"></div>
+    <div class="btnrow"><button class="btn primary big" id="startBtn">Begin the Journey</button></div>
+    <div class="keys" id="titleKeys"></div>
+  </div>
+</div>
+<div id="dialog" class="ov hidden">
+  <div class="card">
+    <div class="tag" id="dlgTag"></div>
+    <h2 id="dlgTitle"></h2>
+    <p class="lore" id="dlgLore"></p>
+    <div class="memory hidden" id="dlgMemory"><span class="lbl" id="dlgMemLbl"></span><span id="dlgMemText"></span></div>
+    <p class="lore" id="dlgObjective"></p>
+    <div class="btnrow"><button class="btn primary" id="dlgEnter">Enter the World</button></div>
+  </div>
+</div>
+<div id="pause" class="ov hidden">
+  <div class="card">
+    <h2>PAUSED</h2>
+    <div class="tag">The Forge waits</div>
+    <ul class="plist">
+      <li><b>Move</b> A D · ← →</li>
+      <li><b>Jump</b> W · ↑ · Space</li>
+      <li><b>Break</b> J · ← · hold X</li>
+      <li><b>Place</b> K · → · hold C</li>
+      <li><b>Focus</b> F · ↑ · hold V</li>
+      <li><b>Pause</b> P / Esc</li>
+    </ul>
+    <div class="btnrow">
+      <button class="btn primary" id="resumeBtn">Resume</button>
+      <button class="btn ghost" id="quitBtn">Quit to Title</button>
+    </div>
+  </div>
+</div>
+<div id="ending" class="ov hidden">
+  <div class="card">
+    <div class="tag" id="endTag"></div>
+    <h1 id="endTitle"></h1>
+    <div class="endText" id="endText"></div>
+    <div class="inscription" id="endInscription"></div>
+    <div class="post" id="endPost"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="endRestart">Begin Again</button>
+      <button class="btn ghost" id="endTitle">Title</button>
+    </div>
+  </div>
+</div>
+<script>
+"use strict";
+/* BLOCKFORGE — Dungeons of the Seven Worlds
+   A self-contained lore-driven dungeon-crawler. No external dependencies. */
+
+/* ============ TILES ============ */
+const T = {
+  EMPTY:0, WALL:1, GROUND:2, WATER:3, LAVA:4, ORE:5, RUNE:6, FLOWER:7, BRANCH:8,
+  GEAR:9, BLADE:10, PORTAL:11, SUNLIGHT:12, GATE:13, DOOR:14, REACTOR:15,
+  CORE:16, SPIKE:17, BLOOM:18, FROSTWATER:19, CRYSTAL:20, SHADOW:21,
+  GHOST:22, COIL:23, CONDUIT:24, AXIOM:25, FLOOR:26, DECO:27, GLOW:28
+};
+const FRAG_ORDER = ["seed","ember","frost","sun","void","storm","origin"];
+const FRAG_LABEL = {seed:"The Seed",ember:"The Ember",frost:"The Frost",sun:"The Sun",void:"The Void",storm:"The Storm",origin:"The Origin"};
+const FRAG_ABILITY = {seed:"grow vines to climb",ember:"forge bridges from matter",frost:"slow time & shatter ice",sun:"reveal hidden blocks",void:"open portals & bend space",storm:"charge & electrify",origin:"rewrite reality"};
+
+/* ============ THE SEVEN WORLDS (lore-driven) ============ */
+const WORLDS = [
+  { id:"verdantia", name:"VERDANTIA", power:"LIFE", epithet:"World of Life",
+    color:"#57d977", skyTop:"#0e2a1c", skyBot:"#174a2c",
+    boss:"The Rootwarden", bossColor:"#8fe07a", bossKind:"rootwarden",
+    focus:"Nature, restoration, exploration",
+    intro:"You follow a river upstream through a forest that should not still be alive. The trees lean toward you. A grey stain of the Null creeps over the southern grove, and at the world's heart a great tree still strains against the darkness.",
+    objective:"Reach the Heartwood and destroy the <b>Rootwarden's core</b>. <b>BREAK</b> the <b>BLOOM</b> barriers to expose it.",
+    memoryLbl:"First Memory",
+    memory:"Auren beside Elarion in the First Forge. “The Worldcore is failing. We cannot keep building as if nothing will happen.” Elarion looks toward the seven worlds. “And what happens to the people who depend on us?” Auren has no answer.",
+    objectiveText:"Reach the Heartwood. Break the BLOOM barriers and destroy the Rootwarden's core." },
+  { id:"pyroclast", name:"PYROCLAST", power:"CREATION", epithet:"World That Never Sleeps",
+    color:"#ff7a2f", skyTop:"#240a06", skyBot:"#4a1608",
+    boss:"The Molten King", bossColor:"#ffb15a", bossKind:"moltenking",
+    focus:"Mining, forging, advanced crafting",
+    intro:"Blackstone walls and rivers of molten light. The Ember Clans bar their gates until you prove the hammer is not an Ashbound weapon. Beneath the city the old forge still manufactures obsidian blades — and at the volcano's throat a colossal guardian guards the Ember.",
+    objective:"Forge across the <b>OBSIDIAN</b> platforms and destroy the <b>Molten King's core</b>. Lava sears you — keep moving.",
+    memoryLbl:"Recovered Memory",
+    memory:"Veyron beside Brakkor, studying the Worldcore. “It can repair almost anything.” “What can it not repair?” Veyron looks at the crystal. “Something that has forgotten how to exist.”",
+    objectiveText:"Forge across the obsidian and destroy the Molten King's core." },
+  { id:"nivara", name:"NIVARA", power:"TIME", epithet:"World Outside Time",
+    color:"#79d4ff", skyTop:"#0a1420", skyBot:"#123a55",
+    boss:"The Chronowarden", bossColor:"#bfe9ff", bossKind:"chronowarden",
+    focus:"Time puzzles, frozen ruins",
+    intro:"A frozen palace of ice, clockwork and blue crystal. Here the past never stays buried. The air shivers in repeating moments, and a guardian of ice and gears guards the Frost. Its <b>ICE SHELLS</b> will hold — break them, or it will undo you.",
+    objective:"Shatter the <b>ICE SHELLS</b> and destroy the <b>Chronowarden's core</b>. Watch for the slow, then the strike.",
+    memoryLbl:"The Clockmaker's Recording",
+    memory:"Iskarya, beside the Worldcore. “I believed that preserving the past was the same as protecting the future. But a moment preserved forever is not a life. It is only a memory pretending to be alive.”",
+    objectiveText:"Shatter the ice shells and destroy the Chronowarden's core." },
+  { id:"solara", name:"SOLARA", power:"LIGHT", epithet:"World of Hidden Truths",
+    color:"#ffd24a", skyTop:"#241a06", skyBot:"#6a4e12",
+    boss:"The Dawn Sentinel", bossColor:"#ffe58a", bossKind:"dawnsentinel",
+    focus:"Light puzzles, hidden paths",
+    intro:"Golden towers floating above an ocean of cloud. Some regions are drowned in endless daylight; others are shadows that move on their own. The Dawn Sentinel guards the Sun, and its <b>DUSK SHIELDS</b> bend the light — you cannot strike what you cannot see.",
+    objective:"Break the <b>DUSK SHIELDS</b> and destroy the <b>Dawn Sentinel's core</b>.",
+    memoryLbl:"The Truth Revealed",
+    memory:"The Architects did not merely fail to save the Worldcore. They concealed its decay from the seven worlds — and from the people who depended on them — because they feared that truth itself would collapse civilization.",
+    objectiveText:"Break the dusk shields and destroy the Dawn Sentinel's core." },
+  { id:"umbryss", name:"UMBRYSS", power:"SPACE", epithet:"World of Space",
+    color:"#a67bff", skyTop:"#120a24", skyBot:"#241a4a",
+    boss:"The Rift Warden", bossColor:"#d0b3ff", bossKind:"riftwarden",
+    focus:"Portals, dimensional exploration",
+    intro:"A reality that has folded in on itself. Portals open without warning; entire regions exist in several places at once. The Null has begun to press through the cracks. The Rift Warden guards the Void, and its <b>RIFT BARRIERS</b> fold space to keep you out.",
+    objective:"Unfold the <b>RIFT BARRIERS</b> and destroy the <b>Rift Warden's core</b>.",
+    memoryLbl:"A Warning",
+    memory:"Through the folded light you glimpse it: the Null is no longer a memory. It has reached the edges of the realms, and it is beginning to consume reality one block at a time.",
+    objectiveText:"Unfold the rift barriers and destroy the Rift Warden's core." },
+  { id:"voltrix", name:"VOLTRIX", power:"ENERGY", epithet:"World of Energy",
+    color:"#5ad0ff", skyTop:"#081420", skyBot:"#123248",
+    boss:"The Prime Engine", bossColor:"#8fe6ff", bossKind:"primeengine",
+    focus:"Machinery, automation, energy systems",
+    intro:"An industrial world where enormous machines stand motionless beneath electric storms. The factories still run. The reactors still produce power. And no one remains to tell them when to stop. ORION, the central intelligence, has tried to rebuild the Worldcore for a thousand years.",
+    objective:"Redirect the <b>ENERGY</b> and destroy the <b>Prime Engine's core</b>.",
+    memoryLbl:"Hidden Recording — ORION",
+    memory:"Veyron, to the machine, shortly before the Shattering. “If Auren attempts to interfere with the Eternal Engine, stop him.” “Is Auren an enemy?” Veyron pauses. “No. He is my friend. But he is going to make me lose everything.”",
+    objectiveText:"Destroy the Prime Engine's core and give ORION a new directive." },
+  { id:"axiom", name:"AXIOM", power:"REALITY", epithet:"World That Created the Rules",
+    color:"#f2f2f2", skyTop:"#161826", skyBot:"#3a3d55",
+    boss:"Vaelora's Echo", bossColor:"#ffffff", bossKind:"vaelola",
+    focus:"Reality puzzles, combining all powers",
+    intro:"No forests, no oceans. Only enormous geometric structures drifting through a pale, endless sky. Here the laws of reality have begun to fail — gravity shifts, stone becomes liquid, time runs backwards across entire landscapes. Vaelora's Echo guards the Origin, testing whether you have learned the lessons of the six worlds before it.",
+    objective:"Stabilize the arena and destroy <b>Vaelora's Echo</b>. Then face the truth.",
+    memoryLbl:"The Truth",
+    memory:"Vaelora's voice, made of white light: “You have crossed six worlds. You have learned what life requires, what creation costs, what time preserves, what light reveals, what space connects, and what energy demands. But you have not yet learned what reality is for.”",
+    objectiveText:"Destroy Vaelora's Echo and take the Origin." }
+];
+
+/* ============ ENGINE: CANVAS / STATE / TILES ============ */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const TILE = 44, VIEW_TILES_X = 19, VIEW_TILES_Y = 11;
+let W = 0, H = 0;
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  ctx.imageSmoothingEnabled = false;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const SAVE_KEY = "blockforge_dungeons_v1";
+const game = {
+  state:"title",           // title | dialog | playing | boss | ending | paused
+  worldIndex:0,
+  grid:null, gw:0, gh:0,
+  player:null,
+  boss:null,
+  fragments:[],            // collected fragment ids
+  projectiles:[],
+  particles:[],
+  floaters:[],
+  camera:{x:0,y:0},
+  shake:0,
+  hitstop:0,
+  time:0,
+  saveData:null,
+  paused:false,
+  muted:false
+};
+
+function newPlayer(){
+  return {
+    x:0, y:0, w:30, h:38, vx:0, vy:0,
+    onGround:false, facing:1,
+    hp:100, maxHp:100,
+    focus:100, maxFocus:100,
+    invuln:0, breakCd:0, placeCd:0, focusCd:0,
+    hurtFlash:0,
+    block:2  // placeable tile id (defaults to GROUND, later DECO)
+  };
+}
+
+/* ---- tile access ---- */
+function gAt(gx, gy){
+  if(gx<0 || gy<0 || gx>=game.gw || gy>=game.gh) return T.WALL;
+  return game.grid[gy][gx];
+}
+function setAt(gx, gy, v){
+  if(gx<0 || gy<0 || gx>=game.gw || gy>=game.gh) return;
+  game.grid[gy][gx] = v;
+}
+function isSolid(t){
+  return t===T.WALL || t===T.GROUND || t===T.ORE || t===T.BRANCH || t===T.GEAR ||
+    t===T.CORE || t===T.SPIKE || t===T.FLOOR || t===T.AXIOM || t===T.BLOOM ||
+    t===T.CRYSTAL || t===T.COIL || t===T.CONDUIT || t===T.DECO || t===T.GLOW ||
+    t===T.DOOR;
+}
+function isHazard(t){ return t===T.LAVA; }
+function isBreakable(t){
+  return t===T.GROUND || t===T.ORE || t===T.FLOWER || t===T.BRANCH || t===T.GEAR ||
+    t===T.BLADE || t===T.DOOR || t===T.BLOOM || t===T.CRYSTAL || t===T.COIL ||
+    t===T.CONDUIT || t===T.DECO || t===T.GLOW || t===T.GHOST;
+}
+function isPlaceableSpot(gx, gy){
+  return gAt(gx,gy)===T.EMPTY && !rectOverlap(gx*TILE, gy*TILE, TILE, TILE, playerRect());
+}
+function playerRect(){
+  const p=game.player;
+  return {x:p.x, y:p.y, w:p.w, h:p.h};
+}
+function rectOverlap(ax,ay,aw,ah,bx,by,bw,bh){
+  return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by;
+}
+/* ---- random ---- */
+function rng(seed){ let s=seed>>>0; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+
+/* ============ LEVEL GEOMETRY (per world) ============ */
+/* Each world returns {grid, spawn, boss:{x,y}, decor:[]} where grid is [gy][gx].
+   Boss arena = the whole grid; the boss is a large entity with a CORE tile. */
+function buildLevel(index){
+  const seed = 1000 + index*97;
+  const r = rng(seed);
+  const w = 28, h = 14;
+  const grid = [];
+  for(let y=0;y<h;y++){ grid[y]=[]; for(let x=0;x<w;x++) grid[y][x]=T.EMPTY; }
+  const G = (x,y,t)=>{ if(x>=0&&y>=0&&x<w&&y<h) grid[y][x]=t; };
+  const solid = (x,y,t)=>{ G(x,y,t); };
+  // left/right boundary walls
+  for(let y=0;y<h;y++){ G(0,y,T.WALL); G(w-1,y,T.WALL); }
+
+  const spawn = {x:2*TILE, y:(h-4)*TILE};
+  let boss = {x:(w-9)*TILE, y:(h-5)*TILE};
+
+  if(index===0){ /* VERDANTIA — forest platforms + bloom barrier */
+    for(let x=1;x<8;x++) G(x,h-1,T.GROUND), G(x,h-2,T.GROUND);
+    G(4,h-3,T.FLOWER);
+    for(let x=9;x<13;x++) G(x,h-4,T.GROUND);
+    for(let x=14;x<17;x++) G(x,h-6,T.GROUND);
+    G(15,h-7,T.FLOWER);
+    for(let x=18;x<21;x++) G(x,h-4,T.GROUND);
+    // arena floor
+    for(let x=22;x<27;x++) G(x,h-1,T.GROUND), G(x,h-2,T.GROUND);
+    G(22,h-3,T.GROUND);
+    // bloom barrier in front of boss
+    for(let y=h-4;y<=h-2;y++) G(24,y,T.BLOOM);
+    boss={x:25*TILE, y:(h-5)*TILE};
+  }
+  else if(index===1){ /* PYROCLAST — lava pools + obsidian platforms */
+    for(let x=1;x<6;x++) G(x,h-1,T.GROUND);
+    G(6,h-1,T.LAVA); G(7,h-1,T.LAVA);
+    for(let x=8;x<10;x++) G(x,h-2,T.GROUND);
+    G(10,h-1,T.LAVA); G(11,h-1,T.LAVA);
+    for(let x=12;x<14;x++) G(x,h-3,T.GROUND);
+    G(14,h-1,T.LAVA); G(15,h-1,T.LAVA); G(16,h-1,T.LAVA);
+    for(let x=17;x<19;x++) G(x,h-2,T.GROUND);
+    for(let x=20;x<27;x++) G(x,h-1,T.GROUND);
+    G(21,h-3,T.GEAR); // forge gear deco
+    boss={x:24*TILE, y:(h-5)*TILE};
+    for(let y=h-4;y<=h-2;y++) G(23,y,T.BLADE);
+  }
+  else if(index===2){ /* NIVARA — ice platforms + ice shells */
+    for(let x=1;x<6;x++) G(x,h-1,T.GROUND);
+    for(let x=7;x<10;x++) G(x,h-3,T.CRYSTAL);
+    for(let x=11;x<14;x++) G(x,h-5,T.CRYSTAL);
+    for(let x=15;x<18;x++) G(x,h-3,T.CRYSTAL);
+    for(let x=19;x<22;x++) G(x,h-5,T.CRYSTAL);
+    for(let x=22;x<27;x++) G(x,h-1,T.GROUND), G(x,h-2,T.CRYSTAL);
+    boss={x:25*TILE, y:(h-5)*TILE};
+    for(let y=h-4;y<=h-2;y++) G(24,y,T.CRYSTAL);
+  }
+  else if(index===3){ /* SOLARA — floating golden platforms + dusk shields */
+    for(let x=1;x<5;x++) G(x,h-2,T.GROUND);
+    for(let x=6;x<9;x++) G(x,h-4,T.GROUND);
+    for(let x=10;x<13;x++) G(x,h-6,T.GROUND);
+    for(let x=14;x<16;x++) G(x,h-4,T.GROUND);
+    for(let x=17;x<20;x++) G(x,h-6,T.GROUND);
+    for(let x=21;x<27;x++) G(x,h-2,T.GROUND);
+    G(12,h-7,T.GLOW);
+    boss={x:24*TILE, y:(h-6)*TILE};
+    for(let y=h-5;y<=h-3;y++) G(23,y,T.SHADOW);
+  }
+  else if(index===4){ /* UMBRYSS — portal jumps + rift barriers */
+    for(let x=1;x<5;x++) G(x,h-1,T.GROUND);
+    for(let x=6;x<8;x++) G(x,h-3,T.AXIOM);
+    G(9,h-5,T.PORTAL);
+    for(let x=10;x<12;x++) G(x,h-4,T.AXIOM);
+    G(13,h-6,T.PORTAL);
+    for(let x=14;x<16;x++) G(x,h-5,T.AXIOM);
+    G(17,h-3,T.PORTAL);
+    for(let x=18;x<20;x++) G(x,h-4,T.AXIOM);
+    for(let x=21;x<27;x++) G(x,h-1,T.GROUND);
+    boss={x:25*TILE, y:(h-5)*TILE};
+    for(let y=h-4;y<=h-2;y++) G(24,y,T.GHOST);
+  }
+  else if(index===5){ /* VOLTRIX — machinery + energy conduits */
+    for(let x=1;x<6;x++) G(x,h-1,T.FLOOR);
+    for(let x=7;x<10;x++) G(x,h-3,T.FLOOR);
+    for(let x=11;x<14;x++) G(x,h-5,T.FLOOR);
+    for(let x=15;x<17;x++) G(x,h-3,T.FLOOR);
+    for(let x=18;x<21;x++) G(x,h-5,T.FLOOR);
+    for(let x=22;x<27;x++) G(x,h-1,T.FLOOR), G(x,h-2,T.FLOOR);
+    G(12,h-6,T.CONDUIT);
+    G(19,h-6,T.CONDUIT);
+    boss={x:25*TILE, y:(h-5)*TILE};
+    for(let y=h-4;y<=h-2;y++) G(24,y,T.COIL);
+  }
+  else if(index===6){ /* AXIOM — geometric reality puzzle, all powers */
+    for(let x=1;x<5;x++) G(x,h-1,T.FLOOR);
+    for(let x=6;x<8;x++) G(x,h-3,T.AXIOM);
+    for(let x=9;x<11;x++) G(x,h-5,T.CRYSTAL);   // frost
+    for(let x=12;x<14;x++) G(x,h-3,T.FLOOR);
+    for(let x=15;x<17;x++) G(x,h-5,T.GROUND);   // seed
+    for(let x=18;x<20;x++) G(x,h-3,T.FLOOR);    // ember bridge
+    for(let x=21;x<27;x++) G(x,h-1,T.FLOOR), G(x,h-2,T.FLOOR);
+    G(16,h-6,T.GLOW);
+    boss={x:25*TILE, y:(h-5)*TILE};
+    // no barrier — the Echo shifts the arena itself
+  }
+
+  return { grid, gw:w, gh:h, spawn, boss, decor:[] };
+}
+
+/* ============ INPUT ============ */
+const keys = {left:false,right:false,up:false,down:false,break:false,place:false,focus:false};
+const keyMap = {
+  ArrowLeft:"left", KeyA:"left", ArrowRight:"right", KeyD:"right",
+  ArrowUp:"up", KeyW:"up", Space:"up",
+  ArrowDown:"down", KeyS:"down",
+  KeyJ:"break", KeyX:"break", KeyK:"place", KeyC:"place",
+  KeyF:"focus", KeyV:"focus"
+};
+window.addEventListener("keydown", e=>{
+  if(e.code in keyMap){ keys[keyMap[e.code]]=true; e.preventDefault(); }
+  if(e.code==="KeyP" || e.code==="Escape"){ if(game.state==="playing") togglePause(); }
+});
+window.addEventListener("keyup", e=>{
+  if(e.code in keyMap){ keys[keyMap[e.code]]=false; e.preventDefault(); }
+});
+
+/* ============ PHYSICS ============ */
+const GRAVITY = 0.72, MOVE = 4.4, JUMP = -13.6, MAXFALL = 15;
+function moveEntity(e, dt, isPlayer){
+  e.x += e.vx*dt;
+  resolveAxis(e, "x");
+  e.vy += GRAVITY*dt; if(e.vy>MAXFALL) e.vy=MAXFALL;
+  e.y += e.vy*dt;
+  e.onGround=false;
+  resolveAxis(e, "y");
+}
+function resolveAxis(e, axis){
+  if(axis==="x"){
+    const minGx = Math.floor(e.x/TILE), maxGx = Math.floor((e.x+e.w-1)/TILE);
+    const minGy = Math.floor(e.y/TILE), maxGy = Math.floor((e.y+e.h-1)/TILE);
+    if(e.vx>0){
+      for(let gy=minGy; gy<=maxGy; gy++){
+        if(isSolid(gAt(maxGx,gy))){ e.x = maxGx*TILE - e.w - 0.01; e.vx=0; break; }
+      }
+    } else if(e.vx<0){
+      for(let gy=minGy; gy<=maxGy; gy++){
+        if(isSolid(gAt(minGx,gy))){ e.x = (minGx+1)*TILE + 0.01; e.vx=0; break; }
+      }
+    }
+  } else {
+    const minGx = Math.floor(e.x/TILE), maxGx = Math.floor((e.x+e.w-1)/TILE);
+    const minGy = Math.floor(e.y/TILE), maxGy = Math.floor((e.y+e.h-1)/TILE);
+    if(e.vy>0){
+      for(let gx=minGx; gx<=maxGx; gx++){
+        if(isSolid(gAt(gx,maxGy))){ e.y = maxGy*TILE - e.h - 0.01; e.vy=0; e.onGround=true; break; }
+      }
+    } else if(e.vy<0){
+      for(let gx=minGx; gx<=maxGx; gx++){
+        if(isSolid(gAt(gx,minGy))){ e.y = (minGy+1)*TILE + 0.01; e.vy=0; break; }
+      }
+    }
+  }
+}
+/* hazard check for a rect */
+function checkHazards(e, dt, isPlayer){
+  const minGx = Math.floor(e.x/TILE), maxGx = Math.floor((e.x+e.w-1)/TILE);
+  const minGy = Math.floor(e.y/TILE), maxGy = Math.floor((e.y+e.h-1)/TILE);
+  for(let gx=minGx; gx<=maxGx; gx++){
+    for(let gy=minGy; gy<=maxGy; gy++){
+      const t = gAt(gx,gy);
+      if(isHazard(t) && isPlayer) damagePlayer(26*dt, T.LAVA);
+      if(t===T.SPIKE && isPlayer) damagePlayer(40*dt, T.SPIKE);
+    }
+  }
+}
+function damagePlayer(dmg, src){
+  const p = game.player;
+  if(p.invuln>0 || game.state!=="playing") return;
+  p.hp -= dmg;
+  if(dmg>1){ p.hurtFlash=0.35; p.invuln = src===T.LAVA||src===T.SPIKE ? 0.1 : 0.6; game.shake = Math.max(game.shake,8); sfx("hurt"); }
+  if(p.hp<=0){ p.hp=0; playerDie(); }
+}
+function playerDie(){
+  game.state="dead";
+  sfx("die");
+  spawnBurst(game.player.x+game.player.w/2, game.player.y+game.player.h/2, "#ff5b6e", 40);
+  setTimeout(()=>{ respawnWorld(); }, 900);
+}
+function respawnWorld(){
+  const p = game.player;
+  p.hp = p.maxHp; p.focus = p.maxFocus; p.invuln=1.2;
+  p.x = game.spawn.x; p.y = game.spawn.y; p.vx=0; p.vy=0;
+  game.state="playing";
+}
+
+/* ============ PLAYER UPDATE ============ */
+let _jumpBuffered = 0;
+function updatePlayer(dt){
+  const p = game.player;
+  p.focus = Math.min(p.maxFocus, p.focus + 14*dt);
+  p.invuln = Math.max(0, p.invuln - dt);
+  p.hurtFlash = Math.max(0, p.hurtFlash - dt);
+  p.breakCd = Math.max(0, p.breakCd - dt);
+  p.placeCd = Math.max(0, p.placeCd - dt);
+  p.focusCd = Math.max(0, p.focusCd - dt);
+  _jumpBuffered = Math.max(0, _jumpBuffered - dt);
+
+  // horizontal
+  let ax = 0;
+  if(keys.left){ ax = -MOVE; p.facing=-1; }
+  if(keys.right){ ax = MOVE; p.facing=1; }
+  p.vx += (ax - p.vx) * Math.min(1, 12*dt);
+  if(ax===0) p.vx *= Math.pow(0.001, dt);
+
+  // jump (with buffer + coyote)
+  if(keys.up && !updatePlayer._upPrev){ _jumpBuffered = 0.12; }
+  if(_jumpBuffered>0 && p.onGround){ p.vy = JUMP; p.onGround=false; _jumpBuffered=0; sfx("jump"); }
+  updatePlayer._upPrev = keys.up;
+
+  moveEntity(p, dt, true);
+  checkHazards(p, dt, true);
+
+  // clamp inside world
+  p.x = Math.max(0, Math.min(game.gw*TILE - p.w, p.x));
+  p.y = Math.max(0, Math.min(game.gh*TILE - p.h, p.y));
+
+  // BLOCKBINDING: break
+  if(keys.break && p.breakCd<=0){ doBreak(); p.breakCd = 0.16; }
+  // place
+  if(keys.place && p.placeCd<=0){ doPlace(); p.placeCd = 0.14; }
+  // focus (fragment power)
+  if(keys.focus && p.focusCd<=0){ doFocus(); p.focusCd = 0.4; }
+}
+function aimTarget(){
+  const p = game.player;
+  const cx = p.x + p.w/2 + p.facing*40, cy = p.y + p.h/2;
+  const gx = Math.floor(cx/TILE), gy = Math.floor(cy/TILE);
+  return {gx, gy};
+}
+function doBreak(){
+  const {gx,gy} = aimTarget();
+  const t = gAt(gx,gy);
+  if(isBreakable(t)){
+    setAt(gx,gy,T.EMPTY);
+    spawnBurst(gx*TILE+TILE/2, gy*TILE+TILE/2, tileColor(t), 12);
+    sfx("break");
+    if(t===T.CORE && game.boss){ // boss core hit
+      game.boss.hp -= 22; game.boss.coreHit = 0.3;
+      game.hitstop = 0.05; game.shake = Math.max(game.shake, 10);
+      spawnBurst(gx*TILE+TILE/2, gy*TILE+TILE/2, "#ffffff", 24);
+      sfx("bossHit");
+      if(game.boss.hp<=0) bossDefeated();
+    }
+    if(t===T.BLOOM || t===T.CRYSTAL || t===T.SHADOW || t===T.GHOST || t===T.COIL){
+      sfx("shieldBreak");
+    }
+  }
+}
+function doPlace(){
+  const {gx,gy} = aimTarget();
+  if(isPlaceableSpot(gx,gy)){
+    setAt(gx,gy, game.player.block);
+    spawnBurst(gx*TILE+TILE/2, gy*TILE+TILE/2, tileColor(game.player.block), 6);
+    sfx("place");
+  }
+}
+function doFocus(){
+  const p = game.player;
+  if(p.focus < 18) return;
+  p.focus -= 18;
+  const frag = game.fragments[game.fragments.length-1]; // most recent
+  const {gx,gy} = aimTarget();
+  const cx = p.x+p.w/2, cy = p.y+p.h/2;
+  if(!frag){
+    // no fragment yet: a hammer swing shockwave
+    spawnBurst(cx+p.facing*40, cy, "#8fd0ff", 14);
+    sfx("focus");
+    return;
+  }
+  const w = WORLDS[game.worldIndex];
+  const fx = gx*TILE+TILE/2, fy = gy*TILE+TILE/2;
+  switch(frag){
+    case "seed":  // grow a vine pillar above
+      for(let y=gy-1; y>=gy-3 && !isSolid(gAt(gx,y)); y--) setAt(gx,y,T.BRANCH);
+      spawnBurst(fx,fy,"#57d977",16); sfx("focus");
+      break;
+    case "ember": // forge a bridge: fill empty in a horizontal line
+      for(let x=gx-1;x<=gx+3;x++) if(gAt(x,gy)===T.EMPTY && !rectOverlap(x*TILE,gy*TILE,TILE,TILE,playerRect())) setAt(x,gy,T.DECO);
+      spawnBurst(fx,fy,"#ff7a2f",18); sfx("focus");
+      break;
+    case "frost": // slow boss + shatter crystals nearby
+      if(game.boss) game.boss.slow = 1.6;
+      shatterNear(fx,fy,4,T.CRYSTAL);
+      spawnBurst(fx,fy,"#bfe9ff",16); sfx("focus");
+      break;
+    case "sun":   // reveal hidden (ghost) blocks in radius
+      revealNear(fx,fy,5);
+      spawnBurst(fx,fy,"#ffd24a",16); sfx("focus");
+      break;
+    case "void":  // short-range spatial hop in the facing direction
+      const hopX = p.x + p.facing*96;
+      const hopY = p.y;
+      if(hopX > 0 && hopX < (game.gw-2)*TILE && gAt(Math.floor(hopX/TILE), Math.floor((hopY+p.h*0.5)/TILE))===T.EMPTY) p.x = hopX;
+      spawnBurst(cx, cy, "#a67bff", 22); sfx("focus");
+      break;
+    case "storm": // lightning: damage boss, electrify area
+      if(game.boss){
+        game.boss.hp -= 14; game.boss.coreHit=0.3;
+        spawnBurst(gx*TILE+TILE/2,gy*TILE+TILE/2,"#8fe6ff",20);
+        sfx("bossHit");
+        if(game.boss.hp<=0) bossDefeated();
+      }
+      game.shake=Math.max(game.shake,6);
+      sfx("focus");
+      break;
+    case "origin": // rewrite: remove a 3x3 block region (reality edit)
+      for(let y=gy-1;y<=gy+1;y++)for(let x=gx-1;x<=gx+1;x++) if(x>0&&x<game.gw-1&&gAt(x,y)===T.GHOST) setAt(x,y,T.EMPTY);
+      spawnBurst(fx,fy,"#ffffff",24); sfx("focus");
+      break;
+  }
+}
+function shatterNear(fx,fy,rad,tile){
+  const cx=fx/TILE, cy=fy/TILE;
+  for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+    if(Math.abs(x-cx)<=rad&&Math.abs(y-cy)<=rad && gAt(Math.floor(x),Math.floor(y))===tile){
+      setAt(Math.floor(x),Math.floor(y),T.EMPTY);
+      spawnBurst(Math.floor(x)*TILE+TILE/2,Math.floor(y)*TILE+TILE/2,tileColor(tile),10);
+    }
+  }
+}
+function revealNear(fx,fy,rad){
+  const cx=fx/TILE, cy=fy/TILE;
+  for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+    const gx=Math.floor(x),gy=Math.floor(y);
+    if(gAt(gx,gy)===T.GHOST){ setAt(gx,gy,T.FLOOR); spawnBurst(gx*TILE+TILE/2,gy*TILE+TILE/2,"#ffd24a",8); }
+  }
+}
+
+/* ============ BOSSES (each world's guardian) ============ */
+function makeBoss(index){
+  const w = WORLDS[index];
+  const lvl = buildLevel(index);
+  const base = {
+    kind:w.bossKind, name:w.boss, color:w.bossColor,
+    x:lvl.boss.x, y:lvl.boss.y, w:70, h:92,
+    hp: 100 + index*22, maxHp: 100 + index*22,
+    vx:0, vy:0, facing:-1,
+    state:"idle", t:0, phase:0,
+    slow:0, coreHit:0, coreTile: T.CORE,
+    projectiles:[]
+  };
+  return base;
+}
+function bossUpdate(dt){
+  const b = game.boss;
+  const p = game.player;
+  if(!b) return;
+  b.t += dt;
+  b.coreHit = Math.max(0, b.coreHit - dt);
+  if(b.slow>0){ b.slow -= dt; dt = dt*0.4; }
+  const toPlayer = (p.x+p.w/2) - (b.x+b.w/2);
+  b.facing = toPlayer>0?1:-1;
+  b.vy += GRAVITY*dt; if(b.vy>MAXFALL) b.vy=MAXFALL;
+  const speed = b.slow>0? 1.2 : 2.2;
+  // simple patrol toward player
+  if(Math.abs(toPlayer)>60) b.vx += (Math.sign(toPlayer)*speed - b.vx)*Math.min(1,3*dt);
+  else b.vx *= Math.pow(0.001,dt);
+  moveEntity(b, dt, false);
+
+  // spawn projectile attack
+  if(b.t > b.attackCd){
+    b.t = 0; b.attackCd = attackInterval(b.kind);
+    bossAttack(b, p);
+  }
+
+  // contact damage
+  if(rectOverlap(p.x,p.y,p.w,p.h, b.x,b.y,b.w,b.h) && p.invuln<=0) damagePlayer(14, b.kind);
+
+  // core is a tile in front of the boss; draw it
+  b.coreX = b.x + b.w/2 + b.facing*30;
+  b.coreY = b.y + b.h*0.45;
+}
+function attackInterval(kind){
+  return {rootwarden:2.2, moltenking:2.0, chronowarden:2.4, dawnsentinel:1.9,
+          riftwarden:2.0, primeengine:1.7, vaelola:2.0}[kind] || 2.2;
+}
+function bossAttack(b, p){
+  const cx = b.x+b.w/2, cy = b.y+b.h*0.45;
+  const dx = (p.x+p.w/2)-cx, dy = (p.y+p.h/2)-cy;
+  const d = Math.hypot(dx,dy)||1;
+  const proj = (spd, col, r=10)=>({x:cx, y:cy, vx:dx/d*spd, vy:dy/d*spd, r, col, life:3, dmg:12});
+  switch(b.kind){
+    case "rootwarden":
+      game.projectiles.push(proj(3.4,b.color));
+      // burst of roots
+      for(let i=-1;i<=1;i++){ game.projectiles.push({x:cx,y:cy,vx:dx/d*2.6 + i*1.4, vy:dy/d*2.6, r:9, col:"#57d977", life:2.4, dmg:10}); }
+      break;
+    case "moltenking":
+      for(let i=0;i<3;i++) game.projectiles.push({x:cx,y:cy,vx:dx/d*4 + (i-1)*1.2, vy:dy/d*4 - 1, r:11, col:"#ffb15a", life:2.6, dmg:14});
+      break;
+    case "chronowarden":
+      game.projectiles.push(proj(3.0,b.color));
+      // a "reverse" pulse that pushes player
+      if(Math.random()<0.4){ p.x -= b.facing*30; game.shake=Math.max(game.shake,6); }
+      break;
+    case "dawnsentinel":
+      // blinding flash projectile + shadow
+      game.projectiles.push({x:cx,y:cy,vx:dx/d*5,vy:dy/d*5,r:12,col:"#ffe58a",life:2,dmg:12,flash:true});
+      break;
+    case "riftwarden":
+      for(let i=0;i<4;i++){ const a=i/4*Math.PI*2; game.projectiles.push({x:cx,y:cy,vx:Math.cos(a)*3.4,vy:Math.sin(a)*3.4,r:10,col:"#d0b3ff",life:2.4,dmg:12}); }
+      break;
+    case "primeengine":
+      // rapid energy bolts
+      game.projectiles.push(proj(5,b.color,9));
+      game.projectiles.push(proj(5,b.color,9));
+      break;
+    case "vaelola":
+      // rewrites: spawn floating reality blocks (spikes) + beam
+      const sx = Math.floor(p.x/TILE), sy = Math.floor(p.y/TILE)-3;
+      if(sy>0 && gAt(sx,sy)===T.EMPTY) setAt(sx,sy,T.SPIKE);
+      game.projectiles.push(proj(3.6,b.color,11));
+      break;
+  }
+  sfx("bossFire");
+}
+function bossDefeated(){
+  const b = game.boss;
+  spawnBurst(b.x+b.w/2, b.y+b.h/2, b.color, 60);
+  game.shake = 14; sfx("bossDie");
+  game.boss = null;
+  document.getElementById("bossWrap").style.display="none";
+  completeWorld();
+}
+function completeWorld(){
+  // add fragment
+  const fragId = FRAG_ORDER[game.worldIndex];
+  if(!game.fragments.includes(fragId)) game.fragments.push(fragId);
+  game.state="transition";
+  saveGame();
+  setTimeout(()=>{
+    if(game.worldIndex < 6){
+      game.worldIndex++;
+      showWorldIntro();
+    } else {
+      showEnding();
+    }
+  }, 2400);
+}
+
+/* ============ PROJECTILES / PARTICLES / FLOATERS ============ */
+function updateProjectiles(dt){
+  const p = game.player;
+  for(let i=game.projectiles.length-1;i>=0;i--){
+    const pr = game.projectiles[i];
+    pr.x += pr.vx*dt; pr.y += pr.vy*dt; pr.life -= dt;
+    // hit player
+    if(rectOverlap(pr.x-pr.r,pr.y-pr.r,pr.r*2,pr.r*2, p.x,p.y,p.w,p.h) && p.invuln<=0){
+      damagePlayer(pr.dmg, "proj");
+      game.projectiles.splice(i,1); continue;
+    }
+    // hit solid
+    const gx=Math.floor(pr.x/TILE), gy=Math.floor(pr.y/TILE);
+    if(isSolid(gAt(gx,gy)) || pr.life<=0){
+      spawnBurst(pr.x,pr.y,pr.col,6);
+      game.projectiles.splice(i,1); continue;
+    }
+  }
+}
+function updateParticles(dt){
+  for(let i=game.particles.length-1;i>=0;i--){
+    const pt=game.particles[i];
+    pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.vy+=0.2*dt; pt.life-=dt;
+    if(pt.life<=0) game.particles.splice(i,1);
+  }
+}
+function updateFloaters(dt){
+  for(let i=game.floaters.length-1;i>=0;i--){
+    const f=game.floaters[i];
+    f.y-=0.6*dt; f.life-=dt;
+    if(f.life<=0) game.floaters.splice(i,1);
+  }
+}
+function spawnBurst(x,y,col,n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=1+Math.random()*4;
+    game.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:0.5+Math.random()*0.5,col});
+  }
+}
+function addFloater(x,y,text,col){
+  game.floaters.push({x,y,text,col,life:1.4});
+}
+function updateCamera(dt){
+  const p=game.player;
+  const targetX = p.x + p.w/2 - W/2;
+  const targetY = p.y + p.h/2 - H/2;
+  const cam = game.camera;
+  cam.x += (targetX - cam.x)*Math.min(1,8*dt);
+  cam.y += (targetY - cam.y)*Math.min(1,8*dt);
+  cam.x = Math.max(0, Math.min(game.gw*TILE - W, cam.x));
+  cam.y = Math.max(0, Math.min(game.gh*TILE - H, cam.y));
+}
+
+/* ============ MAIN UPDATE ============ */
+function update(dt){
+  game.time += dt;
+  if(game.shake>0) game.shake = Math.max(0, game.shake - 40*dt);
+  if(game.hitstop>0){ game.hitstop -= dt; return; }
+  if(game.state==="playing"){
+    updatePlayer(dt);
+    bossUpdate(dt);
+    updateProjectiles(dt);
+    updateCamera(dt);
+    updateHUD();
+  }
+  updateParticles(dt);
+  updateFloaters(dt);
+}
+
+/* ============ SAVE / LOAD ============ */
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      worldIndex:game.worldIndex,
+      fragments:game.fragments,
+      hp:game.player?game.player.hp:100
+    }));
+  }catch(e){}
+}
+function loadGame(){
+  try{
+    const s = localStorage.getItem(SAVE_KEY);
+    if(!s) return null;
+    return JSON.parse(s);
+  }catch(e){ return null; }
+}
+function hasSave(){ return !!loadGame(); }
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+
+/* ============ AUDIO (procedural Web Audio, no assets) ============ */
+let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
+}
+function tone(freq, dur, type, gain, slide){
+  if(!audioCtx || game.muted) return;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide, audioCtx.currentTime+dur);
+  g.gain.setValueAtTime(gain, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime+dur);
+}
+function noise(dur, gain){
+  if(!audioCtx || game.muted) return;
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate*dur, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1)*(1-i/d.length);
+  const src = audioCtx.createBufferSource(); src.buffer=buf;
+  const g = audioCtx.createGain(); g.gain.value = gain;
+  src.connect(g); g.connect(audioCtx.destination); src.start();
+}
+function sfx(name){
+  ensureAudio();
+  if(!audioCtx || game.muted) return;
+  switch(name){
+    case "jump": tone(300,0.15,"square",0.12,520); break;
+    case "break": noise(0.12,0.18); tone(180,0.1,"sawtooth",0.08,90); break;
+    case "place": tone(420,0.08,"triangle",0.12,600); break;
+    case "focus": tone(600,0.2,"sine",0.14,1200); tone(900,0.15,"sine",0.08,1400); break;
+    case "hurt": tone(160,0.18,"sawtooth",0.16,80); noise(0.1,0.12); break;
+    case "die": tone(300,0.5,"sawtooth",0.18,60); break;
+    case "bossFire": tone(220,0.1,"square",0.08,160); break;
+    case "bossHit": tone(520,0.12,"square",0.14,260); break;
+    case "shieldBreak": tone(700,0.2,"sine",0.14,300); break;
+    case "bossDie": tone(500,0.6,"sawtooth",0.2,120); noise(0.4,0.2); break;
+  }
+}
+
+/* ============ TILE COLORS / DRAWING ============ */
+function tileColor(t){
+  const w = WORLDS[game.worldIndex] || WORLDS[0];
+  switch(t){
+    case T.WALL: return "#2a2f3d";
+    case T.GROUND: return w.id==="pyroclast"?"#3a241a":(w.id==="nivara"?"#24405a":"#3a5a3a");
+    case T.FLOOR: return "#2f3a4a";
+    case T.AXIOM: return "#4a4a5a";
+    case T.LAVA: return "#ff6a2a";
+    case T.WATER: return "#2f8fd6";
+    case T.ORE: return "#8a6a3a";
+    case T.BRANCH: return "#4a3a24";
+    case T.GEAR: return "#6a5a2a";
+    case T.BLADE: return "#3a3a4a";
+    case T.PORTAL: return "#a67bff";
+    case T.SUNLIGHT: return "#ffd24a";
+    case T.CORE: return "#ff4a5a";
+    case T.SPIKE: return "#9a9aa8";
+    case T.BLOOM: return "#57d977";
+    case T.CRYSTAL: return "#bfe9ff";
+    case T.SHADOW: return "#2a2440";
+    case T.GHOST: return "#5ad0ff";
+    case T.COIL: return "#5ad0ff";
+    case T.CONDUIT: return "#ffd24a";
+    case T.DECO: return w.color;
+    case T.GLOW: return "#ffe58a";
+    default: return "#3a5a3a";
+  }
+}
+function drawSky(){
+  const w = WORLDS[game.worldIndex];
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, w.skyTop); g.addColorStop(1, w.skyBot);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  // ambient drifting motes
+  ctx.globalAlpha = 0.15;
+  for(let i=0;i<24;i++){
+    const x = ((i*137 + game.time*12)%(W+40))-20;
+    const y = (i*71 + Math.sin(game.time*0.3+i)*30) % H;
+    ctx.fillStyle = w.color;
+    ctx.fillRect(x, y, 3, 3);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawTiles(){
+  const cam = game.camera;
+  const x0 = Math.max(0, Math.floor(cam.x/TILE)), x1 = Math.min(game.gw-1, Math.ceil((cam.x+W)/TILE));
+  const y0 = Math.max(0, Math.floor(cam.y/TILE)), y1 = Math.min(game.gh-1, Math.ceil((cam.y+H)/TILE));
+  for(let gy=y0; gy<=y1; gy++){
+    for(let gx=x0; gx<=x1; gx++){
+      const t = game.grid[gy][gx];
+      if(t===T.EMPTY) continue;
+      const px = gx*TILE - cam.x, py = gy*TILE - cam.y;
+      drawTile(t, px, py, gx, gy);
+    }
+  }
+}
+function drawTile(t, px, py, gx, gy){
+  const c = tileColor(t);
+  ctx.fillStyle = c;
+  ctx.fillRect(px, py, TILE, TILE);
+  // subtle top light + inner shade
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.fillRect(px, py, TILE, 4);
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.fillRect(px, py+TILE-5, TILE, 5);
+  // special tiles
+  if(t===T.LAVA){
+    ctx.fillStyle = "rgba(255,220,120,"+(0.4+0.3*Math.sin(game.time*4+gx))+")";
+    ctx.fillRect(px, py, TILE, 6);
+  }
+  if(t===T.BLOOM || t===T.CRYSTAL || t===T.SHADOW || t===T.GHOST || t===T.COIL || t===T.CONDUIT || t===T.GLOW){
+    ctx.save();
+    ctx.strokeStyle = c; ctx.globalAlpha = 0.6+0.3*Math.sin(game.time*3+gx+gy);
+    ctx.lineWidth = 2; ctx.strokeRect(px+2,py+2,TILE-4,TILE-4);
+    ctx.restore();
+  }
+  if(t===T.SPIKE){
+    ctx.fillStyle = "#c8c8d8";
+    ctx.beginPath(); ctx.moveTo(px+TILE/2,py); ctx.lineTo(px+TILE-6,py+TILE); ctx.lineTo(px+6,py+TILE); ctx.closePath(); ctx.fill();
+  }
+  if(t===T.CORE){
+    ctx.fillStyle = "#fff"; ctx.globalAlpha=0.8;
+    ctx.beginPath(); ctx.arc(px+TILE/2,py+TILE/2,8,0,7); ctx.fill(); ctx.globalAlpha=1;
+  }
+  if(t===T.GHOST){
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(px+8,py+8,TILE-16,TILE-16);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawPlayer(){
+  const p = game.player, cam = game.camera;
+  const px = p.x-cam.x, py = p.y-cam.y;
+  const flash = p.invuln>0 && (Math.floor(game.time*20)%2===0);
+  if(flash) ctx.globalAlpha = 0.4;
+  // body
+  const w = WORLDS[game.worldIndex];
+  ctx.fillStyle = "#e2ecff";
+  ctx.fillRect(px, py, p.w, p.h);
+  // head
+  ctx.fillStyle = "#c9d6f2";
+  ctx.fillRect(px+4, py, p.w-8, 12);
+  // eye
+  ctx.fillStyle = w.color;
+  ctx.fillRect(px + (p.facing>0? p.w-12 : 6), py+3, 6, 4);
+  // hammer (blockbinding)
+  const hx = px + (p.facing>0? p.w : -14), hy = py + p.h*0.45;
+  ctx.fillStyle = "#8a93a8"; ctx.fillRect(hx, hy, 4, 16);
+  ctx.fillStyle = "#f2b134"; ctx.fillRect(hx-6, hy-4, 16, 10);
+  if(p.hurtFlash>0){
+    ctx.fillStyle = "rgba(255,60,60,"+p.hurtFlash*1.5+")";
+    ctx.fillRect(px-2,py-2,p.w+4,p.h+4);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawBoss(){
+  const b = game.boss; if(!b) return;
+  const cam = game.camera;
+  const px = b.x-cam.x, py = b.y-cam.y;
+  const pulse = b.coreHit>0 ? 1.4 : 1;
+  ctx.save();
+  // aura
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = b.color;
+  ctx.beginPath(); ctx.arc(px+b.w/2, py+b.h/2, b.w*0.9*pulse, 0, 7); ctx.fill();
+  ctx.globalAlpha = 1;
+  // body
+  ctx.fillStyle = b.color;
+  ctx.fillRect(px, py, b.w, b.h);
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillRect(px, py+b.h-16, b.w, 16);
+  // eyes
+  ctx.fillStyle = "#fff";
+  const ex = px + (b.facing>0? b.w-20 : 8);
+  ctx.fillRect(ex, py+16, 10, 8);
+  // core (the target tile)
+  const cx = b.coreX-cam.x, cy = b.coreY-cam.y;
+  ctx.fillStyle = b.coreHit>0? "#fff" : "#ff4a5a";
+  ctx.beginPath(); ctx.arc(cx, cy, 13*pulse, 0, 7); ctx.fill();
+  ctx.strokeStyle = "#fff"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx, cy, 13*pulse, 0, 7); ctx.stroke();
+  // core is also a breakable tile at its grid cell
+  const cgx = Math.floor(b.coreX/TILE), cgy = Math.floor(b.coreY/TILE);
+  if(gAt(cgx,cgy)!==T.CORE) setAt(cgx,cgy,T.CORE);
+  ctx.restore();
+}
+function drawProjectiles(){
+  const cam = game.camera;
+  for(const pr of game.projectiles){
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = pr.col;
+    ctx.beginPath(); ctx.arc(pr.x-cam.x, pr.y-cam.y, pr.r, 0, 7); ctx.fill();
+    if(pr.flash){ ctx.fillStyle="rgba(255,255,200,0.5)"; ctx.beginPath(); ctx.arc(pr.x-cam.x,pr.y-cam.y,pr.r*2.2,0,7); ctx.fill(); }
+  }
+  ctx.globalAlpha = 1;
+}
+function drawParticles(){
+  const cam = game.camera;
+  for(const pt of game.particles){
+    ctx.globalAlpha = Math.max(0, pt.life);
+    ctx.fillStyle = pt.col;
+    ctx.fillRect(pt.x-cam.x, pt.y-cam.y, 4, 4);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawFloaters(){
+  const cam = game.camera;
+  for(const f of game.floaters){
+    ctx.globalAlpha = Math.min(1, f.life);
+    ctx.fillStyle = f.col;
+    ctx.font = "700 15px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(f.text, f.x-cam.x, f.y-cam.y);
+  }
+  ctx.globalAlpha = 1; ctx.textAlign = "left";
+}
+function render(){
+  if(game.state==="title") { renderTitleBg(); return; }
+  drawSky();
+  ctx.save();
+  if(game.shake>0){
+    ctx.translate((Math.random()-0.5)*game.shake, (Math.random()-0.5)*game.shake);
+  }
+  drawTiles();
+  drawPlayer();
+  drawBoss();
+  drawProjectiles();
+  drawParticles();
+  drawFloaters();
+  ctx.restore();
+  if(game.state==="transition"){
+    ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,W,H);
+    const w = WORLDS[game.worldIndex];
+    ctx.fillStyle = w.color;
+    ctx.font = "800 34px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("FRAGMENT RECOVERED", W/2, H/2-20);
+    ctx.fillStyle = "#fff"; ctx.font = "700 20px Segoe UI, sans-serif";
+    ctx.fillText(FRAG_LABEL[FRAG_ORDER[game.worldIndex]] + "  →  " + w.name, W/2, H/2+20);
+    ctx.textAlign = "left";
+  }
+}
+
+/* ============ HUD ============ */
+function buildFragRail(){
+  const rail = document.getElementById("fragRail");
+  rail.innerHTML = "";
+  FRAG_ORDER.forEach((id, i)=>{
+    const el = document.createElement("div");
+    const active = i === game.worldIndex;
+    const collected = game.fragments.includes(id);
+    el.className = "fragSlot " + (active?"active":"") + (collected||active?"":" locked");
+    el.style.setProperty("--c", WORLDS[i].color);
+    el.innerHTML = '<span class="dot"></span><span class="fname">'+id+
+      (active? ' <span class="power">'+WORLDS[i].power+'</span>':'')+'</span>';
+    rail.appendChild(el);
+  });
+}
+function updateHUD(){
+  const p = game.player;
+  document.getElementById("hpFill").style.width = (p.hp/p.maxHp*100)+"%";
+  document.getElementById("hpNum").textContent = Math.ceil(p.hp)+" / "+p.maxHp;
+  document.getElementById("focusFill").style.width = (p.focus/p.maxFocus*100)+"%";
+  document.getElementById("focusNum").textContent = Math.ceil(p.focus)+" / "+p.maxFocus;
+  document.getElementById("fragCount").textContent = game.fragments.length+" / 7";
+  const b = game.boss;
+  const wrap = document.getElementById("bossWrap");
+  if(b){
+    wrap.style.display="block";
+    document.getElementById("bossName").textContent = b.name;
+    document.getElementById("bossFill").style.width = Math.max(0, b.hp/b.maxHp*100)+"%";
+  } else { wrap.style.display="none"; }
+}
+function setWorldTag(){
+  const w = WORLDS[game.worldIndex];
+  document.getElementById("wtNum").textContent = "WORLD " + (game.worldIndex+1) + " / 7";
+  document.getElementById("wtName").textContent = w.name;
+  document.getElementById("wtName").style.textShadow = "0 0 16px "+w.color;
+  document.getElementById("wtEpithet").textContent = w.epithet;
+}
+function setHint(){
+  const w = WORLDS[game.worldIndex];
+  document.getElementById("hintBig").textContent = "Defeat "+w.boss;
+  document.getElementById("hintSub").textContent = w.objectiveText;
+  const last = game.fragments[game.fragments.length-1];
+  document.getElementById("hintKeys").innerHTML =
+    "<b>Move</b> A/D · <b>Jump</b> Space · <b>Break</b> J · <b>Place</b> K · <b>Power</b> F"+
+    (last? ' <b style="color:'+w.color+'">'+FRAG_ABILITY[last]+'</b>':'');
+}
+
+/* ============ STATE MACHINE ============ */
+function show(el, on){ document.getElementById(el).classList.toggle("hidden", !on); }
+function loadWorld(index, keepPlayer){
+  const lvl = buildLevel(index);
+  game.grid = lvl.grid; game.gw = lvl.gw; game.gh = lvl.gh;
+  game.player = keepPlayer && game.player ? game.player : newPlayer();
+  const p = game.player;
+  if(!keepPlayer){ p.x=lvl.spawn.x; p.y=lvl.spawn.y; p.vx=0; p.vy=0; p.focus=p.maxFocus; }
+  p.block = T.DECO;
+  game.boss = makeBoss(index);
+  game.projectiles = []; game.particles = []; game.floaters = [];
+  game.camera.x = Math.max(0, p.x - W/2);
+  game.camera.y = Math.max(0, p.y - H/2);
+  buildFragRail(); setWorldTag(); setHint(); updateHUD();
+}
+function startGame(fromSave){
+  ensureAudio();
+  show("title", false);
+  show("touch", isTouch());
+  if(fromSave && fromSave.worldIndex != null){
+    game.worldIndex = fromSave.worldIndex;
+    game.fragments = fromSave.fragments || [];
+    showWorldIntro(fromSave.hp || 100);
+  } else {
+    game.worldIndex = 0; game.fragments = []; clearSave();
+    showWorldIntro(100);
+  }
+}
+function showWorldIntro(hp){
+  const w = WORLDS[game.worldIndex];
+  loadWorld(game.worldIndex, false);
+  const p = game.player;
+  if(hp) p.hp = hp;
+  game.state = "dialog";
+  show("hud", true);
+  document.getElementById("dlgTag").textContent = "WORLD " + (game.worldIndex+1) + " OF 7 · " + w.power;
+  document.getElementById("dlgTitle").textContent = w.name + " — " + w.epithet;
+  document.getElementById("dlgLore").innerHTML = w.intro;
+  const mem = document.getElementById("dlgMemory");
+  if(w.memory){
+    mem.classList.remove("hidden");
+    document.getElementById("dlgMemLbl").textContent = w.memoryLbl;
+    document.getElementById("dlgMemText").textContent = w.memory;
+  } else mem.classList.add("hidden");
+  document.getElementById("dlgObjective").innerHTML = "Objective — " + w.objective;
+  show("dialog", true);
+}
+function enterWorld(){ show("dialog", false); game.state = "playing"; updateHUD(); }
+function togglePause(){
+  if(game.state==="playing"){ game.state="paused"; show("pause", true); }
+  else if(game.state==="paused"){ game.state="playing"; show("pause", false); }
+}
+
+function showEnding(){
+  game.state = "ending";
+  show("hud", false);
+  document.getElementById("endTag").textContent = "The Seven Worlds · Reunited";
+  document.getElementById("endTitle").textContent = "The Forge Awakens";
+  document.getElementById("endText").innerHTML =
+    "All seven fragments are gathered in your hammer. The ancient gateways wake, and for the first time since the Great Shattering the seven worlds connect. But Veyron — the Master of Ash — has waited a thousand years for this moment. His Ashbound army descends on the gateways, and beneath it all the <b>Null</b> presses in, consuming even his own power.<br><br>"+
+    "At the First Forge you face your old friend, mask in hand. He has spent an eternity trying to repair a world that cannot be repaired in its original form. And you finally remember: you are Auren, the eighth Architect — the one who made the hammer, the safeguard, and the choice to forget. The choice is yours, and you choose to let the old order end, so something new can begin.";
+  document.getElementById("endInscription").textContent =
+    "“The greatest creation was never the world that could not break. It was the world that could begin again.”";
+  document.getElementById("endPost").innerHTML =
+    "The seven worlds are smaller now. They are more fragile. And they are <b>free</b>.<br>"+
+    "Veyron spends the rest of his life rebuilding the settlements he once destroyed. He learns to build things that can change.<br><br>"+
+    "You return to the island where your journey began. The cracked hammer rests beside a single block of grass. You break it. Beneath it lies a small glowing seed. You plant it. A tiny tree begins to grow — and for the first time in the history of creation, no Architect is watching over it. It grows because the world allows it to grow.<br><br>"+
+    "<b>BLOCKFORGE — THE END</b><br><br>"+
+    "<span style='color:#5a6580;font-size:.78rem'>…and beneath the earth, something older than the First Forge begins to whisper: “The seven worlds were never the whole of creation.”</span>";
+  show("ending", true);
+  clearSave();
+}
+function quitToTitle(){
+  saveGame();
+  game.state = "title";
+  show("hud", false); show("pause", false); show("ending", false);
+  show("title", true);
+  refreshTitle();
+}
+function refreshTitle(){
+  const row = document.getElementById("continueRow");
+  const s = loadGame();
+  if(s && s.worldIndex != null){
+    row.innerHTML = '<button class="btn ghost" id="contBtn" style="margin:0 auto;display:block">Continue — '+
+      WORLDS[s.worldIndex].name+' ('+s.fragments.length+' fragments)</button>';
+    document.getElementById("contBtn").onclick = ()=> startGame(s);
+  } else row.innerHTML = "";
+}
+function isTouch(){ return ("ontouchstart" in window) || (navigator.maxTouchPoints>0); }
+function renderTitleBg(){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#0a1020"); g.addColorStop(1,"#05070d");
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  FRAG_ORDER.forEach((id,i)=>{
+    const x = W/2 + Math.cos(game.time*0.4 + i*0.9) * (W*0.32);
+    const y = H/2 + Math.sin(game.time*0.4 + i*0.9) * (H*0.3);
+    ctx.globalAlpha = 0.5; ctx.fillStyle = WORLDS[i].color;
+    ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fill();
+    ctx.globalAlpha = 0.12; ctx.beginPath(); ctx.arc(x, y, 30, 0, 7); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+function buildTitleFrags(){
+  const strip = document.getElementById("titleFrags");
+  strip.innerHTML = "";
+  FRAG_ORDER.forEach((id,i)=>{
+    const chip = document.createElement("div");
+    chip.className = "fragChip";
+    chip.style.setProperty("--c", WORLDS[i].color);
+    chip.innerHTML = '<span class="cd"></span><span class="cn">'+WORLDS[i].name+'</span><span class="cp">'+WORLDS[i].power+'</span>';
+    strip.appendChild(chip);
+  });
+  document.getElementById("titleKeys").innerHTML =
+    "<b>Move</b> A/D or ← → &nbsp;·&nbsp; <b>Jump</b> W / Space &nbsp;·&nbsp; <b>Break</b> J &nbsp;·&nbsp; <b>Place</b> K &nbsp;·&nbsp; <b>Power</b> F &nbsp;·&nbsp; <b>Pause</b> P";
+}
+
+/* ============ GAME LOOP ============ */
+let lastTime = 0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  if(!lastTime) lastTime = ts;
+  let dt = (ts - lastTime)/1000; lastTime = ts;
+  if(dt > 0.05) dt = 0.05;
+  const active = game.state==="playing" || game.state==="transition" || game.state==="dead";
+  if(active) update(dt);
+  else if(game.state==="title") game.time += dt;
+  render();
+}
+
+/* ============ WIRING / TOUCH ============ */
+function wireUI(){
+  document.getElementById("startBtn").onclick = ()=> startGame(null);
+  document.getElementById("dlgEnter").onclick = enterWorld;
+  document.getElementById("resumeBtn").onclick = togglePause;
+  document.getElementById("quitBtn").onclick = quitToTitle;
+  document.getElementById("endRestart").onclick = ()=>{ show("ending",false); startGame(null); };
+  document.getElementById("endTitle").onclick = ()=>{ show("ending",false); quitToTitle(); };
+  document.getElementById("muteBtn").onclick = ()=>{
+    game.muted = !game.muted;
+    document.getElementById("muteBtn").textContent = game.muted? "♪ Sound: Off" : "♪ Sound: On";
+    ensureAudio();
+  };
+  if(isTouch()) setupTouch();
+}
+function setupTouch(){
+  const joy = document.getElementById("joyBase");
+  const stick = document.getElementById("joyStick");
+  let joyId = null;
+  function joyMove(clientX, clientY){
+    const r = joy.getBoundingClientRect();
+    let dx = clientX - (r.left+r.width/2), dy = clientY - (r.top+r.height/2);
+    const d = Math.hypot(dx,dy), max = r.width/2;
+    if(d>max){ dx=dx/d*max; dy=dy/d*max; }
+    stick.style.transform = "translate("+dx+"px,"+dy+"px)";
+    keys.left = dx < -10; keys.right = dx > 10; keys.up = dy < -14;
+  }
+  joy.addEventListener("touchstart", e=>{ e.preventDefault(); ensureAudio(); const t=e.changedTouches[0]; joyId=t.identifier; joyMove(t.clientX,t.clientY); }, {passive:false});
+  joy.addEventListener("touchmove", e=>{ e.preventDefault(); for(const t of e.changedTouches) if(t.identifier===joyId) joyMove(t.clientX,t.clientY); }, {passive:false});
+  joy.addEventListener("touchend", e=>{ for(const t of e.changedTouches) if(t.identifier===joyId){ joyId=null; keys.left=keys.right=keys.up=false; stick.style.transform="translate(0,0)"; } });
+  const bind = (id, key)=>{
+    const el = document.getElementById(id);
+    el.addEventListener("touchstart", e=>{ e.preventDefault(); ensureAudio(); keys[key]=true; }, {passive:false});
+    el.addEventListener("touchend", e=>{ e.preventDefault(); keys[key]=false; }, {passive:false});
+  };
+  bind("tbBreak","break"); bind("tbPlace","place"); bind("tbJump","up"); bind("tbFocus","focus");
+}
+window.addEventListener("pointerdown", ensureAudio, {once:true});
+
+/* ============ BOOT ============ */
+buildTitleFrags();
+refreshTitle();
+wireUI();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
