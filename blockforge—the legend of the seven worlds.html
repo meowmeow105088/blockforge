@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Blockforge — The Legend of the Seven Worlds</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0e14;font-family:'Segoe UI',system-ui,sans-serif;color:#e2e8f0}
+canvas{display:block;width:100%;height:100%}
+.overlay{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(10,20,15,.88) 0%,rgba(5,12,8,.96) 100%);backdrop-filter:blur(10px);text-align:center}
+.overlay.hidden{display:none}
+.overlay h1{font-size:2.6rem;font-weight:900;letter-spacing:6px;margin-bottom:6px;background:linear-gradient(135deg,#4ade80,#22d3ee,#4ade80);-webkit-background-clip:text;background-clip:text;color:transparent}
+.overlay .tag{color:#94a3b8;font-size:.85rem;letter-spacing:2px;margin-bottom:24px}
+.overlay .lore{max-width:620px;color:#cbd5e1;font-size:.82rem;line-height:1.7;margin-bottom:20px;text-align:left;padding:0 20px}
+.overlay .lore em{color:#86efac;font-style:normal;font-weight:700}
+.overlay .lore .world-name{color:#4ade80;font-weight:800;font-size:.95rem;display:block;margin-bottom:8px;letter-spacing:3px;text-align:center}
+.overlay .controls{display:flex;flex-direction:column;gap:5px;margin:18px 0}
+.overlay .controls div{display:flex;align-items:center;gap:10px;font-size:.78rem;color:#94a3b8}
+.overlay .controls kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:2px 8px;font-size:.7rem;font-weight:700;min-width:90px;text-align:center;color:#e2e8f0}
+.bigbtn{cursor:pointer;background:linear-gradient(135deg,#16a34a,#0d9488);border:none;color:#fff;font-weight:800;font-size:.95rem;letter-spacing:2px;padding:14px 40px;border-radius:10px;box-shadow:0 4px 20px rgba(22,163,74,.35);transition:transform .12s,box-shadow .12s}
+.bigbtn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 30px rgba(22,163,74,.5)}
+.bigbtn.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:#e2e8f0;box-shadow:none}
+.bigbtn.ghost:hover{background:rgba(255,255,255,.15);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.bigbtn.danger{background:linear-gradient(135deg,#dc2626,#991b1b);box-shadow:0 4px 20px rgba(220,38,38,.3)}
+.btnrow{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none}
+#hud.hidden{display:none}
+#crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:20px;height:20px}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.8)}
+#crosshair::before{left:50%;top:0;width:2px;height:100%;transform:translateX(-50%)}
+#crosshair::after{top:50%;left:0;height:2px;width:100%;transform:translateY(-50%)}
+#crosshair.heal-mode::before,#crosshair.heal-mode::after{background:#4ade80}
+#healthBar{position:absolute;bottom:20px;left:20px;width:240px;pointer-events:none}
+#healthBar .hpTrack{height:18px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:9px;overflow:hidden}
+#healthBar .hpFill{height:100%;width:100%;background:linear-gradient(90deg,#ef4444,#f87171);border-radius:9px;transition:width .25s}
+#healthBar .hpLabel{font-size:.65rem;font-weight:700;letter-spacing:1px;margin-top:3px;text-align:center;color:#e2e8f0;text-shadow:0 1px 2px #000}
+#healthBar .xpTrack{height:6px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);border-radius:3px;overflow:hidden;margin-top:6px}
+#healthBar .xpFill{height:100%;width:0%;background:linear-gradient(90deg,#4ade80,#22d3ee);border-radius:3px;transition:width .3s}
+#healthBar .lvlLabel{font-size:.6rem;color:#86efac;font-weight:700;margin-top:2px;text-shadow:0 1px 2px #000}
+#bindBar{position:absolute;bottom:20px;right:20px;width:240px;pointer-events:none}
+#bindBar .bindTrack{height:14px;background:rgba(0,0,0,.55);border:1px solid rgba(74,222,128,.3);border-radius:7px;overflow:hidden}
+#bindBar .bindFill{height:100%;width:100%;background:linear-gradient(90deg,#22d3ee,#4ade80);border-radius:7px;transition:width .3s}
+#bindBar .bindLabel{font-size:.65rem;font-weight:700;letter-spacing:1px;margin-top:3px;text-align:center;color:#86efac;text-shadow:0 1px 2px #000}
+#bindBar .bindHint{font-size:.55rem;color:#64748b;text-align:center;margin-top:2px;text-shadow:0 1px 2px #000}
+#objective{position:absolute;top:16px;left:50%;transform:translateX(-50%);max-width:500px;pointer-events:none}
+#objective .objText{background:rgba(6,14,10,.7);border:1px solid rgba(74,222,128,.25);border-radius:8px;padding:8px 18px;font-size:.78rem;color:#cbd5e1;text-align:center;line-height:1.5}
+#objective .objText b{color:#4ade80}
+#toasts{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column-reverse;gap:6px;pointer-events:none}
+.toast{background:rgba(6,14,10,.85);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:6px 16px;font-size:.75rem;color:#e2e8f0;text-align:center;transition:opacity .5s;white-space:nowrap}
+.toast.big{font-size:.95rem;padding:10px 24px;border-color:rgba(74,222,128,.6)}
+#dialog{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:rgba(5,12,8,.6);backdrop-filter:blur(4px)}
+#dialog.hidden{display:none}
+#dialog .dlgBox{background:rgba(15,25,18,.97);border:1px solid rgba(74,222,128,.3);border-radius:14px;padding:24px 28px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#dialog .dlgName{font-size:.85rem;font-weight:800;color:#4ade80;letter-spacing:2px;margin-bottom:10px}
+#dialog .dlgText{font-size:.82rem;color:#cbd5e1;line-height:1.7;margin-bottom:18px}
+#dialog .dlgText em{color:#86efac;font-style:normal;font-weight:700}
+#dialog .dlgBtns{display:flex;gap:10px;flex-wrap:wrap}
+#dialog .dlgBtns button{cursor:pointer;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.35);color:#e2e8f0;font-weight:700;font-size:.75rem;letter-spacing:.5px;padding:8px 16px;border-radius:8px;transition:background .15s}
+#dialog .dlgBtns button:hover{background:rgba(74,222,128,.3)}
+#bossHp{position:absolute;top:60px;left:50%;transform:translateX(-50%);width:400px;max-width:90vw;pointer-events:none}
+#bossHp.hidden{display:none}
+#bossHp .bossName{font-size:.8rem;font-weight:800;letter-spacing:3px;color:#f87171;text-align:center;margin-bottom:4px;text-shadow:0 0 10px rgba(248,113,113,.5)}
+#bossHp .bossTrack{height:10px;background:rgba(0,0,0,.6);border:1px solid rgba(248,113,113,.4);border-radius:5px;overflow:hidden}
+#bossHp .bossFill{height:100%;width:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:5px;transition:width .2s}
+#damageFlash{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(220,38,38,.5) 100%);opacity:0;pointer-events:none}
+#healGlow{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(74,222,128,.3) 100%);opacity:0;pointer-events:none;transition:opacity .3s}
+#infoPanel{position:absolute;top:12px;left:12px;pointer-events:none}
+#infoPanel .infoRow{background:rgba(6,14,10,.6);border:1px solid rgba(74,222,128,.15);border-radius:6px;padding:4px 10px;font-size:.62rem;color:#94a3b8;margin-bottom:4px}
+#infoPanel .infoRow b{color:#e2e8f0}
+#pauseOverlay{z-index:48}
+#pauseOverlay h1{font-size:1.8rem}
+#deathOverlay{z-index:55}
+#deathOverlay h1{color:#ef4444;background:none;-webkit-background-clip:unset;background-clip:unset}
+#deathOverlay .tag{color:#94a3b8}
+#startOverlay{flex-direction:column}
+#startOverlay .title-sub{font-size:1rem;letter-spacing:8px;color:#22d3ee;margin-top:4px;margin-bottom:20px;font-weight:700}
+#startOverlay .world-badge{display:inline-block;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:20px;padding:6px 20px;font-size:.75rem;color:#4ade80;letter-spacing:2px;margin-bottom:24px;font-weight:700}
+#startOverlay .save-note{margin-top:16px;font-size:.72rem;letter-spacing:1px;color:#67e8f9;min-height:1em}
+/* ---- Right-side world selector ---- */
+#worldMenu{position:fixed;top:50%;right:20px;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+#worldMenu .wm-title{font-size:.6rem;letter-spacing:3px;color:#4ade80;font-weight:800;padding-bottom:4px;text-shadow:0 0 8px rgba(74,222,128,.4)}
+.world-btn{cursor:pointer;display:flex;align-items:center;gap:9px;background:rgba(8,20,14,.72);border:1px solid rgba(74,222,128,.28);color:#e2e8f0;border-radius:10px;padding:9px 12px;min-width:184px;text-align:left;transition:transform .12s,box-shadow .12s,background .12s;backdrop-filter:blur(4px)}
+.world-btn .wb-icon{font-size:1.25rem;width:26px;text-align:center;filter:drop-shadow(0 0 5px rgba(74,222,128,.5))}
+.world-btn .wb-txt{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.world-btn .wb-num{font-size:.52rem;letter-spacing:2px;color:#22d3ee;font-weight:800}
+.world-btn .wb-name{font-size:.78rem;font-weight:800;letter-spacing:1px}
+.world-btn:hover{transform:translateX(-4px);background:rgba(22,163,74,.28);box-shadow:0 4px 18px rgba(22,163,74,.4);border-color:rgba(74,222,128,.6)}
+.world-btn.active{border-color:#4ade80;background:rgba(22,163,74,.32);box-shadow:0 0 22px rgba(74,222,128,.4)}
+.world-btn.locked{opacity:.5;cursor:not-allowed}
+.world-btn.locked:hover{transform:none;box-shadow:none;background:rgba(8,20,14,.72);border-color:rgba(74,222,128,.18)}
+.world-btn.locked .wb-icon{filter:grayscale(1);opacity:.5}
+.world-btn.locked .wb-lock{font-size:.7rem;margin-left:2px;opacity:.8}
+#worldMenuToggle{position:fixed;top:12px;right:12px;z-index:61;cursor:pointer;background:rgba(8,20,14,.72);border:1px solid rgba(74,222,128,.3);color:#e2e8f0;border-radius:9px;padding:8px 12px;font-size:.72rem;font-weight:800;letter-spacing:1px;backdrop-filter:blur(4px);transition:background .12s}
+#worldMenuToggle:hover{background:rgba(22,163,74,.3)}
+#worldMenu.hidden,#worldMenuToggle.hidden{display:none}
+/* ---- Save indicator ---- */
+#saveIndicator{position:absolute;bottom:20px;right:20px;pointer-events:none;background:rgba(6,14,10,.7);border:1px solid rgba(34,211,238,.3);border-radius:7px;padding:5px 11px;font-size:.64rem;color:#67e8f9;letter-spacing:.5px;opacity:0;transition:opacity .4s}
+#saveIndicator.show{opacity:1}
+#saveIndicator .si-ico{margin-right:5px}
+#victoryOverlay h1{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ---- Mobile touch controls ---- */
+#mobileUI{display:none;pointer-events:none}
+body.mobile #mobileUI{display:block}
+#mobileUI #joyBase,#mobileUI #lookZone,#mobileUI .mBtn,#mobileUI #btnPauseM{pointer-events:auto}
+body.mobile #hud #objective,body.mobile #hud #infoPanel{display:none}
+#joyBase{position:fixed;left:24px;bottom:34px;width:132px;height:132px;border-radius:50%;background:rgba(10,25,18,.32);border:2px solid rgba(74,222,128,.35);z-index:30;touch-action:none;-webkit-tap-highlight-color:transparent}
+#joyStick{position:absolute;left:50%;top:50%;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(134,239,172,.9),rgba(22,163,74,.75));border:2px solid rgba(255,255,255,.4);box-shadow:0 3px 14px rgba(0,0,0,.5);transform:translate(-50%,-50%);pointer-events:none}
+#lookZone{position:fixed;right:0;top:0;width:55%;height:100%;z-index:29;touch-action:none}
+.mBtn{position:fixed;z-index:31;cursor:pointer;border:2px solid rgba(74,222,128,.45);background:rgba(10,25,18,.4);color:#e2e8f0;border-radius:18px;font-weight:800;letter-spacing:1px;font-size:.72rem;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:none}
+.mBtn .ico{font-size:1.35rem;line-height:1}
+.mBtn.active{background:rgba(22,163,74,.55);border-color:#4ade80;transform:scale(.94)}
+#btnJump{right:24px;bottom:118px;width:72px;height:72px;border-radius:50%}
+#btnSprint{right:108px;bottom:60px;width:62px;height:62px;border-radius:50%;border-color:rgba(34,211,238,.45);background:rgba(10,25,30,.4)}
+#btnBreak{left:176px;bottom:52px;width:78px;height:78px;border-radius:50%;border-color:rgba(251,191,36,.5)}
+#btnPlace{left:176px;bottom:146px;width:62px;height:62px;border-radius:50%;border-color:rgba(134,239,172,.5)}
+#btnTalk{right:108px;bottom:132px;width:58px;height:58px;border-radius:50%;border-color:rgba(236,72,153,.5)}
+#btnPauseM{position:fixed;top:12px;left:12px;z-index:32;cursor:pointer;background:rgba(8,20,14,.72);border:1px solid rgba(74,222,128,.35);color:#e2e8f0;border-radius:9px;padding:8px 14px;font-size:.72rem;font-weight:800;letter-spacing:1px;backdrop-filter:blur(4px)}
+#btnPauseM:active{background:rgba(22,163,74,.35)}
+body.mobile #crosshair{opacity:.9}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" class="hidden">
+<div id="crosshair"></div>
+<div id="healthBar">
+<div class="hpTrack"><div class="hpFill" id="hpFill"></div></div>
+<div class="hpLabel" id="hpLabel">HP 100/100</div>
+<div class="xpTrack"><div class="xpFill" id="xpFill"></div></div>
+<div class="lvlLabel" id="lvlLabel">Level 1</div>
+</div>
+<div id="bindBar">
+<div class="bindTrack"><div class="bindFill" id="bindFill"></div></div>
+<div class="bindLabel" id="bindLabel">✦ Binding 100%</div>
+<div class="bindHint">Hold LMB to bind corrupted blocks</div>
+</div>
+<div id="objective"><div class="objText" id="objText">Explore <b>Verdantia</b> and find <b>Hollowreach</b></div></div>
+<div id="toasts"></div>
+<div id="infoPanel">
+<div class="infoRow" id="fpsRow">FPS: <b id="fpsTxt">--</b></div>
+<div class="infoRow" id="posRow">Pos: <b id="posTxt">--</b></div>
+<div class="infoRow" id="timeRow">Time: <b id="timeTxt">☀ Day</b></div>
+</div>
+<div id="bossHp" class="hidden">
+<div class="bossName" id="bossName">ROOTWARDEN</div>
+<div class="bossTrack"><div class="bossFill" id="bossFill"></div></div>
+</div>
+<div id="saveIndicator"><span class="si-ico">💾</span><span id="saveText">Saved</span></div>
+<div id="mobileUI">
+<div id="lookZone"></div>
+<div id="joyBase"><div id="joyStick"></div></div>
+<button class="mBtn" id="btnJump"><span class="ico">⬆</span><span>JUMP</span></button>
+<button class="mBtn" id="btnSprint"><span class="ico">⚡</span><span>RUN</span></button>
+<button class="mBtn" id="btnBreak"><span class="ico">⛏</span><span>MINE</span></button>
+<button class="mBtn" id="btnPlace"><span class="ico">🧱</span><span>PLACE</span></button>
+<button class="mBtn" id="btnTalk"><span class="ico">💬</span><span>TALK</span></button>
+<button id="btnPauseM">⏸ PAUSE</button>
+</div>
+</div>
+<div id="damageFlash"></div>
+<div id="healGlow"></div>
+<div id="dialog" class="hidden">
+<div class="dlgBox">
+<div class="dlgName" id="dlgName">MIRA</div>
+<div class="dlgText" id="dlgText"></div>
+<div class="dlgBtns" id="dlgBtns"></div>
+</div>
+</div>
+<div id="startOverlay" class="overlay">
+<h1>BLOCKFORGE</h1>
+<div class="title-sub">THE LEGEND OF THE SEVEN WORLDS</div>
+<div class="world-badge">WORLD I — VERDANTIA</div>
+<div class="lore">
+<span class="world-name">CHAPTER V · The Kingdom Beneath the Leaves</span>
+Long before the Great Shattering, Verdantia was a paradise of endless forests, singing rivers, and a great tree
+called the <em>Heartwood</em> that touched the sky. Its roots drank from the Worldcore and its leaves breathed life
+into every creature beneath them. The <em>Hollowreach</em> village nestled in the Heartwood's shadow, its people
+the last keepers of the old Blockbinding arts.
+<br><br>
+But the Shattering corrupted the world. Black tendrils of the <em>Null</em> crept through the roots, turning
+living wood to obsidian. The Heartwood's glow dimmed. The people of Hollowreach fled, and the great tree stood
+alone, slowly dying.
+<br><br>
+You are the first to arrive in a thousand years. The old woman <em>Mira</em> still waits in Hollowreach, tending
+the last embers of the Binding. She knows the truth: deep beneath the Heartwood's roots, something ancient stirs.
+The <em>Rootwarden</em> — a guardian turned by corruption — has awakened. It must be stopped, or Verdantia will
+fall silent forever.
+<br><br>
+<em>Heal the corrupted blocks. Restore the Heartwood. Face the Rootwarden.</em>
+</div>
+<div class="controls">
+<div><kbd>W A S D</kbd> Move</div>
+<div><kbd>Mouse</kbd> Look around</div>
+<div><kbd>Space</kbd> Jump</div>
+<div><kbd>Shift</kbd> Sprint</div>
+<div><kbd>LMB (hold)</kbd> Mine / <span style="color:#4ade80">Bind</span> corrupted blocks</div>
+<div><kbd>RMB</kbd> Place block</div>
+<div><kbd>1 – 9</kbd> Select block</div>
+<div><kbd>E</kbd> Talk to nearby NPC</div>
+<div><kbd>ESC</kbd> Pause</div>
+</div>
+<div class="btnrow">
+<button class="bigbtn" id="playBtn">NEW JOURNEY</button>
+<button class="bigbtn ghost hidden" id="continueBtn">▶ CONTINUE SAVED WORLD</button>
+</div>
+<div class="save-note" id="saveNote"></div>
+</div>
+<button id="worldMenuToggle">🌍 WORLDS</button>
+<div id="worldMenu" class="hidden"></div>
+<div id="pauseOverlay" class="overlay hidden">
+<h1>PAUSED</h1>
+<div class="tag">The forest holds its breath…</div>
+<div style="display:flex;flex-direction:column;gap:14px;align-items:center">
+<button class="bigbtn" id="pauseResume">▶ RESUME</button>
+<button class="bigbtn ghost" id="pauseHelp">📖 CONTROLS</button>
+<button class="bigbtn ghost danger" id="pauseQuit">🚪 QUIT TO MENU</button>
+</div>
+</div>
+<div id="deathOverlay" class="overlay hidden">
+<h1>THE FOREST CLAIMS YOU</h1>
+<div class="tag" id="deathStats">The leaves close over your resting place…</div>
+<button class="bigbtn" id="respawnBtn">RISE AGAIN</button>
+</div>
+<div id="victoryOverlay" class="overlay hidden">
+<h1>VERDANTIA RESTORED</h1>
+<div class="tag">The Heartwood glows with renewed life</div>
+<div class="lore" style="text-align:center">
+The Rootwarden falls, its corruption finally cleansed. A great sigh ripples through the forest as the Heartwood's
+light blooms back to full brilliance. The rivers sing again. The flowers open.<br><br>
+Mira smiles — the first time in a thousand years.<br><br>
+<em>"The other worlds await, traveler. The legend continues…"</em>
+</div>
+<div class="btnrow">
+<button class="bigbtn" id="victoryBtn">CONTINUE JOURNEY</button>
+<button class="bigbtn ghost" id="victoryMenu">MAIN MENU</button>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ==================== GLOBAL ERROR CATCHER ====================
+(function(){
+function showErr(msg){
+try{
+var d=document.createElement('div');
+d.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9999;background:#7f1d1d;color:#fecaca;border:2px solid #ef4444;border-radius:10px;padding:12px 20px;font-family:monospace;font-size:.8rem;max-width:80vw;white-space:pre-wrap;box-shadow:0 8px 30px rgba(0,0,0,.6)';
+d.textContent='⚠ JS ERROR: '+msg;
+document.body.appendChild(d);
+console.error('GAME ERROR:',msg);
+}catch(_){}
+}
+window.addEventListener('error',function(e){
+showErr(e.message+' @ '+(e.lineno||'?')+':'+(e.colno||'?'));
+});
+window.addEventListener('unhandledrejection',function(e){
+showErr('Promise: '+(e.reason&&e.reason.message?e.reason.message:JSON.stringify(e.reason)));
+});
+})();
+// ==================== CONSTANTS ====================
+const WORLD=128,CHUNK=16,CH=WORLD/CHUNK,HEIGHT=48,SEA=8,SEED=7741;
+const B={AIR:0,DIRT:1,GRASS:2,STONE:3,WOOD:4,LEAVES:5,FLOWER:6,SAND:7,WATER:8,CORRUPTED:9,HEARTWOOD:10,ROOT:11,FLOWER2:12,PLANK:13,ROOF:14,LANTERN:15,BRIDGE:16,HEARTLEAF:17};
+const BLOCKS={
+[B.AIR]:{name:'Air',color:0x000000},
+[B.DIRT]:{name:'Dirt',color:0x8B6914},
+[B.GRASS]:{name:'Grass',color:0x4a8c3f},
+[B.STONE]:{name:'Stone',color:0x808a94},
+[B.WOOD]:{name:'Wood',color:0x6b4423},
+[B.LEAVES]:{name:'Leaves',color:0x2d6b1e},
+[B.FLOWER]:{name:'Flower',color:0xff6b9d},
+[B.SAND]:{name:'Sand',color:0xd4c48a},
+[B.WATER]:{name:'Water',color:0x3a7bd5,liquid:true},
+[B.CORRUPTED]:{name:'Corrupted',color:0x0a0a0f,glow:0x1a0a2e},
+[B.HEARTWOOD]:{name:'Heartwood',color:0x3d2b1f,glow:0x4ade80},
+[B.ROOT]:{name:'Root',color:0x4a3520,glow:0x22d3ee},
+[B.FLOWER2]:{name:'Blue Flower',color:0x60a5fa},
+[B.PLANK]:{name:'Plank',color:0xa07840},
+[B.ROOF]:{name:'Roof',color:0x6b4423},
+[B.LANTERN]:{name:'Lantern',color:0xffd700,glow:0xffa500},
+[B.BRIDGE]:{name:'Bridge',color:0x7a5c35},
+[B.HEARTLEAF]:{name:'Heartleaf',color:0x22c55e,glow:0x4ade80}
+};
+const HOTBAR=[B.GRASS,B.DIRT,B.STONE,B.WOOD,B.PLANK,B.ROOF,B.LANTERN,B.BRIDGE,0];
+
+// ==================== RNG ====================
+function hash2(x,z,seed){let h=seed+x*374761393+z*668265263;h=(h^(h>>13))*1274126177;h=h^(h>>16);return(h>>>0)/4294967296}
+function noise2(x,z,seed){const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi,u=xf*xf*(3-2*xf),v=zf*zf*(3-2*zf),a=hash2(xi,zi,seed),b=hash2(xi+1,zi,seed),c=hash2(xi,zi+1,seed),d=hash2(xi+1,zi+1,seed);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,z,seed,oct){let v=0,amp=1,freq=1,max=0;for(let i=0;i<oct;i++){v+=noise2(x*freq,z*freq,seed+i*1000)*amp;max+=amp;amp*=.5;freq*=2}return v/max}
+
+// ==================== THREE SETUP ====================
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+// Safe pointer-lock wrapper: some webviews/mobile browsers lack requestPointerLock
+function lockPointer(){if(canvas&&typeof canvas.requestPointerLock==='function'){try{canvas.requestPointerLock();}catch(e){console.warn('Pointer lock unavailable:',e);}}}
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xb8e0d6);
+scene.fog=new THREE.FogExp2(0xb8e0d6,0.008);
+const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,500);
+scene.add(camera);
+const ambLight=new THREE.AmbientLight(0xc8e6c9,0.7);scene.add(ambLight);
+const sun=new THREE.DirectionalLight(0xfff4e0,1.2);sun.position.set(80,120,40);scene.add(sun);
+const hemiLight=new THREE.HemisphereLight(0x87ceeb,0x3a5a3a,0.4);scene.add(hemiLight);
+
+// ==================== WORLD DATA ====================
+const worldData=new Uint8Array(WORLD*HEIGHT*WORLD);
+function blockIdx(x,y,z){return x+z*WORLD+y*WORLD*WORLD}
+function getBlock(x,y,z){if(x<0||x>=WORLD||y<0||y>=HEIGHT||z<0||z>=WORLD)return B.AIR;return worldData[blockIdx(x,y,z)]}
+function setBlock(x,y,z,v){if(x<0||x>=WORLD||y<0||y>=HEIGHT||z<0||z>=WORLD)return;worldData[blockIdx(x,y,z)]=v}
+function solidAt(x,y,z){const b=getBlock(Math.floor(x),Math.floor(y),Math.floor(z));return b!==B.AIR&&b!==B.WATER&&b!==B.FLOWER&&b!==B.FLOWER2}
+function groundH(x,z){return Math.floor(fbm(x*0.02,z*0.02,SEED,5)*24+fbm(x*0.08,z*0.08,SEED+500,3)*6+4)}
+let heartwoodCX=64,heartwoodCZ=64,heartwoodBaseY=8;
+const villageCX=40,villageCZ=40;
+const corruptedZones=[];
+
+// ==================== WORLD GENERATION ====================
+function genTerrain(){
+for(let z=0;z<WORLD;z++)for(let x=0;x<WORLD;x++){
+let h=groundH(x,z);
+const dv=Math.hypot(x-villageCX,z-villageCZ),dh=Math.hypot(x-heartwoodCX,z-heartwoodCZ);
+if(dv<14)h=h*0.3+10*0.7;
+if(dh<20)h=h*0.2+8*0.8;
+if(dh<6)h=8;
+const hi=Math.floor(h);
+for(let y=0;y<=hi;y++){
+let block;
+if(y===0)block=B.STONE;
+else if(y<hi-2)block=B.DIRT;
+else if(y===hi){if(hi<SEA)block=B.SAND;else block=B.GRASS}
+else block=B.DIRT;
+setBlock(x,y,z,block);
+if(hi<SEA)for(let y=hi+1;y<=SEA;y++)setBlock(x,y,z,B.WATER);
+}}}
+
+function genCorruption(){
+for(let i=0;i<18;i++){
+const rng=mulberry32(SEED+i*31);
+const angle=rng()*Math.PI*2,dist=25+rng()*35;
+const cx=Math.floor(heartwoodCX+Math.cos(angle)*dist),cz=Math.floor(heartwoodCZ+Math.sin(angle)*dist);
+if(cx<4||cx>=WORLD-4||cz<4||cz>=WORLD-4)continue;
+const r=3+rng()*6,strength=0.5+rng()*0.5;
+corruptedZones.push({x:cx,z:cz,r:r,strength:strength});
+const r2=r*r;
+const x0=Math.max(0,cx-Math.ceil(r)-1),x1=Math.min(WORLD-1,cx+Math.ceil(r)+1);
+const z0=Math.max(0,cz-Math.ceil(r)-1),z1=Math.min(WORLD-1,cz+Math.ceil(r)+1);
+for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++){
+const d2=(x-cx)**2+(z-cz)**2;
+if(d2>r2*1.5)continue;
+const falloff=1-Math.sqrt(d2/r2);
+if(falloff<=0)continue;
+const hi=groundH(x,z);
+for(let y=Math.max(0,hi-3);y<=hi+1;y++){
+const b=getBlock(x,y,z);
+if(b===B.GRASS||b===B.DIRT||b===B.STONE||b===B.WOOD||b===B.LEAVES){
+if(Math.random()<falloff*strength)setBlock(x,y,z,B.CORRUPTED);
+}}
+}}}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+
+
+function genTrees(){
+const rng=mulberry32(SEED+42);
+for(let i=0;i<200;i++){
+const x=Math.floor(rng()*WORLD),z=Math.floor(rng()*WORLD);
+if(Math.hypot(x-villageCX,z-villageCZ)<14)continue;
+if(Math.hypot(x-heartwoodCX,z-heartwoodCZ)<12)continue;
+const hi=groundH(x,z);
+if(hi<SEA+1||hi>28)continue;
+if(getBlock(x,hi,z)!==B.GRASS)continue;
+const th=4+Math.floor(rng()*5);
+for(let y=1;y<=th;y++)setBlock(x,hi+y,z,B.WOOD);
+const cy=hi+th;
+for(let dy=-1;dy<=2;dy++){
+const rr=dy<=0?2:1;
+for(let dz=-rr;dz<=rr;dz++)for(let dx=-rr;dx<=rr;dx++){
+if(Math.abs(dx)===rr&&Math.abs(dz)===rr&&rng()<0.5)continue;
+if(getBlock(x+dx,cy+dy,z+dz)===B.AIR)setBlock(x+dx,cy+dy,z+dz,B.LEAVES);
+}}
+for(let k=0;k<3;k++){
+const fx=x+Math.floor(rng()*3)-1,fz=z+Math.floor(rng()*3)-1;
+if(fx<0||fx>=WORLD||fz<0||fz>=WORLD)continue;
+if(getBlock(fx,hi+1,fz)===B.AIR&&getBlock(fx,hi,fz)===B.GRASS)
+setBlock(fx,hi+1,fz,rng()<0.5?B.FLOWER:B.FLOWER2);
+}}}
+
+
+
+function genHeartwood(){
+const cx=heartwoodCX,cz=heartwoodCZ,baseY=8;
+for(let z=cz-5;z<=cz+5;z++)for(let x=cx-5;x<=cx+5;x++){
+if(Math.hypot(x-cx,z-cz)<=5.5)
+for(let y=baseY;y<baseY+2;y++)if(getBlock(x,y,z)===B.AIR)setBlock(x,y,z,B.HEARTWOOD);
+}
+for(let y=1;y<=28;y++){
+const yAbs=baseY+y;
+if(yAbs>=HEIGHT)break;
+const spread=y<4?2:1;
+for(let dz=-spread;dz<=spread;dz++)for(let dx=-spread;dx<=spread;dx++){
+if(Math.abs(dx)===spread&&Math.abs(dz)===spread)continue;
+if(getBlock(cx+dx,yAbs,cz+dz)===B.AIR)setBlock(cx+dx,yAbs,cz+dz,B.HEARTWOOD);
+}}
+const branchHeights=[8,14,20,25];
+for(let bi=0;bi<branchHeights.length;bi++){
+const bh=baseY+branchHeights[bi],angle=(bi/branchHeights.length)*Math.PI*2+0.3,len=6+bi*2;
+for(let t=1;t<=len;t++){
+const bx=Math.floor(cx+Math.cos(angle)*t),bz=Math.floor(cz+Math.sin(angle)*t),by=bh+Math.floor(t*0.4);
+if(bx<1||bx>=WORLD-1||bz<1||bz>=WORLD-1||by>=HEIGHT)continue;
+if(getBlock(bx,by,bz)===B.AIR)setBlock(bx,by,bz,B.HEARTWOOD);
+if(t>=len-2){
+for(let lz=-2;lz<=2;lz++)for(let lx=-2;lx<=2;lx++){
+const lx2=bx+lx,lz2=bz+lz;
+if(lx2<0||lx2>=WORLD||lz2<0||lz2>=WORLD||by+1>=HEIGHT)continue;
+if(getBlock(lx2,by+1,lz2)===B.AIR&&Math.abs(lx)+Math.abs(lz)<=3)setBlock(lx2,by+1,lz2,B.HEARTLEAF);
+}}}
+}
+for(let ri=0;ri<8;ri++){
+const angle=(ri/8)*Math.PI*2,len=8+(ri%3)*3;
+for(let t=1;t<=len;t++){
+const rx=Math.floor(cx+Math.cos(angle)*t),rz=Math.floor(cz+Math.sin(angle)*t);
+if(rx<0||rx>=WORLD||rz<0||rz>=WORLD)continue;
+const hi=groundH(rx,rz),ry=Math.max(hi,baseY-1);
+if(ry>=HEIGHT)continue;
+if(getBlock(rx,ry,rz)===B.AIR||getBlock(rx,ry,rz)===B.GRASS||getBlock(rx,ry,rz)===B.DIRT)setBlock(rx,ry,rz,B.ROOT);
+if(t>len-3){
+for(let lz=-1;lz<=1;lz++)for(let lx=-1;lx<=1;lx++){
+const lx2=rx+lx,lz2=rz+lz;
+if(lx2<0||lx2>=WORLD||lz2<0||lz2>=WORLD||ry+1>=HEIGHT)continue;
+if(getBlock(lx2,ry+1,lz2)===B.AIR)setBlock(lx2,ry+1,lz2,B.HEARTLEAF);
+}}}
+}
+const glowLight=new THREE.PointLight(0x4ade80,2,40);
+glowLight.position.set(cx,baseY+31,cz);
+scene.add(glowLight);
+}
+
+function genVillage(){
+const houses=[
+{x:villageCX-5,z:villageCZ-3,w:4,d:4,h:3},
+{x:villageCX+2,z:villageCZ-5,w:5,d:4,h:3},
+{x:villageCX-3,z:villageCZ+3,w:4,d:5,h:4},
+{x:villageCX+4,z:villageCZ+2,w:4,d:4,h:3},
+{x:villageCX,z:villageCZ,w:6,d:5,h:4}
+];
+for(const h of houses){
+const baseY=groundH(h.x,h.z)+1;
+for(let z=h.z;z<h.z+h.d;z++)for(let x=h.x;x<h.x+h.w;x++){
+if(x<0||x>=WORLD||z<0||z>=WORLD)continue;
+if(getBlock(x,baseY,z)===B.AIR)setBlock(x,baseY,z,B.PLANK);
+}
+for(let y=1;y<=h.h;y++)for(let z=h.z;z<h.z+h.d;z++)for(let x=h.x;x<h.x+h.w;x++){
+if(x<0||x>=WORLD||z<0||z>=WORLD||baseY+y>=HEIGHT)continue;
+const isEdge=x===h.x||x===h.x+h.w-1||z===h.z||z===h.z+h.d-1;
+const isDoor=(z===h.z+Math.floor(h.d/2)&&x===h.x+Math.floor(h.w/2))&&y<=2;
+if(isEdge&&!isDoor){if(getBlock(x,baseY+y,z)===B.AIR)setBlock(x,baseY+y,z,B.PLANK)}
+if(isEdge&&y===2&&(x===h.x+1||x===h.x+h.w-2||z===h.z+1||z===h.z+h.d-2)){
+if(getBlock(x,baseY+y,z)===B.PLANK)setBlock(x,baseY+y,z,B.LANTERN);
+}}
+const roofY=baseY+h.h+1;
+for(let z=h.z-1;z<=h.z+h.d;z++)for(let x=h.x-1;x<=h.x+h.w;x++){
+if(x<0||x>=WORLD||z<0||z>=WORLD||roofY>=HEIGHT)continue;
+if(getBlock(x,roofY,z)===B.AIR)setBlock(x,roofY,z,B.ROOF);
+}
+const lx=h.x+Math.floor(h.w/2),lz=h.z-1;
+if(lz>0&&lz<WORLD&&lx>0&&lx<WORLD){
+const ly=baseY+1;
+if(ly<HEIGHT&&getBlock(lx,ly,lz)===B.AIR)setBlock(lx,ly,lz,B.LANTERN);
+const lLight=new THREE.PointLight(0xffa500,0.8,8);
+lLight.position.set(lx+0.5,ly+0.5,lz+0.5);
+scene.add(lLight);
+}}
+}
+
+
+// ==================== MESHING ====================
+const dirty=new Set();
+const meshes=new Map();
+function makeBlockMaterial(blockId){
+const d=BLOCKS[blockId];
+if(!d)return new THREE.MeshLambertMaterial({color:0xff00ff,side:THREE.DoubleSide});
+const mat={color:d.color,side:THREE.DoubleSide};
+if(d.liquid){mat.transparent=true;mat.opacity=0.7;mat.depthWrite=false}
+if(d.glow){mat.emissive=d.glow;mat.emissiveIntensity=0.3}
+return new THREE.MeshLambertMaterial(mat);
+}
+function buildChunkMesh(cx,cz){
+const key=cx+cz*CH;
+if(meshes.has(key)){
+const old=meshes.get(key);
+scene.remove(old);
+old.traverse(c=>{if(c.geometry)c.geometry.dispose();if(c.material)c.material.dispose()});
+meshes.delete(key);
+}
+const byType=new Map();
+const x0=cx*CHUNK,z0=cz*CHUNK;
+for(let lz=0;lz<CHUNK;lz++)for(let lx=0;lx<CHUNK;lx++){
+const x=x0+lx,z=z0+lz;
+for(let y=0;y<HEIGHT;y++){
+const b=getBlock(x,y,z);
+if(b===B.AIR)continue;
+const nb=[getBlock(x+1,y,z),getBlock(x-1,y,z),getBlock(x,y+1,z),getBlock(x,y-1,z),getBlock(x,y,z+1),getBlock(x,y,z-1)];
+const allSolid=nb.every(n=>n!==B.AIR&&n!==B.WATER&&n!==B.FLOWER&&n!==B.FLOWER2);
+if(allSolid)continue;
+if(!byType.has(b))byType.set(b,[]);
+byType.get(b).push([x,y,z]);
+}}
+if(!byType.size)return;
+const group=new THREE.Group();
+for(const[blockId,positions]of byType){
+const geo=new THREE.BufferGeometry();
+const verts=[],norms=[],uvs=[],idx=[];
+const d=BLOCKS[blockId];
+const isLiquid=d.liquid;
+for(const[x,y,z]of positions){
+const vi=verts.length/3;
+const addFace=(nx,ny,nz,corners)=>{
+const nb=getBlock(x+nx,y+ny,z+nz);
+const nbSolid=nb!==B.AIR&&nb!==B.WATER&&nb!==B.FLOWER&&nb!==B.FLOWER2;
+if(nbSolid)return;
+if(isLiquid&&ny!==1)return;
+for(const c of corners){
+verts.push(x+c[0],y+c[1],z+c[2]);
+norms.push(nx,ny,nz);
+uvs.push(c[3],c[4]);
+}
+idx.push(vi,vi+1,vi+2,vi,vi+2,vi+3);
+};
+addFace(1,0,0,[[1,0,0,1,0],[1,1,0,1,1],[1,1,1,0,1],[1,0,1,0,0]]);
+addFace(-1,0,0,[[0,0,0,0,0],[0,1,0,0,1],[0,1,1,1,1],[0,0,1,1,0]]);
+addFace(0,1,0,[[0,1,0,0,0],[1,1,0,1,0],[1,1,1,1,1],[0,1,1,0,1]]);
+addFace(0,-1,0,[[0,0,0,0,0],[0,0,1,0,1],[1,0,1,1,1],[1,0,0,1,0]]);
+addFace(0,0,1,[[0,0,1,0,0],[1,0,1,1,0],[1,1,1,1,1],[0,1,1,0,1]]);
+addFace(0,0,-1,[[1,0,0,0,0],[0,0,0,1,0],[0,1,0,1,1],[1,1,0,0,1]]);
+}
+if(verts.length===0)continue;
+geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+geo.setAttribute('normal',new THREE.Float32BufferAttribute(norms,3));
+geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+geo.setIndex(idx);
+const mat=makeBlockMaterial(blockId);
+const mesh=new THREE.Mesh(geo,mat);
+group.add(mesh);
+}
+scene.add(group);
+meshes.set(key,group);
+}
+function flushDirty(){
+for(const key of dirty){
+const cx=key%CH,cz=Math.floor(key/CH);
+buildChunkMesh(cx,cz);
+}
+dirty.clear();
+}
+
+// ==================== PLAYER ====================
+const player={
+pos:new THREE.Vector3(50,15,50),
+vel:new THREE.Vector3(),
+yaw:0,pitch:0,
+onGround:false,
+dead:false,
+hp:100,maxHp:100,
+hurtCd:0,
+level:1,xp:0,
+binding:100,maxBinding:100,
+kills:0,bound:0,
+inv:{wood:0,stone:0,dirt:0,leaves:0,heartwood:0}
+};
+const GRAVITY=-22,JUMP=8.5,WALK=4.5,SPRINT=7.5,PLAYER_H=1.8,PLAYER_R=0.35;
+let selSlot=0;
+// Mobile joystick state: -1..1 for forward/right
+const joy={f:0,s:0};
+function movePlayer(dt){
+const sprint=keys['ShiftLeft']||keys['ShiftRight']||joySprint;
+const speed=sprint?SPRINT:WALK;
+let f=(keys['KeyW']?1:0)-(keys['KeyS']?1:0);
+let s=(keys['KeyD']?1:0)-(keys['KeyA']?1:0);
+if(mobileActive){f=joy.f;s=joy.s}
+const mx=(-Math.sin(player.yaw)*f+Math.cos(player.yaw)*s)*speed;
+const mz=(-Math.cos(player.yaw)*f-Math.sin(player.yaw)*s)*speed;
+player.vel.x+=(mx-player.vel.x)*Math.min(1,10*dt);
+player.vel.z+=(mz-player.vel.z)*Math.min(1,10*dt);
+player.vel.y+=GRAVITY*dt;
+if((keys['Space']||jumpHeld)&&player.onGround){player.vel.y=JUMP;player.onGround=false}
+moveAxis(0,player.vel.x*dt);
+moveAxis(2,player.vel.z*dt);
+moveAxis(1,player.vel.y*dt);
+}
+function moveAxis(axis,delta){
+if(delta===0)return;
+const pos=player.pos;
+if(axis===0)pos.x+=delta;else if(axis===1)pos.y+=delta;else pos.z+=delta;
+const r=PLAYER_R,h=PLAYER_H;
+const min=new THREE.Vector3(pos.x-r,pos.y,pos.z-r);
+const max=new THREE.Vector3(pos.x+r,pos.y+h,pos.z+r);
+const x0=Math.floor(min.x),x1=Math.floor(max.x);
+const y0=Math.floor(min.y),y1=Math.floor(max.y);
+const z0=Math.floor(min.z),z1=Math.floor(max.z);
+for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++){
+if(!solidAt(x+0.5,y+0.5,z+0.5))continue;
+if(axis===0){if(delta>0)pos.x=x-r-0.01;else pos.x=x+1+r+0.01;player.vel.x=0}
+else if(axis===1){if(delta>0){pos.y=y-h-0.01;player.vel.y=0}else{pos.y=y+1+0.01;player.vel.y=0;player.onGround=true}}
+else{if(delta>0)pos.z=z-r-0.01;else pos.z=z+1+r+0.01;player.vel.z=0}
+return;
+}
+if(axis===1&&delta<0)player.onGround=false;
+}
+function respawn(){
+player.pos.set(50,15,50);
+player.vel.set(0,0,0);
+player.yaw=0;player.pitch=0;
+player.dead=false;
+player.hp=player.maxHp;
+player.hurtCd=0;
+document.getElementById('deathOverlay').classList.add('hidden');
+}
+
+// ==================== INPUT ====================
+const keys={};
+let pointerLocked=false,mouseL=false,mouseR=false;
+document.addEventListener('keydown',e=>{
+keys[e.code]=true;
+if(e.code==='Space')e.preventDefault();
+if(e.code==='KeyE')tryTalk();
+if(e.code==='Escape')togglePause();
+if(e.code==='Digit1')selSlot=0;
+if(e.code==='Digit2')selSlot=1;
+if(e.code==='Digit3')selSlot=2;
+if(e.code==='Digit4')selSlot=3;
+if(e.code==='Digit5')selSlot=4;
+if(e.code==='Digit6')selSlot=5;
+if(e.code==='Digit7')selSlot=6;
+if(e.code==='Digit8')selSlot=7;
+if(e.code==='Digit9')selSlot=8;
+});
+document.addEventListener('keyup',e=>{keys[e.code]=false});
+canvas.addEventListener('click',()=>{
+if(gameStarted&&!player.dead&&!pointerLocked&&!paused)lockPointer();
+});
+document.addEventListener('pointerlockchange',()=>{
+pointerLocked=document.pointerLockElement===canvas;
+});
+document.addEventListener('mousemove',e=>{
+if(!pointerLocked)return;
+player.yaw-=e.movementX*0.002;
+player.pitch-=e.movementY*0.002;
+player.pitch=Math.max(-Math.PI/2+0.01,Math.min(Math.PI/2-0.01,player.pitch));
+});
+canvas.addEventListener('mousedown',e=>{
+if(!pointerLocked||!gameStarted||player.dead)return;
+if(e.button===0)mouseL=true;
+if(e.button===2)mouseR=true;
+});
+document.addEventListener('mouseup',e=>{
+if(e.button===0)mouseL=false;
+if(e.button===2)mouseR=false;
+});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+// ==================== MOBILE TOUCH CONTROLS ====================
+const mobileActive=('ontouchstart' in window)||(navigator.maxTouchPoints>0)&&(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);
+if(mobileActive)document.body.classList.add('mobile');
+let jumpHeld=false,joySprint=false;
+const joyBase=document.getElementById('joyBase');
+const joyStick=document.getElementById('joyStick');
+const LOOK_SENS=0.005;
+function clampJoy(v){return Math.max(-1,Math.min(1,v))}
+if(mobileActive){
+// --- Virtual joystick (movement) ---
+let joyId=null,joyCX=0,joyCY=0,joyR=66;
+function joyStart(e){
+const t=e.changedTouches[0];
+const r=joyBase.getBoundingClientRect();
+joyId=t.identifier;
+joyCX=r.left+r.width/2;joyCY=r.top+r.height/2;joyR=r.width/2;
+joyMove(e);
+}
+function joyMove(e){
+for(let i=0;i<e.changedTouches.length;i++){
+const t=e.changedTouches[i];
+if(t.identifier!==joyId)continue;
+let dx=t.clientX-joyCX,dy=t.clientY-joyCY;
+const dist=Math.hypot(dx,dy);
+const max=joyR;
+if(dist>max){dx=dx/dist*max;dy=dy/dist*max}
+joyStick.style.transform='translate('+(dx)+'px,'+(dy)+'px) translate(-50%,-50%)';
+joy.s=clampJoy(dx/max);   // right positive
+joy.f=clampJoy(-dy/max);  // up positive
+}
+}
+function joyEnd(e){
+for(let i=0;i<e.changedTouches.length;i++){
+if(e.changedTouches[i].identifier===joyId){
+joyId=null;joy.f=0;joy.s=0;
+joyStick.style.transform='translate(-50%,-50%)';
+}
+}
+}
+joyBase.addEventListener('touchstart',joyStart,{passive:false});
+joyBase.addEventListener('touchmove',joyMove,{passive:false});
+joyBase.addEventListener('touchend',joyEnd);
+joyBase.addEventListener('touchcancel',joyEnd);
+
+// --- Look zone (drag to rotate camera) ---
+const lookZone=document.getElementById('lookZone');
+let lookId=null,lookLX=0,lookLY=0;
+lookZone.addEventListener('touchstart',e=>{
+if(lookId!==null)return;
+const t=e.changedTouches[0];
+lookId=t.identifier;lookLX=t.clientX;lookLY=t.clientY;
+},{passive:false});
+lookZone.addEventListener('touchmove',e=>{
+e.preventDefault();
+for(let i=0;i<e.changedTouches.length;i++){
+const t=e.changedTouches[i];
+if(t.identifier!==lookId)continue;
+const dx=t.clientX-lookLX,dy=t.clientY-lookLY;
+player.yaw-=dx*LOOK_SENS;
+player.pitch-=dy*LOOK_SENS;
+player.pitch=Math.max(-Math.PI/2+0.01,Math.min(Math.PI/2-0.01,player.pitch));
+lookLX=t.clientX;lookLY=t.clientY;
+}
+},{passive:false});
+function lookEnd(e){
+for(let i=0;i<e.changedTouches.length;i++){
+if(e.changedTouches[i].identifier===lookId)lookId=null;
+}
+}
+lookZone.addEventListener('touchend',lookEnd);
+lookZone.addEventListener('touchcancel',lookEnd);
+
+// --- Action buttons ---
+function pressBtn(id,on,off){
+const el=document.getElementById(id);
+el.addEventListener('touchstart',e=>{e.preventDefault();el.classList.add('active');on&&on();},{passive:false});
+const release=e=>{el.classList.remove('active');off&&off()};
+el.addEventListener('touchend',release);
+el.addEventListener('touchcancel',release);
+}
+// Jump: tap to jump (hold keeps it ready for repeated air jumps)
+pressBtn('btnJump',()=>{jumpHeld=true;},()=>{jumpHeld=false;});
+// Sprint: hold to run
+pressBtn('btnSprint',()=>{joySprint=true;},()=>{joySprint=false;});
+// Mine / Bind: hold
+pressBtn('btnBreak',()=>{mouseL=true;},()=>{mouseL=false;});
+// Place: tap
+pressBtn('btnPlace',()=>{mouseR=true;},()=>{mouseR=false;});
+// Talk
+document.getElementById('btnTalk').addEventListener('touchstart',e=>{e.preventDefault();tryTalk();},{passive:false});
+// Pause
+document.getElementById('btnPauseM').addEventListener('touchstart',e=>{e.preventDefault();togglePause();},{passive:false});
+
+// Prevent page scroll / pull-to-refresh / double-tap zoom
+document.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+}
+
+// ==================== BLOCK INTERACTION ====================
+function raycast(){
+const dir=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+const origin=camera.position.clone();
+const step=0.1,maxDist=6;
+let prev=null;
+for(let d=0;d<maxDist;d+=step){
+const px=origin.x+dir.x*d,py=origin.y+dir.y*d,pz=origin.z+dir.z*d;
+const bx=Math.floor(px),by=Math.floor(py),bz=Math.floor(pz);
+const b=getBlock(bx,by,bz);
+if(b!==B.AIR&&b!==B.WATER&&b!==B.FLOWER&&b!==B.FLOWER2)
+return{x:bx,y:by,z:bz,block:b,prev:prev};
+prev={x:bx,y:by,z:bz};
+}
+return null;
+}
+let mineProgress=0,mineTarget=null,bindProgress=0,bindTarget=null;
+function updateInteraction(dt){
+const hit=raycast();
+const ch=document.getElementById('crosshair');
+if(!hit){ch.classList.remove('heal-mode');mineProgress=0;mineTarget=null;bindProgress=0;bindTarget=null;return}
+const isCorrupted=hit.block===B.CORRUPTED;
+ch.classList.toggle('heal-mode',isCorrupted);
+if(mouseL){
+if(isCorrupted){
+if(player.binding<5){toast('✦ Binding depleted! Rest near the Heartwood.');bindTarget=null;return}
+if(!bindTarget||bindTarget.x!==hit.x||bindTarget.y!==hit.y||bindTarget.z!==hit.z){
+bindTarget={x:hit.x,y:hit.y,z:hit.z};bindProgress=0;
+}
+bindProgress+=dt*(1+player.level*0.1);
+if(bindProgress>=1.5){
+const hi=groundH(hit.x,hit.z);
+const surfaceY=Math.max(0,hi);
+const healedBlock=hit.y===surfaceY?B.GRASS:(hit.y<surfaceY-2?B.STONE:B.DIRT);
+setBlock(hit.x,hit.y,hit.z,healedBlock);
+markDirty(hit.x,hit.z);
+player.binding=Math.max(0,player.binding-8);
+player.bound++;
+gainXp(5);
+sfx('heal');
+const hg=document.getElementById('healGlow');
+hg.style.transition='none';hg.style.opacity=0.6;
+requestAnimationFrame(()=>{hg.style.transition='opacity .5s';hg.style.opacity=0});
+chainHeal(hit.x,hit.y,hit.z,1);
+bindProgress=0;bindTarget=null;
+checkObjective();
+}
+}else{
+if(!mineTarget||mineTarget.x!==hit.x||mineTarget.y!==hit.y||mineTarget.z!==hit.z){
+mineTarget={x:hit.x,y:hit.y,z:hit.z};mineProgress=0;
+}
+const hardness=hit.block===B.STONE?1.5:(hit.block===B.HEARTWOOD?2.0:1.0);
+const mineSpeed=1+player.level*0.08;
+mineProgress+=dt*mineSpeed/hardness;
+if(mineProgress>=1){
+const dropped=hit.block;
+setBlock(hit.x,hit.y,hit.z,B.AIR);
+markDirty(hit.x,hit.z);
+sfx('break');
+if(dropped===B.WOOD)player.inv.wood++;
+else if(dropped===B.STONE)player.inv.stone++;
+else if(dropped===B.DIRT)player.inv.dirt++;
+else if(dropped===B.LEAVES)player.inv.leaves++;
+else if(dropped===B.HEARTWOOD)player.inv.heartwood++;
+gainXp(2);
+mineProgress=0;mineTarget=null;
+}
+}
+}else{
+mineProgress=0;mineTarget=null;
+bindProgress=0;bindTarget=null;
+}
+if(mouseR&&hit&&hit.prev){
+const px=hit.prev.x,py=hit.prev.y,pz=hit.prev.z;
+const current=getBlock(px,py,pz);
+if(current===B.AIR&&py>0&&py<HEIGHT){
+const placeBlock=HOTBAR[selSlot];
+if(placeBlock&&placeBlock!==0){
+const overlap=px+1>player.pos.x-PLAYER_R&&px<player.pos.x+PLAYER_R&&
+pz+1>player.pos.z-PLAYER_R&&pz<player.pos.z+PLAYER_R&&
+py+1>player.pos.y&&py<player.pos.y+PLAYER_H;
+if(!overlap){setBlock(px,py,pz,placeBlock);markDirty(px,pz);sfx('place')}
+}
+}
+mouseR=false;
+}
+}
+function chainHeal(x,y,z,depth){
+if(depth>2)return;
+const neighbors=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+for(const[dx,dy,dz]of neighbors){
+const nx=x+dx,ny=y+dy,nz=z+dz;
+if(getBlock(nx,ny,nz)===B.CORRUPTED&&Math.random()<0.3){
+const hi=groundH(nx,nz);
+const surfaceY=Math.max(0,hi);
+const healedBlock=ny===surfaceY?B.GRASS:(ny<surfaceY-2?B.STONE:B.DIRT);
+setBlock(nx,ny,nz,healedBlock);
+markDirty(nx,nz);
+player.bound++;
+gainXp(3);
+sfx('heal');
+chainHeal(nx,ny,nz,depth+1);
+}
+}
+}
+
+// ==================== XP & LEVELING ====================
+function xpToNext(lvl){return Math.floor(20*Math.pow(lvl,1.3))}
+function gainXp(amount){
+player.xp+=amount;
+let next=xpToNext(player.level);
+while(player.xp>=next){
+player.xp-=next;
+player.level++;
+next=xpToNext(player.level);
+player.maxHp+=5;
+player.hp=player.maxHp;
+player.maxBinding+=10;
+player.binding=player.maxBinding;
+sfx('lvlup');
+toast('⬆ Level '+player.level+'! Max HP +5, Binding +10',true);
+if(player.level===5){
+toast('✦ The Heartwood stirs… something approaches from the roots!',true);
+setObjective('⚠ The <b>Rootwarden</b> has awakened. Reach it beneath the Heartwood!');
+setTimeout(()=>spawnBoss(),3000);
+}
+}
+updateHUD();
+}
+
+// ==================== NPC: MIRA ====================
+let mira=null;
+function genMira(){
+const hx=villageCX,hz=villageCZ;
+const baseY=groundH(hx,hz)+2;
+const group=new THREE.Group();
+const body=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.7,0.3),new THREE.MeshLambertMaterial({color:0x8b7355}));
+body.position.y=0.35;group.add(body);
+const head=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.35,0.3),new THREE.MeshLambertMaterial({color:0xd4a574}));
+head.position.y=0.85;group.add(head);
+const hair=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.15,0.33),new THREE.MeshLambertMaterial({color:0xe8e8e8}));
+hair.position.y=1.02;group.add(hair);
+const eyeMat=new THREE.MeshBasicMaterial({color:0x228be5});
+const eyeL=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,0.01),eyeMat);
+eyeL.position.set(-0.08,0.88,0.16);group.add(eyeL);
+const eyeR=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,0.01),eyeMat);
+eyeR.position.set(0.08,0.88,0.16);group.add(eyeR);
+const staff=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,1.2,6),new THREE.MeshLambertMaterial({color:0x5a3d20}));
+staff.position.set(0.35,0.6,0);staff.rotation.z=0.1;group.add(staff);
+const staffGlow=new THREE.Mesh(new THREE.SphereGeometry(0.08,8,8),new THREE.MeshBasicMaterial({color:0x4ade80}));
+staffGlow.position.set(0.42,1.2,0);group.add(staffGlow);
+const light=new THREE.PointLight(0x4ade80,0.5,5);
+light.position.y=1.2;group.add(light);
+group.position.set(hx+0.5,baseY,hz+0.5);
+scene.add(group);
+mira={pos:new THREE.Vector3(hx+0.5,baseY,hz+0.5),mesh:group,talked:0,stage:0};
+}
+const DIALOGS=[
+{name:'MIRA',text:'You… you\'re real. I thought no one would ever come. I am <em>Mira</em>, last keeper of the Hollowreach. The Heartwood is dying, child. The corruption spreads through its roots like a dark fire. I am too old and too weak to bind it away.',btns:['What can I do?','Tell me about the Heartwood.']},
+{name:'MIRA',text:'You must learn <em>Blockbinding</em> — the ancient art of restoring corrupted blocks. When you find a block turned to black obsidian by the Null, <em>hold your gaze on it and press and hold left-click</em>. The binding energy will flow into the block, coaxing the life back.<br><br>Your binding energy recharges near the Heartwood. But beneath the roots… <em>something</em> has woken.',btns:['I understand. I will heal the forest.','What lies beneath the roots?']},
+{name:'MIRA',text:'Beneath the Heartwood\'s deepest roots dwells the <em>Rootwarden</em> — a guardian forged by the First Builders to protect the tree. When the Shattering came, the corruption twisted it. Now it rages, spreading the Null wherever it walks.<br><br>Defeat it, and the corruption will cease. But you must be strong. Reach <em>level 5</em> before you face it, or the roots will swallow you whole.',btns:['I am ready. Show me the way.','I will come back when I\'m stronger.']},
+{name:'MIRA',text:'The way to the Rootwarden lies <em>beneath the Heartwood</em>. Go when you are ready. The forest will guide your feet.<br><br>Remember: <em>heal what is broken, protect what lives.</em> That is the old way.<br><br>Go now, traveler. And may the Heartwood\'s light be with you.',btns:['Thank you, Mira. I will restore Verdantia.']},
+{name:'MIRA',text:'The forest is… changing. I can feel it. The corruption retreats where you bind. You are strong, child. The Rootwarden will feel your presence. Go to it. <em>Finish what I could not.</em>',btns:['I will face the Rootwarden.']}
+];
+function tryTalk(){
+if(!mira||!gameStarted||player.dead)return;
+const d=player.pos.distanceTo(mira.pos);
+if(d>3)return;
+if(mira.talked>=DIALOGS.length){
+const msgs=['Go, traveler. The forest sings your name now.','I can feel the Heartwood\'s light growing. You are doing well.','The other worlds will call for you, once Verdantia is whole.'];
+showDialog('MIRA',msgs[Math.floor(Math.random()*msgs.length)],['Thank you.']);
+return;
+}
+const dlg=DIALOGS[mira.talked];
+showDialog(dlg.name,dlg.text,dlg.btns);
+}
+function showDialog(name,text,btns){
+document.getElementById('dlgName').textContent=name;
+document.getElementById('dlgText').innerHTML=text;
+const btnEl=document.getElementById('dlgBtns');
+btnEl.innerHTML='';
+btns.forEach(label=>{
+const btn=document.createElement('button');
+btn.textContent=label;
+btn.addEventListener('click',()=>{
+document.getElementById('dialog').classList.add('hidden');
+if(pointerLocked)return;
+if(gameStarted&&!player.dead&&!paused)lockPointer();
+});
+btnEl.appendChild(btn);
+});
+document.getElementById('dialog').classList.remove('hidden');
+if(pointerLocked)document.exitPointerLock();
+if(name==='MIRA'&&mira)mira.talked++;
+}
+
+
+function markDirty(x,z){
+const cx=Math.floor(x/CHUNK),cz=Math.floor(z/CHUNK);
+if(cx<0||cx>=CH||cz<0||cz>=CH)return;
+dirty.add(cx+cz*CH);
+if(x%CHUNK===0)dirty.add(Math.max(0,cx-1)+cz*CH);
+if(x%CHUNK===CHUNK-1)dirty.add(Math.min(CH-1,cx+1)+cz*CH);
+if(z%CHUNK===0)dirty.add(cx+Math.max(0,cz-1)*CH);
+if(z%CHUNK===CHUNK-1)dirty.add(cx+Math.min(CH-1,cz+1)*CH);
+}
+
+// ==================== BOSS: ROOTWARDEN ====================
+let boss=null,bossSpawned=false;
+const bossProjectiles=[];
+function spawnBoss(){
+if(bossSpawned)return;
+bossSpawned=true;
+const bx=heartwoodCX,bz=heartwoodCZ,baseY=heartwoodBaseY-2;
+const group=new THREE.Group();
+const body=new THREE.Mesh(new THREE.CylinderGeometry(1.5,2.5,8,8),new THREE.MeshLambertMaterial({color:0x1a0a2e,emissive:0x2d1b4e,emissiveIntensity:0.4}));
+body.position.y=4;group.add(body);
+for(let i=0;i<6;i++){
+const angle=(i/6)*Math.PI*2;
+const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.5,5,6),new THREE.MeshLambertMaterial({color:0x0a0a0f,emissive:0x1a0a2e,emissiveIntensity:0.3}));
+branch.position.set(Math.cos(angle)*2.5,5+Math.sin(i*1.3)*1.5,Math.sin(angle)*2.5);
+branch.rotation.z=Math.cos(angle)*0.6;
+branch.rotation.x=Math.sin(angle)*0.6;
+group.add(branch);
+}
+const head=new THREE.Mesh(new THREE.SphereGeometry(2,8,6),new THREE.MeshLambertMaterial({color:0x0a0a0f,emissive:0x3d1b4e,emissiveIntensity:0.5}));
+head.position.y=9;group.add(head);
+const eyeMat=new THREE.MeshBasicMaterial({color:0xff2222});
+const eyeL=new THREE.Mesh(new THREE.SphereGeometry(0.3,8,8),eyeMat);
+eyeL.position.set(-0.7,9.5,1.5);group.add(eyeL);
+const eyeR=new THREE.Mesh(new THREE.SphereGeometry(0.3,8,8),eyeMat);
+eyeR.position.set(0.7,9.5,1.5);group.add(eyeR);
+for(let i=0;i<8;i++){
+const angle=(i/8)*Math.PI*2;
+const root=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.4,3,5),new THREE.MeshLambertMaterial({color:0x0a0a0f,emissive:0x1a0a2e,emissiveIntensity:0.2}));
+root.position.set(Math.cos(angle)*2,1,Math.sin(angle)*2);
+root.rotation.z=Math.cos(angle)*1.2;
+root.rotation.x=Math.sin(angle)*1.2;
+group.add(root);
+}
+const glow=new THREE.PointLight(0x9b59b6,2,15);
+glow.position.y=5;group.add(glow);
+const hpLight=new THREE.PointLight(0xff4444,1,8);
+hpLight.position.y=9;group.add(hpLight);
+group.position.set(bx,baseY,bz);
+scene.add(group);
+boss={pos:new THREE.Vector3(bx,baseY,bz),vel:new THREE.Vector3(),hp:200,maxHp:200,dmg:15,radius:3,mesh:group,t:0,fireCd:3,chargeCd:5,atkCd:0,phase:0,dead:false,hpLight:hpLight};
+setObjective('⚔ <b>ROOTWARDEN</b> — Defeat the corrupted guardian!');
+document.getElementById('bossHp').classList.remove('hidden');
+document.getElementById('bossName').textContent='ROOTWARDEN';
+toast('⚠ The Rootwarden has awakened!',true);
+sfx('boss');
+}
+
+function updateBoss(dt){
+if(!boss||boss.dead)return;
+boss.t+=dt;
+const toP=player.pos.clone().sub(boss.pos);
+const dist=toP.length();
+if(boss.hp<boss.maxHp*0.5&&boss.phase===1){
+boss.phase=2;boss.dmg=22;
+toast('⚠ The Rootwarden rages! Its corruption intensifies!',true);
+sfx('boss');
+boss.mesh.children.forEach(c=>{
+if(c.material&&c.material.emissive){c.material.emissive.setHex(0x6b1b3e);c.material.emissiveIntensity=0.7}
+});
+}
+const speed=boss.phase===2?3.5:2.5;
+if(dist>8){
+boss.vel.x+=(toP.x/dist*speed-boss.vel.x)*Math.min(1,2*dt);
+boss.vel.z+=(toP.z/dist*speed-boss.vel.z)*Math.min(1,2*dt);
+}else{
+boss.vel.x*=1-3*dt;
+boss.vel.z*=1-3*dt;
+}
+boss.vel.y=Math.sin(boss.t*0.5)*0.5-1;
+boss.pos.add(boss.vel.clone().multiplyScalar(dt));
+const gy=Math.floor(boss.pos.y);
+if(solidAt(boss.pos.x,gy+0.5,boss.pos.z)){boss.pos.y=gy+1;boss.vel.y=0}
+boss.mesh.position.copy(boss.pos);
+boss.mesh.rotation.y=Math.atan2(toP.x,toP.z);
+if(dist<5&&boss.atkCd<=0){boss.atkCd=1.5;damagePlayer(boss.dmg,'Rootwarden')}
+boss.atkCd=Math.max(0,boss.atkCd-dt);
+boss.fireCd-=dt;
+if(boss.fireCd<=0&&dist<25){
+boss.fireCd=boss.phase===2?2.0:3.0;
+const base=Math.atan2(toP.x,toP.z);
+const count=boss.phase===2?12:8;
+for(let k=0;k<count;k++){
+const a=base+(k/count)*Math.PI*2;
+const dir=new THREE.Vector3(Math.sin(a),0.05,Math.cos(a));
+spawnBossProjectile(boss.pos.clone().add(new THREE.Vector3(0,5,0)),dir.multiplyScalar(12),boss.dmg*0.5);
+}
+sfx('shoot');
+}
+boss.chargeCd-=dt;
+if(boss.chargeCd<=0&&dist<18){
+boss.chargeCd=boss.phase===2?4:6;
+const wave=new THREE.Mesh(new THREE.RingGeometry(2,8,32),new THREE.MeshBasicMaterial({color:0x9b59b6,transparent:true,opacity:0.6,side:THREE.DoubleSide}));
+wave.rotation.x=-Math.PI/2;
+wave.position.copy(boss.pos).add(new THREE.Vector3(0,1,0));
+scene.add(wave);
+let ws=1;
+const wi=setInterval(()=>{
+ws+=0.5;wave.scale.set(ws,ws,1);wave.material.opacity-=0.08;
+if(wave.material.opacity<=0){clearInterval(wi);scene.remove(wave);wave.geometry.dispose();wave.material.dispose()}
+},100);
+if(dist<10)damagePlayer(boss.dmg*1.5,'Rootwarden\'s Root Slam');
+sfx('boss');
+}
+if(Math.random()<0.02*(boss.phase===2?2:1)){
+const rx=Math.floor(boss.pos.x+(Math.random()-0.5)*10);
+const rz=Math.floor(boss.pos.z+(Math.random()-0.5)*10);
+if(rx>=0&&rx<WORLD&&rz>=0&&rz<WORLD){
+const hi=groundH(rx,rz);
+for(let dy=0;dy<=2;dy++){
+const b=getBlock(rx,hi+dy,rz);
+if(b===B.GRASS||b===B.DIRT||b===B.STONE){setBlock(rx,hi+dy,rz,B.CORRUPTED);markDirty(rx,rz)}
+}
+}
+}
+const hpPct=Math.max(0,boss.hp/boss.maxHp*100);
+document.getElementById('bossFill').style.width=hpPct+'%';
+boss.hpLight.color.setHex(hpPct>50?0xff4444:(hpPct>25?0xff8800:0xff0000));
+boss.hpLight.intensity=0.5+(1-hpPct/100)*1.5;
+}
+function damageBoss(amount){
+if(!boss||boss.dead)return;
+boss.hp-=amount;
+sfx('hit');
+boss.mesh.children.forEach(c=>{
+if(c.material){c.material.emissiveIntensity=1.0;setTimeout(()=>{c.material.emissiveIntensity=c.userData.origEmissive||0.4},100)}
+});
+boss.mesh.children.forEach(c=>{
+if(c.material&&c.material.emissive)c.userData.origEmissive=c.material.emissiveIntensity;
+});
+if(boss.hp<=0)killBoss();
+}
+function killBoss(){
+boss.dead=true;
+const deathLight=new THREE.PointLight(0x4ade80,3,30);
+deathLight.position.copy(boss.pos).add(new THREE.Vector3(0,5,0));
+scene.add(deathLight);
+let fade=0;
+const di=setInterval(()=>{
+fade+=0.05;deathLight.intensity=3+fade*5;
+boss.mesh.scale.multiplyScalar(1-0.02);
+if(fade>3){
+clearInterval(di);
+scene.remove(boss.mesh);scene.remove(deathLight);
+bossProjectiles.forEach(p=>{scene.remove(p.mesh)});
+bossProjectiles.length=0;
+let healedCount=0;
+for(let y=0;y<HEIGHT;y++)for(let z=0;z<WORLD;z++)for(let x=0;x<WORLD;x++){
+if(getBlock(x,y,z)===B.CORRUPTED){
+const hi=groundH(x,z);
+const surfaceY=Math.max(0,hi);
+setBlock(x,y,z,y===surfaceY?B.GRASS:(y<surfaceY-2?B.STONE:B.DIRT));
+markDirty(x,z);healedCount++;
+}}
+toast('✦ '+healedCount+' corrupted blocks healed! Verdantia is restored!',true);
+sfx('lvlup');
+setTimeout(()=>{
+document.getElementById('victoryOverlay').classList.remove('hidden');
+document.getElementById('bossHp').classList.add('hidden');
+},2000);
+}
+},50);
+gainXp(50);
+player.kills++;
+boss=null;
+}
+function spawnBossProjectile(pos,vel,dmg){
+const mesh=new THREE.Mesh(new THREE.SphereGeometry(0.3,8,8),new THREE.MeshBasicMaterial({color:0x9b59b6}));
+mesh.position.copy(pos);
+scene.add(mesh);
+bossProjectiles.push({mesh,vel:vel.clone(),dmg,life:8});
+}
+function updateBossProjectiles(dt){
+for(let i=bossProjectiles.length-1;i>=0;i--){
+const p=bossProjectiles[i];
+p.mesh.position.addScaledVector(p.vel,dt);
+p.life-=dt;
+const pos=p.mesh.position;
+let dead=p.life<=0;
+if(!dead&&solidAt(pos.x,pos.y,pos.z))dead=true;
+if(!dead&&pos.distanceTo(player.pos.clone().add(new THREE.Vector3(0,0.9,0)))<1.0){
+damagePlayer(p.dmg,'Rootwarden corruption');dead=true;
+}
+if(dead){scene.remove(p.mesh);bossProjectiles.splice(i,1)}
+}
+}
+
+// ==================== MONSTERS ====================
+const monsters=[];
+function spawnMonsters(){
+const rng=mulberry32(SEED+555);
+for(let i=0;i<15;i++){
+let mx,mz;
+if(corruptedZones.length&&rng()<0.7){
+const zone=corruptedZones[Math.floor(rng()*corruptedZones.length)];
+mx=zone.x+Math.floor((rng()-0.5)*zone.r*2);
+mz=zone.z+Math.floor((rng()-0.5)*zone.r*2);
+}else{
+mx=Math.floor(rng()*WORLD);
+mz=Math.floor(rng()*WORLD);
+}
+if(mx<2||mx>=WORLD-2||mz<2||mz>=WORLD-2)continue;
+if(Math.hypot(mx-villageCX,mz-villageCZ)<12)continue;
+if(Math.hypot(mx-heartwoodCX,mz-heartwoodCZ)<10)continue;
+const hi=groundH(mx,mz);
+if(hi<SEA+1||hi>30)continue;
+const group=new THREE.Group();
+const body=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.8,0.6),new THREE.MeshLambertMaterial({color:0x1a0a2e,emissive:0x2d1b4e,emissiveIntensity:0.3}));
+body.position.y=0.4;group.add(body);
+const head=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.4,0.5),new THREE.MeshLambertMaterial({color:0x0a0a0f,emissive:0x3d1b4e,emissiveIntensity:0.4}));
+head.position.y=0.9;group.add(head);
+const eyeMat=new THREE.MeshBasicMaterial({color:0xff4444});
+const eL=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.08,0.01),eyeMat);
+eL.position.set(-0.12,0.95,0.26);group.add(eL);
+const eR=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.08,0.01),eyeMat);
+eR.position.set(0.12,0.95,0.26);group.add(eR);
+for(const[lx,lz]of[[-0.2,0.2],[0.2,0.2],[-0.2,-0.2],[0.2,-0.2]]){
+const leg=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.3,0.15),new THREE.MeshLambertMaterial({color:0x1a0a2e}));
+leg.position.set(lx,0.15,lz);group.add(leg);
+}
+group.position.set(mx+0.5,hi+1,mz+0.5);
+scene.add(group);
+monsters.push({
+pos:new THREE.Vector3(mx+0.5,hi+1,mz+0.5),
+vel:new THREE.Vector3(),
+hp:20,maxHp:20,dmg:8,radius:0.6,
+spd:2+rng()*1.5,mesh:group,t:rng()*10,atkCd:0,dead:false
+});
+}}
+function updateMonsters(dt){
+for(let i=monsters.length-1;i>=0;i--){
+const m=monsters[i];
+if(m.dead)continue;
+m.t+=dt;
+const toP=player.pos.clone().sub(m.pos);
+const dist=toP.length();
+if(dist<20&&!player.dead){
+m.vel.x+=(toP.x/dist*m.spd-m.vel.x)*Math.min(1,4*dt);
+m.vel.z+=(toP.z/dist*m.spd-m.vel.z)*Math.min(1,4*dt);
+}else{
+m.vel.x*=1-2*dt;
+m.vel.z*=1-2*dt;
+}
+m.vel.y-=20*dt;
+m.pos.x+=m.vel.x*dt;
+m.pos.z+=m.vel.z*dt;
+m.pos.y+=m.vel.y*dt;
+const gy=Math.floor(m.pos.y);
+if(solidAt(m.pos.x,gy+0.5,m.pos.z)){m.pos.y=gy+1;m.vel.y=0}
+if(dist<2&&m.atkCd<=0){m.atkCd=1.2;damagePlayer(m.dmg,'Corrupted creature')}
+m.atkCd=Math.max(0,m.atkCd-dt);
+if(dist>60&&!player.dead){
+m.hp-=5*dt;
+if(m.hp<=0){scene.remove(m.mesh);monsters.splice(i,1);continue}
+}
+m.mesh.position.copy(m.pos);
+m.mesh.rotation.y=Math.atan2(m.vel.x,m.vel.z);
+}}
+function damageMonster(m,amount){
+if(m.dead)return;
+m.hp-=amount;
+sfx('hit');
+if(m.hp<=0){
+m.dead=true;
+gainXp(10);
+player.kills++;
+sfx('kill');
+scene.remove(m.mesh);
+const idx=monsters.indexOf(m);
+if(idx!==-1)monsters.splice(idx,1);
+}
+}
+
+// ==================== DAMAGE PLAYER ====================
+function damagePlayer(amount,source){
+if(player.dead||player.hurtCd>0)return;
+player.hurtCd=0.4;
+player.hp-=amount;
+sfx('hurt');
+const f=document.getElementById('damageFlash');
+f.style.transition='none';f.style.opacity=0.8;
+requestAnimationFrame(()=>{f.style.transition='opacity .5s';f.style.opacity=0});
+if(player.hp<=0){
+player.hp=0;
+killPlayer(source);
+}
+updateHUD();
+}
+function killPlayer(source){
+player.dead=true;
+if(pointerLocked)document.exitPointerLock();
+document.getElementById('deathStats').textContent=source?'Slain by '+source:'The forest claims another…';
+document.getElementById('deathOverlay').classList.remove('hidden');
+sfx('death');
+}
+
+
+// ==================== HUD ====================
+function updateHUD(){
+document.getElementById('hpFill').style.width=(player.hp/player.maxHp*100)+'%';
+document.getElementById('hpLabel').textContent='HP '+Math.ceil(player.hp)+'/'+player.maxHp;
+const next=xpToNext(player.level);
+document.getElementById('xpFill').style.width=(player.xp/next*100)+'%';
+document.getElementById('lvlLabel').textContent='Level '+player.level+' · '+player.xp+'/'+next+' XP';
+document.getElementById('bindFill').style.width=(player.binding/player.maxBinding*100)+'%';
+document.getElementById('bindLabel').textContent='✦ Binding '+Math.ceil(player.binding)+'/'+player.maxBinding;
+}
+function setObjective(html){
+document.getElementById('objText').innerHTML=html;
+}
+function checkObjective(){
+if(player.level<2){
+setObjective('Explore <b>Verdantia</b> and find <b>Hollowreach</b>. Talk to <b>Mira</b> with <b>E</b>.');
+}else if(!bossSpawned){
+setObjective('Heal corrupted blocks to reach <b>Level 5</b> and awaken the <b>Rootwarden</b>.');
+}else if(!boss||boss.dead){
+setObjective('✦ Verdantia is restored!');
+}
+}
+function toast(msg,big){
+const el=document.createElement('div');
+el.className='toast'+(big?' big':'');
+el.innerHTML=msg;
+document.getElementById('toasts').appendChild(el);
+setTimeout(()=>{el.style.opacity=0},3200);
+setTimeout(()=>el.remove(),3800);
+}
+
+// ==================== DAY/NIGHT ====================
+let timeT=0.15;
+const skyDay=new THREE.Color(0xb8e0d6),skyNight=new THREE.Color(0x1a2a3a);
+function updateDayNight(dt){
+timeT=(timeT+dt/300)%1;
+const light=Math.max(0,Math.sin((timeT-0.25)*Math.PI*2)*0.5+0.5);
+const c=skyNight.clone().lerp(skyDay,light);
+scene.background=c;
+scene.fog.color=c;
+sun.intensity=0.3+1.0*light;
+scene.children.forEach(ch=>{if(ch.isAmbientLight)ch.intensity=0.3+0.5*light});
+const ang=(timeT-0.25)*Math.PI*2;
+sun.position.set(Math.cos(ang)*150,Math.sin(ang)*150+40,60);
+document.getElementById('timeTxt').textContent=light>0.4?'☀ Day':'🌙 Night';
+}
+
+// ==================== AUDIO ====================
+let actx=null;
+function sfx(name){
+try{
+if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
+const t=actx.currentTime;
+const o=actx.createOscillator();
+const g=actx.createGain();
+o.connect(g);g.connect(actx.destination);
+const P={
+hit:{f:220,f2:160,d:0.08,v:0.12,type:'square'},
+break:{f:140,f2:90,d:0.1,v:0.1,type:'square'},
+place:{f:300,f2:400,d:0.06,v:0.07,type:'sine'},
+hurt:{f:180,f2:70,d:0.25,v:0.18,type:'sawtooth'},
+kill:{f:400,f2:600,d:0.15,v:0.1,type:'square'},
+lvlup:{f:520,f2:1040,d:0.3,v:0.12,type:'triangle'},
+death:{f:200,f2:40,d:0.8,v:0.2,type:'sawtooth'},
+boss:{f:90,f2:45,d:0.7,v:0.25,type:'sawtooth'},
+heal:{f:600,f2:900,d:0.2,v:0.1,type:'sine'},
+shoot:{f:700,f2:300,d:0.12,v:0.08,type:'sawtooth'},
+click:{f:600,f2:500,d:0.04,v:0.05,type:'sine'}
+}[name]||{f:440,f2:440,d:0.1,v:0.05,type:'sine'};
+o.type=P.type;
+o.frequency.setValueAtTime(P.f,t);
+o.frequency.exponentialRampToValueAtTime(Math.max(30,P.f2),t+P.d);
+g.gain.setValueAtTime(P.v,t);
+g.gain.exponentialRampToValueAtTime(0.001,t+P.d);
+o.start(t);o.stop(t+P.d+0.02);
+}catch(e){}
+}
+
+// ==================== PAUSE ====================
+let paused=false,gameStarted=false;
+function togglePause(){
+if(!gameStarted||player.dead)return;
+paused=!paused;
+document.getElementById('pauseOverlay').classList.toggle('hidden',!paused);
+if(paused&&pointerLocked)document.exitPointerLock();
+else if(!paused&&!player.dead)lockPointer();
+}
+
+// ==================== BINDING RECHARGE ====================
+function updateBindingRecharge(dt){
+const dh=Math.hypot(player.pos.x-heartwoodCX,player.pos.z-heartwoodCZ);
+if(dh<12){
+player.binding=Math.min(player.maxBinding,player.binding+5*dt);
+}else{
+player.binding=Math.min(player.maxBinding,player.binding+0.5*dt);
+}
+}
+
+// ==================== MAIN LOOP ====================
+let last=performance.now(),fpsAcc=0,fpsN=0;
+function loop(now){
+requestAnimationFrame(loop);
+let dt=Math.min(0.05,(now-last)/1000);
+last=now;
+fpsAcc+=dt;fpsN++;
+if(fpsAcc>0.5){
+document.getElementById('fpsTxt').textContent=Math.round(fpsN/fpsAcc);
+document.getElementById('posTxt').textContent=
+player.pos.x.toFixed(0)+', '+player.pos.y.toFixed(0)+', '+player.pos.z.toFixed(0);
+fpsAcc=0;fpsN=0;
+}
+if(gameStarted&&!player.dead&&!paused){
+movePlayer(dt);
+player.hurtCd=Math.max(0,player.hurtCd-dt);
+updateInteraction(dt);
+updateMonsters(dt);
+if(boss)updateBoss(dt);
+updateBossProjectiles(dt);
+updateDayNight(dt);
+updateBindingRecharge(dt);
+camera.position.copy(player.pos).add(new THREE.Vector3(0,1.6,0));
+camera.quaternion.setFromEuler(new THREE.Euler(player.pitch,player.yaw,0,'YXZ'));
+updateHUD();
+}
+flushDirty();
+renderer.render(scene,camera);
+}
+
+// ==================== INITIALIZATION ====================
+function initWorld(){
+genTerrain();
+genCorruption();
+genTrees();
+genHeartwood();
+genVillage();
+genMira();
+spawnMonsters();
+for(let cz=0;cz<CH;cz++){
+for(let cx=0;cx<CH;cx++){
+buildChunkMesh(cx,cz);
+}}
+}
+function startGame(continueMode){
+gameStarted=true;
+document.getElementById('startOverlay').classList.add('hidden');
+document.getElementById('hud').classList.remove('hidden');
+document.getElementById('worldMenuToggle').classList.add('hidden');
+document.getElementById('worldMenu').classList.add('hidden');
+lockPointer();
+if(!continueMode){
+player.pos.set(50,15,50);
+player.vel.set(0,0,0);
+player.yaw=0.3;player.pitch=-0.1;
+toast('You awaken in Verdantia. The forest is dying…',true);
+setTimeout(()=>toast('Find <b>Hollowreach</b> to the northwest. Look for the lanterns.'),3000);
+setTimeout(()=>toast('Press <b>E</b> near <b>Mira</b> to talk.'),6000);
+}
+startAutosave();
+checkObjective();
+}
+
+// ==================== WORLD SELECTOR ====================
+const WORLDS=[
+{id:1,num:'I',name:'Verdantia',icon:'🌿',desc:'The Kingdom Beneath the Leaves',unlocked:true},
+{id:2,num:'II',name:'Emberfall',icon:'🌋',desc:'The Ashen Caldera',unlocked:false},
+{id:3,num:'III',name:'Frostveil',icon:'❄️',desc:'The Silent Glaciers',unlocked:false},
+{id:4,num:'IV',name:'Duskreach',icon:'🌆',desc:'The Shattered City',unlocked:false},
+{id:5,num:'V',name:'Tidehollow',icon:'🌊',desc:'The Drowned Abyss',unlocked:false},
+{id:6,num:'VI',name:'Skyshard',icon:'☁️',desc:'The Floating Isles',unlocked:false},
+{id:7,num:'VII',name:'The Worldcore',icon:'💠',desc:'The Heart of Everything',unlocked:false}
+];
+function buildWorldMenu(){
+const menu=document.getElementById('worldMenu');
+menu.innerHTML='<div class="wm-title">CHOOSE YOUR WORLD</div>';
+WORLDS.forEach(w=>{
+const btn=document.createElement('button');
+btn.className='world-btn'+(w.unlocked?'':' locked')+(w.id===1?' active':'');
+btn.innerHTML='<span class="wb-icon">'+w.icon+'</span>'+
+'<span class="wb-txt"><span class="wb-num">WORLD '+w.num+'</span>'+
+'<span class="wb-name">'+w.name+'</span></span>'+
+(w.unlocked?'':'<span class="wb-lock">🔒</span>');
+btn.addEventListener('click',()=>{
+if(!w.unlocked){
+sfx('click');
+toast('🔒 <b>'+w.name+'</b> — coming soon. Finish Verdantia first!',true);
+return;
+}
+sfx('click');
+menu.classList.add('hidden');
+document.getElementById('worldMenuToggle').classList.add('hidden');
+ try{
+ initWorld();
+ startGame();
+ }catch(e){
+ console.error('World start error:',e);
+ toast('⚠ Failed to start: '+(e&&e.message?e.message:e),true);
+ document.getElementById('startOverlay').classList.remove('hidden');
+ }
+});
+menu.appendChild(btn);
+});
+}
+
+// ==================== SAVE / LOAD (AUTOSAVE) ====================
+const SAVE_KEY='verdantia_save_v1';
+const AUTOSAVE_MS=60000; // 1 minute
+let autosaveTimer=null;
+function worldToB64(){
+const bytes=worldData;
+let bin='';
+const chunk=0x8000;
+for(let i=0;i<bytes.length;i+=chunk){
+bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+}
+return btoa(bin);
+}
+function b64ToWorld(s){
+const bin=atob(s);
+const arr=new Uint8Array(bin.length);
+for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+return arr;
+}
+function saveGame(silent){
+try{
+const save={
+version:1,
+world:b64ToWorld?worldToB64():null,
+player:{
+pos:[player.pos.x,player.pos.y,player.pos.z],
+yaw:player.yaw,pitch:player.pitch,
+hp:player.hp,maxHp:player.maxHp,
+level:player.level,xp:player.xp,
+binding:player.binding,maxBinding:player.maxBinding,
+kills:player.kills,bound:player.bound,
+dead:player.dead
+},
+miraTalked:mira?mira.talked:0,
+bossSpawned:bossSpawned,
+bossHp:boss?boss.hp:0,
+timeT:timeT,
+selSlot:selSlot,
+ts:Date.now()
+};
+localStorage.setItem(SAVE_KEY,JSON.stringify(save));
+if(!silent)flashSaveIndicator();
+updateSaveNote();
+return true;
+}catch(e){
+console.warn('Save failed:',e);
+return false;
+}
+}
+function flashSaveIndicator(){
+const el=document.getElementById('saveIndicator');
+const txt=document.getElementById('saveText');
+const d=new Date();
+txt.textContent='Saved '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+el.classList.add('show');
+clearTimeout(el._t);
+el._t=setTimeout(()=>el.classList.remove('show'),2500);
+}
+function updateSaveNote(){
+const note=document.getElementById('saveNote');
+const cont=document.getElementById('continueBtn');
+try{
+const raw=localStorage.getItem(SAVE_KEY);
+if(raw){
+const save=JSON.parse(raw);
+const d=new Date(save.ts||Date.now());
+const lvl=save.player?save.player.level:1;
+note.textContent='💾 Saved world found — Level '+lvl+' · '+d.toLocaleDateString()+' '+d.toLocaleTimeString();
+cont.classList.remove('hidden');
+}else{
+note.textContent='';
+cont.classList.add('hidden');
+}
+}catch(e){
+cont.classList.add('hidden');
+}
+}
+function loadGame(){
+try{
+const raw=localStorage.getItem(SAVE_KEY);
+if(!raw)return false;
+const save=JSON.parse(raw);
+if(save.world){
+worldData.set(b64ToWorld(save.world));
+}
+const p=save.player;
+if(p){
+player.pos.set(p.pos[0],p.pos[1],p.pos[2]);
+player.yaw=p.yaw||0;player.pitch=p.pitch||0;
+player.hp=p.hp;player.maxHp=p.maxHp;
+player.level=p.level;player.xp=p.xp;
+player.binding=p.binding;player.maxBinding=p.maxBinding;
+player.kills=p.kills;player.bound=p.bound;
+player.dead=!!p.dead;
+}
+if(mira)mira.talked=save.miraTalked||0;
+bossSpawned=!!save.bossSpawned;
+timeT=save.timeT||0.15;
+selSlot=save.selSlot||0;
+return true;
+}catch(e){
+console.warn('Load failed:',e);
+return false;
+}
+}
+function startAutosave(){
+stopAutosave();
+autosaveTimer=setInterval(()=>{
+if(gameStarted&&!player.dead&&!paused){
+saveGame(true);
+}
+},AUTOSAVE_MS);
+}
+function stopAutosave(){
+if(autosaveTimer){clearInterval(autosaveTimer);autosaveTimer=null}
+}
+
+// ==================== BUTTON WIRING ====================
+document.getElementById('playBtn').addEventListener('click',()=>{
+sfx('click');
+initWorld();
+startGame();
+});
+document.getElementById('continueBtn').addEventListener('click',()=>{
+sfx('click');
+initWorld();
+if(loadGame()){
+toast('📂 Save loaded — welcome back, traveler.',true);
+startGame(true);
+}else{
+toast('No save found. Starting a new world.',true);
+startGame();
+}
+});
+document.getElementById('pauseResume').addEventListener('click',()=>{togglePause()});
+document.getElementById('pauseHelp').addEventListener('click',()=>{
+showDialog('CONTROLS',
+'<b>WASD</b> — Move<br><b>Space</b> — Jump<br><b>Shift</b> — Sprint<br><b>LMB (hold)</b> — Mine / <em>Bind corrupted blocks</em><br><b>RMB</b> — Place block<br><b>1-9</b> — Select block<br><b>E</b> — Talk to NPC<br><b>ESC</b> — Pause',
+['OK']);
+paused=false;
+document.getElementById('pauseOverlay').classList.add('hidden');
+});
+document.getElementById('pauseQuit').addEventListener('click',()=>{
+saveGame(true);
+stopAutosave();
+paused=false;
+gameStarted=false;
+if(pointerLocked)document.exitPointerLock();
+document.getElementById('pauseOverlay').classList.add('hidden');
+document.getElementById('hud').classList.add('hidden');
+document.getElementById('startOverlay').classList.remove('hidden');
+document.getElementById('worldMenuToggle').classList.remove('hidden');
+scene.children.forEach(c=>{
+if(c.isMesh||c.isGroup||c.isLight||c.isSprite){
+if(c!==camera&&c!==ambLight&&c!==sun&&c!==hemiLight){
+scene.remove(c);
+}
+}});
+worldData.fill(0);
+meshes.clear();
+monsters.length=0;
+bossProjectiles.length=0;
+boss=null;
+bossSpawned=false;
+mira=null;
+player.dead=false;
+player.hp=player.maxHp;
+player.level=1;player.xp=0;
+player.binding=player.maxBinding;
+player.bound=0;player.kills=0;
+document.getElementById('deathOverlay').classList.add('hidden');
+document.getElementById('victoryOverlay').classList.add('hidden');
+document.getElementById('bossHp').classList.add('hidden');
+});
+document.getElementById('respawnBtn').addEventListener('click',()=>{
+sfx('click');
+respawn();
+});
+document.getElementById('victoryBtn').addEventListener('click',()=>{
+sfx('click');
+document.getElementById('victoryOverlay').classList.add('hidden');
+toast('The legend continues… (More worlds coming soon!)',true);
+});
+document.getElementById('victoryMenu').addEventListener('click',()=>{
+sfx('click');
+document.getElementById('victoryOverlay').classList.add('hidden');
+document.getElementById('pauseQuit').click();
+});
+
+// ==================== WORLD MENU TOGGLE + INIT ====================
+buildWorldMenu();
+document.getElementById('worldMenuToggle').addEventListener('click',()=>{
+sfx('click');
+document.getElementById('worldMenu').classList.toggle('hidden');
+});
+updateSaveNote();
+
+// Save when the game is paused so progress is never lost
+const _origTogglePause=togglePause;
+togglePause=function(){
+_origTogglePause();
+if(paused)saveGame(true);
+};
+
+// Save when the tab is hidden or closed so autosave gaps are covered
+window.addEventListener('beforeunload',()=>{
+if(gameStarted&&!player.dead)saveGame(true);
+});
+document.addEventListener('visibilitychange',()=>{
+if(document.hidden&&gameStarted&&!player.dead)saveGame(true);
+});
+
+// Handle window resize
+window.addEventListener('resize',()=>{
+camera.aspect=window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// Start render loop
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1016,4 +1016,660 @@ The player is Auren, the eighth Architect
 The seven worlds give Blockforge a natural progression from a small survival adventure into a massive, interconnected cosmic mystery.
 Each world can have its own building materials, crafting recipes, enemies, bosses, structures, and unique mechanics. The fragments can unlock abilities that help players explore earlier worlds more deeply, while the final world combines everything they have learned.
 Most importantly, the worlds are not just seven places the player visits to collect crystals. Each world teaches the player something essential about why the universe broke — and what it will take to rebuild it.
-
+## Verdantia weapons
+Weapons:
+Verdantia
+Seed
+Melee
+Mossbound Blade
+1
+27
+1.06
+2.5
+9.5
+0
+9
+Heavy Cleave: A charged swing deals 19% bonus damage in a short arc.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Melee
+Wildroot Greatsword
+1
+28.7
+1.03
+2.8
+11.5
+0
+12
+Guard Break: Heavy hits stagger armored enemies for 3 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Melee
+Bloomguard Axe
+1
+30.4
+0.99
+3
+13.5
+0
+15
+World Echo: Every 4th hit releases a short-range burst for 29 damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Melee
+Thornwake Warhammer
+1
+32.1
+0.96
+3.2
+15.5
+0
+18
+Momentum: Consecutive hits increase damage by 34% up to 3 stacks.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Melee
+Fernheart Spear
+1
+33.8
+0.93
+2.5
+17.5
+0
+9
+Rending Strike: Critical hits apply a wound dealing 19 damage over time.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Melee
+Greenhollow Dagger
+1
+35.5
+0.89
+2.8
+9.5
+0
+12
+Blocksplitter: Deals 24% extra damage to shields and constructed blocks.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Melee
+Briarborn Halberd
+1
+37.2
+0.86
+3
+11.5
+0
+15
+Counterforce: A perfectly timed block empowers the next hit by 29%.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Melee
+Petalstorm Gauntlets
+1
+38.9
+0.82
+3.2
+13.5
+0
+18
+Leaping Blow: A leap attack deals 34% damage and briefly knocks targets back.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Melee
+Elderbark Scythe
+1
+40.6
+0.79
+2.5
+15.5
+0
+9
+Twin Impact: The final hit in a combo strikes twice for 19% damage each.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Melee
+Vineweaver Katana
+1
+42.3
+0.75
+2.8
+17.5
+0
+12
+Hunter's Mark: Hitting a marked target deals 24% extra damage for 3 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Melee
+Dewfall Mace
+1
+44
+0.71
+3
+9.5
+0
+15
+Ruinous Sweep: A wide sweep hits nearby enemies for 29% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Melee
+Verdant Cleaver
+1
+45.7
+0.68
+3.2
+11.5
+0
+18
+Last Stand: Below 30% health, heavy attacks gain 34% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Ranged
+Mossbound Bow
+1
+12.8
+1.11
+19.5
+7.6
+0
+6
+Piercing Shot: Projectiles pierce 2 targets and deal 19% damage after each target.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Ranged
+Wildroot Crossbow
+1
+13.7
+1.24
+24.5
+9.6
+0
+8
+Quickdraw: After not firing for 3 seconds, the next shot deals 24% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Ranged
+Bloomguard Longbow
+1
+14.6
+1.35
+29.5
+11.6
+0
+10
+Ricochet: Shots bounce to 4 nearby enemies for 29% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Ranged
+Thornwake Repeater
+1
+15.5
+1.47
+34.5
+13.6
+0
+12
+Marked Target: Hits mark enemies; the next shot against them deals 34% bonus damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Ranged
+Fernheart Hand-Cannon
+1
+16.4
+1.11
+19.5
+15.6
+0
+6
+Volley: Fire 2 projectiles in a spread, each dealing 19% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Ranged
+Greenhollow Throwing Knives
+1
+17.3
+1.24
+24.5
+7.6
+0
+8
+Explosive Tip: Every 3th shot bursts for 24 area damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Ranged
+Briarborn Javelin Launcher
+1
+18.2
+1.35
+29.5
+9.6
+0
+10
+Longshot: Damage increases by 29% when fired beyond 19.2 blocks.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Ranged
+Petalstorm Slingshot
+1
+19.1
+1.47
+34.5
+11.6
+0
+12
+Snare Bolt: A hit slows the target by 34% for 5 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Ranged
+Elderbark Rifle
+1
+20
+1.11
+19.5
+13.6
+0
+6
+Rapid Cycle: After a hit, the next reload or draw is 19% faster.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Ranged
+Vineweaver Chakram
+1
+20.9
+1.24
+24.5
+15.6
+0
+8
+Ricochet Return: A returning projectile can hit once more for 24% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Ranged
+Dewfall Dartcaster
+1
+21.8
+1.35
+29.5
+7.6
+0
+10
+Weakpoint: Critical hits deal 29% additional damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Ranged
+Verdant Ballista
+1
+22.7
+1.47
+34.5
+9.6
+0
+12
+Suppressing Fire: Consecutive hits reduce enemy attack speed by 34% briefly.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Mage
+Mossbound Staff
+1
+16.3
+0.76
+15.2
+8.4
+0
+14
+Elemental Burst: Release a burst dealing 19 damage in a small area.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Mage
+Wildroot Wand
+1
+20.8
+0.88
+19.2
+9.9
+0
+18
+Arcane Chain: Spell jumps to 3 targets for 24% damage per jump.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Mage
+Bloomguard Tome
+1
+25.3
+1
+23.2
+11.4
+0
+22
+Charged Cast: Holding the cast for 4 seconds increases spell damage by 29%.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Mage
+Thornwake Grimoire
+1
+29.8
+1.12
+27.2
+12.9
+0
+26
+Rune Field: Creates a field dealing 34 damage per second for 5 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Mage
+Fernheart Orb
+1
+16.3
+0.76
+15.2
+14.4
+0
+14
+Phase Bolt: A bolt passes through enemies and deals 19% damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Mage
+Greenhollow Runeblade
+1
+20.8
+0.88
+19.2
+8.4
+0
+18
+Overchannel: Spend extra energy to deal 24% damage, with a brief cooldown.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Mage
+Briarborn Spellbook
+1
+25.3
+1
+23.2
+9.9
+0
+22
+Status Hex: Spells apply a world-themed effect for 4 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Mage
+Petalstorm Scepter
+1
+29.8
+1.12
+27.2
+11.4
+0
+26
+Echo Cast: Every 5th spell repeats at 34% power.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Mage
+Elderbark Focus
+1
+16.3
+0.76
+15.2
+12.9
+0
+14
+Gravity Well: Pulls enemies together before dealing 19 damage.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Mage
+Vineweaver Codex
+1
+20.8
+0.88
+19.2
+14.4
+0
+18
+Prismatic Shot: spell damage varies from 13.5 to 34.3 depending on the cast.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Mage
+Dewfall Crystal Rod
+1
+25.3
+1
+23.2
+8.4
+0
+22
+Mana Siphon: A hit restores 4 energy, once every 29 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Mage
+Verdant Sigil
+1
+29.8
+1.12
+27.2
+9.9
+0
+26
+Reality Ripple: A delayed second pulse deals 34% of the first hit.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Healer
+Mossbound Lifebow
+1
+5.3
+0.91
+58
+4
+9.3
+8
+Kindred Pulse: A hit heals you for 9.3 health and nearby allies for 5.1.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Healer
+Wildroot Restoration Staff
+1
+6.4
+1.06
+73
+5.2
+11.5
+11
+Long Mercy: Effective range increases to 73 blocks; damage falls off at close range.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Healer
+Bloomguard Mending Wand
+1
+7.5
+1.21
+88
+6.4
+13.7
+14
+Rejuvenating Mark: A hit heals you for 13.7 and grants 5 health over time.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Healer
+Thornwake Vitality Scepter
+1
+8.6
+1.36
+103
+7.6
+15.9
+17
+Cleansebeam: A hit heals 15.9 and removes one minor negative effect from you.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Healer
+Fernheart Mercy Orb
+1
+5.3
+0.91
+58
+8.8
+9.3
+8
+Sanctuary Thread: Healing a target grants you a 12% damage-reduction shield for 4 seconds.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Healer
+Greenhollow Renewal Tome
+1
+6.4
+1.06
+73
+4
+11.5
+11
+Vital Return: Every 5th hit restores an extra 11.5 health.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Healer
+Briarborn Blooming Rod
+1
+7.5
+1.21
+88
+5.2
+13.7
+14
+Blooming Impact: A hit deals 7.5 damage and releases a small healing bloom for 13.7.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Healer
+Petalstorm Sanctuary Bell
+1
+8.6
+1.36
+103
+6.4
+15.9
+17
+Soul Link: A hit heals you for 15.9; healing increases by 12% below half health.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Healer
+Elderbark Kindness Chakram
+1
+5.3
+0.91
+58
+7.6
+9.3
+8
+Beacon: Marks a target; your next hit heals you for 9.3 extra health.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+Verdantia
+Seed
+Healer
+Vineweaver Soul Lantern
+1
+6.4
+1.06
+73
+8.8
+11.5
+11
+Renewal Chain: The beam can pass through 3 allies or targets; each hit heals you for 11.5.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can roots briefly snare the target.
+Verdantia
+Seed
+Healer
+Dewfall Grace Needle
+1
+7.5
+1.21
+88
+4
+13.7
+14
+Gentle Critical: Critical hits deal 7.5 damage and heal you for 13.7 instead of normal healing.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can vines spread to a nearby foe.
+Verdantia
+Seed
+Healer
+Verdant Revival Focus
+1
+8.6
+1.36
+103
+5.2
+15.9
+17
+Overflow: Healing beyond your maximum grants a temporary shield equal to 12 health.
+Forged in Verdantia, attuned to the Seed Fragment. Its world effect can a seed-burst restores a little energy.
+## Verdantia bosses
+World 1 — Verdantia 🌱
+Seed Fragment · Life · Recommended level 1–10
+1. Rootwarden — Guardian of the Ancient Grove
+HP: 2,500 · Difficulty: ★★☆☆☆
+Attacks: Root Slam, Vine Prison, Seedling Summon.
+Weakness: Fire damage and attacks against glowing roots.
+Reward: Rootwarden's Heart — unlocks the Verdant Blade crafting recipe.
+2. Thornmaw — The Wild Hunt
+HP: 1,400 · Difficulty: ★★☆☆☆
+Attacks: Thorn Dash, Pack Call, Bramble Trap.
+Weakness: Dodging its charge makes it vulnerable.
+Reward: Thornfang — a rare melee weapon component.
+3. Mycelord — King of the Deep Roots
+HP: 1,900 · Difficulty: ★★★☆☆
+Attacks: Spore Cloud, Mushroom Minions, Toxic Bloom.
+Weakness: Destroy its spore pods before they explode.
+Reward: Mycelium Crown — improves poison resistance.
+4. The Blighted Elder — Heart of Corruption
+HP: 3,600 · Difficulty: ★★★★☆
+Attacks: Corrupted Roots, Ashen Seeds, Forest Collapse.
+Weakness: Restore three ancient groves during the battle to weaken it.
+## Verdantia fragment:
+1. Seed Fragment — Verdantia
+Power: Life and Nature
+Passive buff — Nature’s Blessing
++15% maximum health
+Regenerate 1% of maximum health every 5 seconds outside combat
+Take 20% less damage from poison and thorns
+Active ability — Nature’s Embrace: Restore 25% of your maximum health and create roots that slow nearby enemies for 4 seconds.
+Exploration bonus: Plants grow faster when you use Blockbinding nearby.
