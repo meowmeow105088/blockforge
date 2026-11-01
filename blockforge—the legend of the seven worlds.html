@@ -65,7 +65,7 @@ canvas{display:block;width:100%;height:100%}
 #bossHp .bossFill{height:100%;width:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:5px;transition:width .2s}
 #damageFlash{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(220,38,38,.5) 100%);opacity:0;pointer-events:none}
 #healGlow{position:fixed;inset:0;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(74,222,128,.3) 100%);opacity:0;pointer-events:none;transition:opacity .3s}
-#infoPanel{position:absolute;top:12px;left:12px;pointer-events:none}
+#infoPanel{position:absolute;top:132px;left:14px;pointer-events:none}
 #infoPanel .infoRow{background:rgba(6,14,10,.6);border:1px solid rgba(74,222,128,.15);border-radius:6px;padding:4px 10px;font-size:.62rem;color:#94a3b8;margin-bottom:4px}
 #infoPanel .infoRow b{color:#e2e8f0}
 #pauseOverlay{z-index:48}
@@ -94,10 +94,17 @@ canvas{display:block;width:100%;height:100%}
 #worldMenuToggle{position:fixed;top:12px;right:12px;z-index:61;cursor:pointer;background:rgba(8,20,14,.72);border:1px solid rgba(74,222,128,.3);color:#e2e8f0;border-radius:9px;padding:8px 12px;font-size:.72rem;font-weight:800;letter-spacing:1px;backdrop-filter:blur(4px);transition:background .12s}
 #worldMenuToggle:hover{background:rgba(22,163,74,.3)}
 #worldMenu.hidden,#worldMenuToggle.hidden{display:none}
+#buildBadge{position:absolute;top:56px;right:14px;z-index:60;pointer-events:none;background:rgba(6,14,10,.72);border:1px solid rgba(74,222,128,.45);border-radius:7px;padding:4px 11px;font-size:.66rem;font-weight:800;letter-spacing:.5px;color:#4ade80;text-shadow:0 0 6px rgba(74,222,128,.55);backdrop-filter:blur(4px)}
+body.mobile #buildBadge{top:56px;right:14px;font-size:.6rem}
 /* ---- Save indicator ---- */
 #saveIndicator{position:absolute;bottom:20px;right:20px;pointer-events:none;background:rgba(6,14,10,.7);border:1px solid rgba(34,211,238,.3);border-radius:7px;padding:5px 11px;font-size:.64rem;color:#67e8f9;letter-spacing:.5px;opacity:0;transition:opacity .4s}
 #saveIndicator.show{opacity:1}
 #saveIndicator .si-ico{margin-right:5px}
+/* ---- Minimap / compass ---- */
+#minimapWrap{position:absolute;top:14px;left:14px;pointer-events:none}
+#minimapWrap canvas{display:block;border-radius:50%;border:2px solid rgba(74,222,128,.5);background:rgba(6,14,10,.65);box-shadow:0 4px 14px rgba(0,0,0,.55)}
+#minimapWrap .mm-n{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:.62rem;font-weight:900;letter-spacing:1px;color:#4ade80;text-shadow:0 0 6px rgba(74,222,128,.6)}
+#minimapWrap .mm-coord{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:.55rem;font-weight:700;letter-spacing:.5px;color:#94a3b8;background:rgba(6,14,10,.7);padding:1px 7px;border-radius:5px;white-space:nowrap}
 #victoryOverlay h1{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* ---- Mobile touch controls ---- */
 #mobileUI{display:none;pointer-events:none}
@@ -114,6 +121,8 @@ body.mobile #hud #objective,body.mobile #hud #infoPanel{display:none}
 #btnSprint{right:108px;bottom:60px;width:62px;height:62px;border-radius:50%;border-color:rgba(34,211,238,.45);background:rgba(10,25,30,.4)}
 #btnBreak{left:176px;bottom:52px;width:78px;height:78px;border-radius:50%;border-color:rgba(251,191,36,.5)}
 #btnPlace{left:176px;bottom:146px;width:62px;height:62px;border-radius:50%;border-color:rgba(134,239,172,.5)}
+#btnAttack{left:176px;bottom:240px;width:66px;height:66px;border-radius:50%;border-color:rgba(248,113,113,.6);background:rgba(30,10,10,.45)}
+#btnAttack.active{background:rgba(220,38,38,.55);border-color:#f87171}
 #btnTalk{right:108px;bottom:132px;width:58px;height:58px;border-radius:50%;border-color:rgba(236,72,153,.5)}
 #btnPauseM{position:fixed;top:12px;left:12px;z-index:32;cursor:pointer;background:rgba(8,20,14,.72);border:1px solid rgba(74,222,128,.35);color:#e2e8f0;border-radius:9px;padding:8px 14px;font-size:.72rem;font-weight:800;letter-spacing:1px;backdrop-filter:blur(4px)}
 #btnPauseM:active{background:rgba(22,163,74,.35)}
@@ -137,11 +146,13 @@ body.mobile #crosshair{opacity:.9}
 </div>
 <div id="objective"><div class="objText" id="objText">Explore <b>Verdantia</b> and find <b>Hollowreach</b></div></div>
 <div id="toasts"></div>
+<div id="buildBadge">Build: <b>THREE-r150</b></div>
 <div id="infoPanel">
 <div class="infoRow" id="fpsRow">FPS: <b id="fpsTxt">--</b></div>
 <div class="infoRow" id="posRow">Pos: <b id="posTxt">--</b></div>
 <div class="infoRow" id="timeRow">Time: <b id="timeTxt">☀ Day</b></div>
 </div>
+<div id="minimapWrap"><span class="mm-n">N</span><canvas id="minimap" width="150" height="150"></canvas><span class="mm-coord" id="mmCoord">0, 0</span></div>
 <div id="bossHp" class="hidden">
 <div class="bossName" id="bossName">ROOTWARDEN</div>
 <div class="bossTrack"><div class="bossFill" id="bossFill"></div></div>
@@ -154,6 +165,7 @@ body.mobile #crosshair{opacity:.9}
 <button class="mBtn" id="btnSprint"><span class="ico">⚡</span><span>RUN</span></button>
 <button class="mBtn" id="btnBreak"><span class="ico">⛏</span><span>MINE</span></button>
 <button class="mBtn" id="btnPlace"><span class="ico">🧱</span><span>PLACE</span></button>
+<button class="mBtn" id="btnAttack"><span class="ico">⚔</span><span>ATTACK</span></button>
 <button class="mBtn" id="btnTalk"><span class="ico">💬</span><span>TALK</span></button>
 <button id="btnPauseM">⏸ PAUSE</button>
 </div>
@@ -236,7 +248,7 @@ Mira smiles — the first time in a thousand years.<br><br>
 <button class="bigbtn ghost" id="victoryMenu">MAIN MENU</button>
 </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.1/three.min.js"></script>
 <script>
 // ==================== GLOBAL ERROR CATCHER ====================
 (function(){
@@ -291,11 +303,17 @@ const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.autoClear=true;
+renderer.sortObjects=true;
+// Enable depth test (three.js does this by default, but be explicit)
+const gl=renderer.getContext();
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LESS);
 // Safe pointer-lock wrapper: some webviews/mobile browsers lack requestPointerLock
 function lockPointer(){if(canvas&&typeof canvas.requestPointerLock==='function'){try{canvas.requestPointerLock();}catch(e){console.warn('Pointer lock unavailable:',e);}}}
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0xb8e0d6);
-scene.fog=new THREE.FogExp2(0xb8e0d6,0.008);
+scene.fog=new THREE.FogExp2(0xb8e0d6,0.004);
 const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,500);
 scene.add(camera);
 const ambLight=new THREE.AmbientLight(0xc8e6c9,0.7);scene.add(ambLight);
@@ -477,12 +495,16 @@ const dirty=new Set();
 const meshes=new Map();
 function makeBlockMaterial(blockId){
 const d=BLOCKS[blockId];
-if(!d)return new THREE.MeshLambertMaterial({color:0xff00ff,side:THREE.DoubleSide});
-const mat={color:d.color,side:THREE.DoubleSide};
-if(d.liquid){mat.transparent=true;mat.opacity=0.7;mat.depthWrite=false}
+if(!d)return new THREE.MeshLambertMaterial({color:0xff00ff,side:THREE.FrontSide});
+const mat={color:d.color,side:THREE.FrontSide};
+if(d.liquid){mat.transparent=true;mat.opacity=0.62;mat.depthWrite=false}
 if(d.glow){mat.emissive=d.glow;mat.emissiveIntensity=0.3}
 return new THREE.MeshLambertMaterial(mat);
 }
+// A neighbor is "occluding" (hides a face) unless it is air or water.
+// Air is always non-occluding. Water is non-occluding so we can see through it;
+// flowers are treated as occluding so solid blocks don't draw faces into them.
+function occludes(b){return b!==B.AIR&&b!==B.WATER;}
 function buildChunkMesh(cx,cz){
 const key=cx+cz*CH;
 if(meshes.has(key)){
@@ -497,9 +519,9 @@ for(let lz=0;lz<CHUNK;lz++)for(let lx=0;lx<CHUNK;lx++){
 const x=x0+lx,z=z0+lz;
 for(let y=0;y<HEIGHT;y++){
 const b=getBlock(x,y,z);
-if(b===B.AIR)continue;
+if(b===B.AIR||!BLOCKS[b])continue;
 const nb=[getBlock(x+1,y,z),getBlock(x-1,y,z),getBlock(x,y+1,z),getBlock(x,y-1,z),getBlock(x,y,z+1),getBlock(x,y,z-1)];
-const allSolid=nb.every(n=>n!==B.AIR&&n!==B.WATER&&n!==B.FLOWER&&n!==B.FLOWER2);
+const allSolid=nb.every(n=>n!==B.AIR);
 if(allSolid)continue;
 if(!byType.has(b))byType.set(b,[]);
 byType.get(b).push([x,y,z]);
@@ -510,14 +532,26 @@ for(const[blockId,positions]of byType){
 const geo=new THREE.BufferGeometry();
 const verts=[],norms=[],uvs=[],idx=[];
 const d=BLOCKS[blockId];
+if(!d)continue;
 const isLiquid=d.liquid;
 for(const[x,y,z]of positions){
 const vi=verts.length/3;
 const addFace=(nx,ny,nz,corners)=>{
 const nb=getBlock(x+nx,y+ny,z+nz);
-const nbSolid=nb!==B.AIR&&nb!==B.WATER&&nb!==B.FLOWER&&nb!==B.FLOWER2;
-if(nbSolid)return;
-if(isLiquid&&ny!==1)return;
+// Skip faces against occluding neighbors.
+if(occludes(nb))return;
+// A liquid block only exposes its top surface (and sides against air, not against
+// other liquid). Draw top always; draw side/bottom faces only when facing air
+// (not another liquid) so we don't get interior water walls.
+if(isLiquid){
+if(ny===1){
+// top surface: draw only if above is air
+if(nb===B.AIR)for(const c of corners){verts.push(x+c[0],y+c[1],z+c[2]);norms.push(nx,ny,nz);uvs.push(c[3],c[4]);idx.push(vi,vi+1,vi+2,vi,vi+2,vi+3)}
+return;
+}
+if(nb===B.AIR)for(const c of corners){verts.push(x+c[0],y+c[1],z+c[2]);norms.push(nx,ny,nz);uvs.push(c[3],c[4]);idx.push(vi,vi+1,vi+2,vi,vi+2,vi+3)}
+return;
+}
 for(const c of corners){
 verts.push(x+c[0],y+c[1],z+c[2]);
 norms.push(nx,ny,nz);
@@ -526,9 +560,9 @@ uvs.push(c[3],c[4]);
 idx.push(vi,vi+1,vi+2,vi,vi+2,vi+3);
 };
 addFace(1,0,0,[[1,0,0,1,0],[1,1,0,1,1],[1,1,1,0,1],[1,0,1,0,0]]);
-addFace(-1,0,0,[[0,0,0,0,0],[0,1,0,0,1],[0,1,1,1,1],[0,0,1,1,0]]);
-addFace(0,1,0,[[0,1,0,0,0],[1,1,0,1,0],[1,1,1,1,1],[0,1,1,0,1]]);
-addFace(0,-1,0,[[0,0,0,0,0],[0,0,1,0,1],[1,0,1,1,1],[1,0,0,1,0]]);
+addFace(-1,0,0,[[0,1,0,0,1],[0,0,0,0,0],[0,0,1,1,0],[0,1,1,1,1]]);
+addFace(0,1,0,[[0,1,1,0,1],[1,1,1,1,1],[1,1,0,1,0],[0,1,0,0,0]]);
+addFace(0,-1,0,[[1,0,0,1,0],[1,0,1,1,1],[0,0,1,0,1],[0,0,0,0,0]]);
 addFace(0,0,1,[[0,0,1,0,0],[1,0,1,1,0],[1,1,1,1,1],[0,1,1,0,1]]);
 addFace(0,0,-1,[[1,0,0,0,0],[0,0,0,1,0],[0,1,0,1,1],[1,1,0,0,1]]);
 }
@@ -537,8 +571,14 @@ geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
 geo.setAttribute('normal',new THREE.Float32BufferAttribute(norms,3));
 geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
 geo.setIndex(idx);
+// FIX: compute the bounding sphere so three.js frustum culling works. Without it,
+// the default empty bounding sphere causes every chunk to be wrongly culled, so
+// nothing draws (the "see-through" bug). Also disable per-mesh culling as a safety.
+geo.computeBoundingSphere();
+geo.computeBoundingBox();
 const mat=makeBlockMaterial(blockId);
 const mesh=new THREE.Mesh(geo,mat);
+mesh.frustumCulled=true;
 group.add(mesh);
 }
 scene.add(group);
@@ -622,6 +662,8 @@ document.addEventListener('keydown',e=>{
 keys[e.code]=true;
 if(e.code==='Space')e.preventDefault();
 if(e.code==='KeyE')tryTalk();
+if(e.code==='KeyF')tryAttack();
+if(e.code==='KeyJ')tryAttack();
 if(e.code==='Escape')togglePause();
 if(e.code==='Digit1')selSlot=0;
 if(e.code==='Digit2')selSlot=1;
@@ -747,6 +789,8 @@ pressBtn('btnBreak',()=>{mouseL=true;},()=>{mouseL=false;});
 pressBtn('btnPlace',()=>{mouseR=true;},()=>{mouseR=false;});
 // Talk
 document.getElementById('btnTalk').addEventListener('touchstart',e=>{e.preventDefault();tryTalk();},{passive:false});
+// Attack: tap to swing
+document.getElementById('btnAttack').addEventListener('touchstart',e=>{e.preventDefault();tryAttack();},{passive:false});
 // Pause
 document.getElementById('btnPauseM').addEventListener('touchstart',e=>{e.preventDefault();togglePause();},{passive:false});
 
@@ -1234,6 +1278,61 @@ if(idx!==-1)monsters.splice(idx,1);
 }
 }
 
+// ==================== MELEE ATTACK ====================
+// The player has a hammer. A swing deals damage to the first monster (or the
+// Rootwarden boss) that is in front of the player and within reach. Works from
+// keyboard (F / J) on desktop and the ATTACK button on mobile.
+const ATTACK_RANGE=3.6,ATTACK_DMG=10,ATTACK_CD=0.45;
+let atkCd=0;
+// A quick directional hit-test: does a ray from the player's eyes toward `dir`
+// pass within `radius` of the entity at `pos`? We sample a few points along the
+// short arc so diagonal hits still register, and we require the target to be
+// roughly in front of the player (dot > 0.1).
+function hitEntity(dir,pos,radius,maxRange){
+const to=pos.clone().sub(player.pos);
+const dist=to.length();
+if(dist>maxRange)return false;
+if(dist<0.01)return true;
+// Cone test: the target must be within a generous arc in front of the player.
+const facing=to.normalize().dot(dir);
+if(facing<0.35)return false;
+// Lateral (perpendicular) distance from the player's forward axis to the target.
+const lateral=dist*Math.sqrt(Math.max(0,1-facing*facing));
+// Hit if the target is straight ahead (generous) or within arm's lateral reach.
+return lateral<=radius+0.9||facing>0.85;
+}
+function tryAttack(){
+if(atkCd>0||player.dead||!gameStarted||paused)return;
+atkCd=ATTACK_CD;
+const dir=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+const dmg=ATTACK_DMG+Math.floor(player.level*1.5);
+// Prefer the boss if it is in range; otherwise the nearest monster in range.
+let best=null,bestD=Infinity;
+if(boss&&!boss.dead){
+const bd=player.pos.distanceTo(boss.pos);
+if(bd<ATTACK_RANGE+boss.radius&&hitEntity(dir,boss.pos,boss.radius,ATTACK_RANGE+boss.radius)){best={boss:true,d:bd}}
+}
+if(!best){
+for(const m of monsters){
+if(m.dead)continue;
+const md=player.pos.distanceTo(m.pos);
+if(md>ATTACK_RANGE+m.radius)continue;
+if(!hitEntity(dir,m.pos,m.radius,ATTACK_RANGE+m.radius))continue;
+if(md<bestD){bestD=md;best={m:m,d:md}}
+}
+}
+if(best){
+if(best.boss)damageBoss(dmg);
+else damageMonster(best.m,dmg);
+sfx('swing');
+// Knock the target back a touch.
+if(best.boss)boss.vel.addScaledVector(dir,2.5);
+else if(best.m)best.m.vel.addScaledVector(dir,2.0);
+}else{
+sfx('swing'); // whiff
+}
+}
+
 // ==================== DAMAGE PLAYER ====================
 function damagePlayer(amount,source){
 if(player.dead||player.hurtCd>0)return;
@@ -1289,7 +1388,140 @@ setTimeout(()=>{el.style.opacity=0},3200);
 setTimeout(()=>el.remove(),3800);
 }
 
-// ==================== DAY/NIGHT ====================
+// ==================== MINIMAP / COMPASS ====================
+// A top-down radar of the world. The terrain is rendered once per world to an
+// offscreen image (water / sand / grass / stone / wood / corrupted / village /
+// heartwood), then each frame we blit the area around the player and draw the
+// player as a dot with a facing arrow, plus the village and heartwood markers.
+// North is always up; the player's heading is shown by the arrow.
+const MM={size:150,scale:2,canvas:null,ctx:null,terrain:null,terrainScale:1,ready:false};
+function mmTopBlock(x,z){
+for(let y=HEIGHT-1;y>=0;y--){
+const b=getBlock(x,y,z);
+if(b!==B.AIR)return b;
+}
+return B.AIR;
+}
+function mmColorFor(b){
+switch(b){
+case B.WATER:return [58,123,213];
+case B.SAND:return [212,196,138];
+case B.GRASS:return [74,140,63];
+case B.LEAVES:return [45,107,30];
+case B.WOOD:return [107,68,35];
+case B.STONE:return [128,138,148];
+case B.DIRT:return [139,105,20];
+case B.CORRUPTED:return [20,10,35];
+case B.HEARTWOOD:return [61,43,31];
+case B.HEARTLEAF:return [34,197,94];
+case B.PLANK:case B.ROOF:return [160,120,64];
+case B.LANTERN:return [255,215,0];
+case B.BRIDGE:return [122,92,53];
+case B.ROOT:return [74,53,32];
+case B.FLOWER:case B.FLOWER2:return [255,107,157];
+default:return [10,16,20];
+}
+}
+// Build the static terrain image once the world exists.
+function buildMinimapTerrain(){
+if(!MM.canvas)return;
+const s=MM.terrainScale;
+MM.terrain=document.createElement('canvas');
+MM.terrain.width=WORLD;MM.terrain.height=WORLD;
+const tctx=MM.terrain.getContext('2d');
+const img=tctx.createImageData(WORLD,WORLD);
+const data=img.data;
+for(let z=0;z<WORLD;z++)for(let x=0;x<WORLD;x++){
+const b=mmTopBlock(x,z);
+const [r,g,bl]=mmColorFor(b);
+// slight per-cell variation for a nicer look
+const v=((hash2(x,z,99)*8)|0)-4;
+const i=(z*WORLD+x)*4;
+data[i]=r+v;data[i+1]=g+v;data[i+2]=bl+v;data[i+3]=255;
+}
+tctx.putImageData(img,0,0);
+MM.ready=true;
+}
+function drawMinimap(){
+if(!MM.canvas)return;
+const ctx=MM.ctx,S=MM.size,c=S/2;
+ctx.clearRect(0,0,S,S);
+// circular clip
+ctx.save();
+ctx.beginPath();ctx.arc(c,c,c-1,0,Math.PI*2);ctx.clip();
+// background
+ctx.fillStyle='rgba(6,14,10,.5)';
+ctx.fillRect(0,0,S,S);
+if(MM.ready&&MM.terrain){
+// The radar shows a fixed window of `vis` world units across the diameter.
+// The terrain image is WORLD x WORLD (1 unit per pixel). We blit the square of
+// world centered on the player. This is a proper rotation (not a reflection):
+// screenX = worldX (east/right), screenY = worldZ (south/down), so world -z
+// (north) is up. The heading arrow is drawn with rotation = -yaw to match.
+const ts=MM.terrainScale;
+const vis=S/ts;            // world units visible across the radar
+const px=player.pos.x,pz=player.pos.z;
+ctx.imageSmoothingEnabled=false;
+ctx.drawImage(MM.terrain,px-vis/2,pz-vis/2,vis,vis,0,0,S,S);
+// Village marker (a landmark)
+drawMmLandmark(ctx,c,ts,villageCX,villageCZ,'#22d3ee','H');
+// Heartwood marker
+drawMmLandmark(ctx,c,ts,heartwoodCX,heartwoodCZ,'#4ade80','T');
+}
+ctx.restore();
+// ring
+ctx.beginPath();ctx.arc(c,c,c-1,0,Math.PI*2);
+ctx.strokeStyle='rgba(74,222,128,.7)';ctx.lineWidth=2;ctx.stroke();
+// player arrow (heading) — north up. On this map (screenX=worldX, screenY=worldZ,
+// no flip) the engine's forward (-sin yaw, -cos yaw) maps to screen dir
+// (-sin yaw, -cos yaw), which is produced by canvas rotation = -yaw.
+const hx=-Math.sin(player.yaw),hz=-Math.cos(player.yaw);
+const r=c*0.62;
+ctx.save();
+ctx.translate(c,c);
+ctx.rotate(-player.yaw);
+ctx.beginPath();
+ctx.moveTo(0,-r);
+ctx.lineTo(r*0.55,r*0.5);
+ctx.lineTo(0,r*0.25);
+ctx.lineTo(-r*0.55,r*0.5);
+ctx.closePath();
+ctx.fillStyle='rgba(255,255,255,.92)';
+ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1;ctx.stroke();
+ctx.restore();
+// player center dot
+ctx.beginPath();ctx.arc(c,c,2.4,0,Math.PI*2);
+ctx.fillStyle='#fff';ctx.fill();
+}
+function drawMmLandmark(ctx,c,ts,lx,lz,color,label){
+// Same orientation as the terrain blit: screenX = c + (lx-player.x)*ts
+const sx=c+((lx-player.pos.x)*ts), sy=c+((lz-player.pos.z)*ts);
+if(Math.hypot(sx-c,sy-c)>c-4)return; // off radar
+ctx.save();
+ctx.beginPath();ctx.arc(sx,sy,4,0,Math.PI*2);
+ctx.fillStyle=color;ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=1;ctx.stroke();
+ctx.fillStyle='#fff';ctx.font='bold 7px Segoe UI, sans-serif';
+ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText(label,sx,sy+0.5);
+ctx.restore();
+}
+function initMinimap(){
+MM.canvas=document.getElementById('minimap');
+if(!MM.canvas)return;
+MM.ctx=MM.canvas.getContext('2d');
+// Choose terrain scale so the full 128-wide world roughly fits the radar:
+// show ~90 world units across the diameter -> ts = S/90
+MM.terrainScale=MM.size/90;
+buildMinimapTerrain();
+}
+function updateMinimap(){
+if(!MM.canvas)return;
+drawMinimap();
+const cc=document.getElementById('mmCoord');
+if(cc)cc.textContent=Math.round(player.pos.x)+', '+Math.round(player.pos.z);
+}
 let timeT=0.15;
 const skyDay=new THREE.Color(0xb8e0d6),skyNight=new THREE.Color(0x1a2a3a);
 function updateDayNight(dt){
@@ -1325,7 +1557,8 @@ death:{f:200,f2:40,d:0.8,v:0.2,type:'sawtooth'},
 boss:{f:90,f2:45,d:0.7,v:0.25,type:'sawtooth'},
 heal:{f:600,f2:900,d:0.2,v:0.1,type:'sine'},
 shoot:{f:700,f2:300,d:0.12,v:0.08,type:'sawtooth'},
-click:{f:600,f2:500,d:0.04,v:0.05,type:'sine'}
+click:{f:600,f2:500,d:0.04,v:0.05,type:'sine'},
+swing:{f:340,f2:120,d:0.09,v:0.09,type:'square'}
 }[name]||{f:440,f2:440,d:0.1,v:0.05,type:'sine'};
 o.type=P.type;
 o.frequency.setValueAtTime(P.f,t);
@@ -1372,6 +1605,7 @@ fpsAcc=0;fpsN=0;
 if(gameStarted&&!player.dead&&!paused){
 movePlayer(dt);
 player.hurtCd=Math.max(0,player.hurtCd-dt);
+atkCd=Math.max(0,atkCd-dt);
 updateInteraction(dt);
 updateMonsters(dt);
 if(boss)updateBoss(dt);
@@ -1381,6 +1615,7 @@ updateBindingRecharge(dt);
 camera.position.copy(player.pos).add(new THREE.Vector3(0,1.6,0));
 camera.quaternion.setFromEuler(new THREE.Euler(player.pitch,player.yaw,0,'YXZ'));
 updateHUD();
+updateMinimap();
 }
 flushDirty();
 renderer.render(scene,camera);
@@ -1395,6 +1630,7 @@ genHeartwood();
 genVillage();
 genMira();
 spawnMonsters();
+initMinimap();
 for(let cz=0;cz<CH;cz++){
 for(let cx=0;cx<CH;cx++){
 buildChunkMesh(cx,cz);
@@ -1468,9 +1704,11 @@ let autosaveTimer=null;
 function worldToB64(){
 const bytes=worldData;
 let bin='';
-const chunk=0x8000;
+// String.fromCharCode.apply() breaks past the engine's argument limit (Chromium
+// is ~65k), so we copy in small slices. 0x4000 (16k) is safely under it.
+const chunk=0x4000;
 for(let i=0;i<bytes.length;i+=chunk){
-bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+bin+=String.fromCharCode.apply(null,Array.prototype.slice.call(bytes.subarray(i,i+chunk)));
 }
 return btoa(bin);
 }
@@ -1544,7 +1782,14 @@ const raw=localStorage.getItem(SAVE_KEY);
 if(!raw)return false;
 const save=JSON.parse(raw);
 if(save.world){
-worldData.set(b64ToWorld(save.world));
+const decoded=b64ToWorld(save.world);
+// A corrupt/truncated save would be shorter than the world; refusing it prevents
+// loading a half-populated world (which shows as missing/see-through blocks).
+if(decoded.length!==WORLD*HEIGHT*WORLD){
+console.warn('Save world size mismatch ('+decoded.length+' vs '+WORLD*HEIGHT*WORLD+') — ignoring world data.');
+return false;
+}
+worldData.set(decoded);
 }
 const p=save.player;
 if(p){
@@ -1588,6 +1833,9 @@ document.getElementById('continueBtn').addEventListener('click',()=>{
 sfx('click');
 initWorld();
 if(loadGame()){
+// loadGame() replaced worldData, so rebuild every chunk mesh from the loaded data
+// (initWorld() built meshes from the freshly generated world, now stale).
+for(let cz=0;cz<CH;cz++)for(let cx=0;cx<CH;cx++)buildChunkMesh(cx,cz);
 toast('📂 Save loaded — welcome back, traveler.',true);
 startGame(true);
 }else{
@@ -1626,6 +1874,8 @@ bossProjectiles.length=0;
 boss=null;
 bossSpawned=false;
 mira=null;
+MM.terrain=null;MM.ready=false;
+if(MM.ctx)MM.ctx.clearRect(0,0,MM.size,MM.size);
 player.dead=false;
 player.hp=player.maxHp;
 player.level=1;player.xp=0;
