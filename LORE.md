@@ -1673,3 +1673,658 @@ Regenerate 1% of maximum health every 5 seconds outside combat
 Take 20% less damage from poison and thorns
 Active ability — Nature’s Embrace: Restore 25% of your maximum health and create roots that slow nearby enemies for 4 seconds.
 Exploration bonus: Plants grow faster when you use Blockbinding nearby.
+## Pyroclast weapons: 
+Pyroclast
+Ember
+Melee
+Cinderforged Blade
+2
+32
+1.08
+2.5
+11
+0
+10
+Heavy Cleave: A charged swing deals 23% bonus damage in a short arc.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Melee
+Magmaheart Greatsword
+2
+33.7
+1.05
+2.8
+13
+0
+13
+Guard Break: Heavy hits stagger armored enemies for 3 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Melee
+Ashen Axe
+2
+35.4
+1.01
+3
+15
+0
+16
+World Echo: Every 4th hit releases a short-range burst for 33 damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Melee
+Flamecrest Warhammer
+2
+37.1
+0.98
+3.2
+17
+0
+19
+Momentum: Consecutive hits increase damage by 38% up to 3 stacks.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Melee
+Kilnkeeper Spear
+2
+38.8
+0.94
+2.5
+19
+0
+10
+Rending Strike: Critical hits apply a wound dealing 23 damage over time.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Melee
+Brassfire Dagger
+2
+40.5
+0.91
+2.8
+11
+0
+13
+Blocksplitter: Deals 28% extra damage to shields and constructed blocks.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Melee
+Emberwake Halberd
+2
+42.2
+0.87
+3
+13
+0
+16
+Counterforce: A perfectly timed block empowers the next hit by 33%.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Melee
+Furnaceborn Gauntlets
+2
+43.9
+0.84
+3.2
+15
+0
+19
+Leaping Blow: A leap attack deals 38% damage and briefly knocks targets back.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Melee
+Scorching Scythe
+2
+45.6
+0.8
+2.5
+17
+0
+10
+Twin Impact: The final hit in a combo strikes twice for 23% damage each.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Melee
+Searsteel Katana
+2
+47.3
+0.77
+2.8
+19
+0
+13
+Hunter's Mark: Hitting a marked target deals 28% extra damage for 3 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Melee
+Coalbright Mace
+2
+49
+0.73
+3
+11
+0
+16
+Ruinous Sweep: A wide sweep hits nearby enemies for 33% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Melee
+Blazebound Cleaver
+2
+50.7
+0.7
+3.2
+13
+0
+19
+Last Stand: Below 30% health, heavy attacks gain 38% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Ranged
+Cinderforged Bow
+2
+15.6
+1.13
+21
+9.2
+0
+7
+Piercing Shot: Projectiles pierce 2 targets and deal 23% damage after each target.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Ranged
+Magmaheart Crossbow
+2
+16.5
+1.25
+26
+11.2
+0
+9
+Quickdraw: After not firing for 3 seconds, the next shot deals 28% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Ranged
+Ashen Longbow
+2
+17.4
+1.37
+31
+13.2
+0
+11
+Ricochet: Shots bounce to 4 nearby enemies for 33% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Ranged
+Flamecrest Repeater
+2
+18.3
+1.49
+36
+15.2
+0
+13
+Marked Target: Hits mark enemies; the next shot against them deals 38% bonus damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Ranged
+Kilnkeeper Hand-Cannon
+2
+19.2
+1.13
+21
+17.2
+0
+7
+Volley: Fire 2 projectiles in a spread, each dealing 23% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Ranged
+Brassfire Throwing Knives
+2
+20.1
+1.25
+26
+9.2
+0
+9
+Explosive Tip: Every 3th shot bursts for 28 area damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Ranged
+Emberwake Javelin Launcher
+2
+21
+1.37
+31
+11.2
+0
+11
+Longshot: Damage increases by 33% when fired beyond 20.2 blocks.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Ranged
+Furnaceborn Slingshot
+2
+21.9
+1.49
+36
+13.2
+0
+13
+Snare Bolt: A hit slows the target by 38% for 5 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Ranged
+Scorching Rifle
+2
+22.8
+1.13
+21
+15.2
+0
+7
+Rapid Cycle: After a hit, the next reload or draw is 23% faster.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Ranged
+Searsteel Chakram
+2
+23.7
+1.25
+26
+17.2
+0
+9
+Ricochet Return: A returning projectile can hit once more for 28% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Ranged
+Coalbright Dartcaster
+2
+24.6
+1.37
+31
+9.2
+0
+11
+Weakpoint: Critical hits deal 33% additional damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Ranged
+Blazebound Ballista
+2
+25.5
+1.49
+36
+11.2
+0
+13
+Suppressing Fire: Consecutive hits reduce enemy attack speed by 38% briefly.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Mage
+Cinderforged Staff
+2
+19.6
+0.77
+16.4
+9.8
+0
+16
+Elemental Burst: Release a burst dealing 23 damage in a small area.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Mage
+Magmaheart Wand
+2
+24.1
+0.89
+20.4
+11.3
+0
+20
+Arcane Chain: Spell jumps to 3 targets for 28% damage per jump.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Mage
+Ashen Tome
+2
+28.6
+1.01
+24.4
+12.8
+0
+24
+Charged Cast: Holding the cast for 4 seconds increases spell damage by 33%.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Mage
+Flamecrest Grimoire
+2
+33.1
+1.13
+28.4
+14.3
+0
+28
+Rune Field: Creates a field dealing 38 damage per second for 5 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Mage
+Kilnkeeper Orb
+2
+19.6
+0.77
+16.4
+15.8
+0
+16
+Phase Bolt: A bolt passes through enemies and deals 23% damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Mage
+Brassfire Runeblade
+2
+24.1
+0.89
+20.4
+9.8
+0
+20
+Overchannel: Spend extra energy to deal 28% damage, with a brief cooldown.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Mage
+Emberwake Spellbook
+2
+28.6
+1.01
+24.4
+11.3
+0
+24
+Status Hex: Spells apply a world-themed effect for 4 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Mage
+Furnaceborn Scepter
+2
+33.1
+1.13
+28.4
+12.8
+0
+28
+Echo Cast: Every 5th spell repeats at 38% power.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Mage
+Scorching Focus
+2
+19.6
+0.77
+16.4
+14.3
+0
+16
+Gravity Well: Pulls enemies together before dealing 23 damage.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Mage
+Searsteel Codex
+2
+24.1
+0.89
+20.4
+15.8
+0
+20
+Prismatic Shot: spell damage varies from 15.7 to 39.8 depending on the cast.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Mage
+Coalbright Crystal Rod
+2
+28.6
+1.01
+24.4
+9.8
+0
+24
+Mana Siphon: A hit restores 4 energy, once every 33 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Mage
+Blazebound Sigil
+2
+33.1
+1.13
+28.4
+11.3
+0
+28
+Reality Ripple: A delayed second pulse deals 38% of the first hit.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Healer
+Cinderforged Lifebow
+2
+6.6
+0.92
+61
+5
+11.6
+9
+Kindred Pulse: A hit heals you for 11.6 health and nearby allies for 6.4.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Healer
+Magmaheart Restoration Staff
+2
+7.7
+1.07
+76
+6.2
+13.8
+12
+Long Mercy: Effective range increases to 76 blocks; damage falls off at close range.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Healer
+Ashen Mending Wand
+2
+8.8
+1.22
+91
+7.4
+16
+15
+Rejuvenating Mark: A hit heals you for 16.0 and grants 5 health over time.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Healer
+Flamecrest Vitality Scepter
+2
+9.9
+1.37
+106
+8.6
+18.2
+18
+Cleansebeam: A hit heals 18.2 and removes one minor negative effect from you.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Healer
+Kilnkeeper Mercy Orb
+2
+6.6
+0.92
+61
+9.8
+11.6
+9
+Sanctuary Thread: Healing a target grants you a 14% damage-reduction shield for 4 seconds.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Healer
+Brassfire Renewal Tome
+2
+7.7
+1.07
+76
+5
+13.8
+12
+Vital Return: Every 5th hit restores an extra 13.8 health.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Healer
+Emberwake Blooming Rod
+2
+8.8
+1.22
+91
+6.2
+16
+15
+Blooming Impact: A hit deals 8.8 damage and releases a small healing bloom for 16.0.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Healer
+Furnaceborn Sanctuary Bell
+2
+9.9
+1.37
+106
+7.4
+18.2
+18
+Soul Link: A hit heals you for 18.2; healing increases by 14% below half health.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Healer
+Scorching Kindness Chakram
+2
+6.6
+0.92
+61
+8.6
+11.6
+9
+Beacon: Marks a target; your next hit heals you for 11.6 extra health.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+Pyroclast
+Ember
+Healer
+Searsteel Soul Lantern
+2
+7.7
+1.07
+76
+9.8
+13.8
+12
+Renewal Chain: The beam can pass through 3 allies or targets; each hit heals you for 13.8.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can scorch the target.
+Pyroclast
+Ember
+Healer
+Coalbright Grace Needle
+2
+8.8
+1.22
+91
+5
+16
+15
+Gentle Critical: Critical hits deal 8.8 damage and heal you for 16.0 instead of normal healing.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can leave a short-lived magma patch.
+Pyroclast
+Ember
+Healer
+Blazebound Revival Focus
+2
+9.9
+1.37
+106
+6.2
+18.2
+18
+Overflow: Healing beyond your maximum grants a temporary shield equal to 14 health.
+Forged in Pyroclast, attuned to the Ember Fragment. Its world effect can build heat toward a stronger next hit.
+## pyroclast bosses:  
+The Molten King — Lord of the Furnace
+HP: 5,000 · Difficulty: ★★★☆☆
+Attacks: Lava Wave, Furnace Fists, Eruption.
+Weakness: Cool its armor with water or Frost attacks.
+Reward: King's Core — unlocks advanced Ember forging.
+6. Cindertail — The Ash Scorpion
+HP: 3,800 · Difficulty: ★★★☆☆
+Attacks: Magma Sting, Burrow Strike, Burning Sandstorm.
+Weakness: Its tail glows before attacking; dodge and strike it.
+Reward: Cinder Stinger — a weapon upgrade that adds burn damage.
+7. The Iron Furnace — Forgemaster's Creation
+HP: 6,200 · Difficulty: ★★★★☆
+Attacks: Iron Fist, Molten Armor, Assembly Drones.
+Weakness: Overload its cooling pipes to expose its core.
+Reward: Furnace Engine — a component for powerful Mage weapons.
+8. Ashwing — The Obsidian Dragon
+HP: 8,500 · Difficulty: ★★★★★
+Attacks: Obsidian Breath, Meteor Dive, Ashen Sky.
+Weakness: Break the four obsidian crystals powering its wings.
+Reward: Ember Fragment resonance and the Dragonfire Forge blueprint.
+## pyroclast fragment: 
+Ember Fragment — Pyroclast
+Power: Fire and Creation
+Passive buff — Eternal Flame
++15% melee damage
++20% damage against destructible blocks
+25% chance to burn enemies on a critical hit
+Active ability — Inferno Burst: Release a fiery explosion dealing 150% of your equipped weapon’s base damage to nearby enemies.
+Exploration bonus: Mine certain ores and smelt materials 25% faster.

@@ -175,7 +175,7 @@ body.touch #hpWrap{width:190px;bottom:auto;top:52px;left:10px}
 <canvas id="scene"></canvas>
 <audio id="bgm" src="verdantia-whispers-of-life.mp3" loop preload="auto"></audio>
 <div id="hud" class="hidden">
-  <div id="seedBadge">🌱 WORLD 1 — VERDANTIA · THE SEED</div>
+  <div id="seedBadge">🌱 WORLD 1 — VERDANTIA · THE SEED &nbsp;|&nbsp; 🔥 WORLD 2 — PYROCLAST · THE EMBER</div>
   <div id="topInfo"><div id="dayBadge">DAY 1</div><div id="clockLine">—</div></div>
   <div id="hpWrap">
     <div id="lvlTag">Lv 1</div>
@@ -208,14 +208,18 @@ body.touch #hpWrap{width:190px;bottom:auto;top:52px;left:10px}
 <div id="startOverlay" class="overlay">
   <div class="crest">BLOCKFORGE · THE LEGEND OF THE SEVEN WORLDS</div>
   <h1>VERDANTIA</h1>
-  <div class="tag">WORLD 1 — THE SEED · THE WORLD THAT REMEMBERS</div>
+  <div class="tag">WORLD 1 — THE SEED · WORLD 2 — THE EMBER</div>
   <div class="lore">
     You awaken on a mossy island above an endless sea of clouds, a cracked metal hammer in hand.
     Beside you stands a village: <em>Hollowreach</em>. Mira the scavenger knows where the <span class="k">Seed Fragment</span> is hidden —
     deep in the <em>Heartwood</em>, guarded by the ancient <span class="k">Rootwarden</span>.
     <br><br>
-    Mine blocks, craft the <span class="k">48 Verdant weapons</span>, and hunt the <span class="k">4 guardians</span> of the deep forest.
-    Defeat the final guardian, and the Seed will enter your hammer — Verdantia will heal.
+    To the west lies <em>Pyroclast</em>, the volcanic realm of <em>The Ember</em> — rivers of lava, blackstone fortresses, and the
+    legendary forges of the <span class="k">Ember Clans</span>. At its heart, the <span class="k">Molten King</span> guards the <span class="k">Ember Fragment</span>.
+    <br><br>
+    Mine blocks, craft the <span class="k">96 world weapons</span>, and hunt the <span class="k">5 guardians</span> —
+    the four of Verdantia and the Molten King of Pyroclast.
+    Defeat the final guardians, and the Seed and the Ember will enter your hammer — both worlds will heal.
   </div>
   <div class="controls">
     <div><kbd>A / D</kbd> Move</div>
@@ -256,7 +260,8 @@ body.touch #hpWrap{width:190px;bottom:auto;top:52px;left:10px}
     Gray forests regain their color; rivers return to abandoned settlements.
     <br><br><span class="k">"LIFE CANNOT BE PRESERVED BY REFUSING TO LET IT CHANGE."</span>
     <br>— The Rootwarden's final message
-    <br><br>One world has been healed. Six remain.
+    <br><br>The Ember Clans reopen their mines. The Molten King's forge falls silent, its corrupted weapons crumble to slag.
+    <br><br>Two worlds have been healed. Five remain.
   </div>
   <div class="btnrow">
     <button class="bigbtn" id="keepPlayingBtn">KEEP EXPLORING</button>
@@ -322,7 +327,10 @@ const SAVE_KEY = 'blockforge_verdantia2d_v1';
 /* ---------- Block ids ---------- */
 const B = {
   AIR:0, DIRT:1, GRASS:2, STONE:3, WOOD:4, LEAVES:5, MUSH:6, FLOWER:7,
-  CRACK:8, CRYSTAL:9, MOSS:10, HIVE:11, CORRUPT:12, DOOR:14, TORCH:15, HEARTWOOD:16, OBSIDIAN:17, SEED_ALTAR:18, SPORPOD:19
+  CRACK:8, CRYSTAL:9, MOSS:10, HIVE:11, CORRUPT:12, DOOR:14, TORCH:15, HEARTWOOD:16, OBSIDIAN:17, SEED_ALTAR:18, SPORPOD:19,
+  // ---- World 2 · Pyroclast — The Ember ----
+  BLACKSTONE:20, LAVA:21, CINDER:22, IRONORE:23, COPPERORE:24,
+  EMBERSTONE:25, MOLTEN:26, FURNACE:27, ASHGATE:28
 };
 const BLOCK_DEF = {
   [B.DIRT]:     {n:'Dirt',         solid:true, hp:1.0, drop:'dirt',   hard:'#6b4a2f'},
@@ -343,6 +351,16 @@ const BLOCK_DEF = {
   [B.OBSIDIAN]: {n:'Ashbound Obsidian',solid:true,hp:5, drop:'obsidian',hard:'#15110d', corrupt:true, glow:'#5b2109'},
   [B.SEED_ALTAR]:{n:'Seed Altar',  solid:true, hp:99, drop:null,      hard:'#1f5236', glow:'#a7f3d0', unbreakable:true},
   [B.SPORPOD]:  {n:'Spore Pod',    solid:false,hp:1.2, drop:'spore',  hard:'#86efac', pod:true},
+  // ---- World 2 · Pyroclast — The Ember ----
+  [B.BLACKSTONE]:{n:'Blackstone',  solid:true, hp:2.6, drop:'blackstone',hard:'#2b2420'},
+  [B.LAVA]:     {n:'Lava',         solid:false,hp:99, drop:null,      hard:'#f97316', lava:true, glow:'#fbbf24'},
+  [B.CINDER]:   {n:'Cinder Ash',   solid:true, hp:1.4, drop:'cinder',  hard:'#4a3324'},
+  [B.IRONORE]:  {n:'Iron Ore',     solid:true, hp:3.0, drop:'iron',    hard:'#8a8f9c', glow:'#c7d0dd'},
+  [B.COPPERORE]:{n:'Copper Ore',   solid:true, hp:3.0, drop:'copper',  hard:'#b0793f', glow:'#f0a860'},
+  [B.EMBERSTONE]:{n:'Ember Stone', solid:true, hp:2.8, drop:'emberstone',hard:'#5a2a1a', glow:'#ef4444'},
+  [B.MOLTEN]:   {n:'Molten Core',  solid:true, hp:5.0, drop:'molten',  hard:'#ff5a1f', glow:'#ffd24a', corrupt:true},
+  [B.FURNACE]:  {n:'Forge Furnace',solid:true, hp:6.0, drop:null,      hard:'#3a2a1c', glow:'#f59e0b', unbreakable:true},
+  [B.ASHGATE]:  {n:'Ashbound Gate',solid:true, hp:1.6, drop:'obsidian',hard:'#15110d', corrupt:true, door:true, glow:'#5b2109'},
 };
 function isSolid(b){ return b!==B.AIR && BLOCK_DEF[b] && BLOCK_DEF[b].solid; }
 //__JS2__
@@ -366,6 +384,13 @@ const MATERIALS = {
   root:       {n:'Ancient Root',icon:'🌱', stack:99},
   honey:      {n:'Beetle Honey',icon:'🍯', stack:99},
   meat:       {n:'Roasted Rootfruit',icon:'🍖', stack:99},
+  // ---- World 2 · Pyroclast — The Ember ----
+  blackstone: {n:'Blackstone',  icon:'⬛', stack:999},
+  cinder:     {n:'Cinder Ash',  icon:'🔥', stack:99},
+  iron:       {n:'Iron Ore',    icon:'⚙️', stack:99},
+  copper:     {n:'Copper Ore',  icon:'🟠', stack:99},
+  emberstone: {n:'Ember Stone', icon:'🔶', stack:99},
+  molten:     {n:'Molten Core', icon:'🌋', stack:99},
 };
 // material -> block id, for showing the 16x16 pixel texture in the inventory
 const MAT_BLOCK = {
@@ -433,6 +458,62 @@ const WEAPONS = [
   {t:"Healer",n:"Dewfall Grace Needle",d:7.5,s:1.21,r:88,c:4,sp:13.7,ab:"Gentle Critical: Critical hits deal 7.5 damage and heal you for 13.7 instead of normal healing."},
   {t:"Healer",n:"Verdant Revival Focus",d:8.6,s:1.36,r:103,c:5.2,sp:15.9,ab:"Overflow: Healing beyond your maximum grants a temporary shield equal to 12 health."},
 
+  // ============ WORLD 2 · PYROCLAST — THE EMBER (48) ============
+  // The Ember Clans forge in impossible heat. Higher base damage, molten specials.
+  // ---- Melee (12) ----
+  {t:"Melee",n:"Emberforged Longsword",d:31,s:1.08,r:2.5,c:10,sp:0,ab:"Forge Spark: A charged swing leaves a molten trail dealing 19% bonus damage."},
+  {t:"Melee",n:"Cindersteel Cleaver",d:33,s:1.05,r:2.8,c:12,sp:0,ab:"Molten Edge: Hits sear enemies, dealing 14 damage over 3 seconds."},
+  {t:"Melee",n:"Obsidian Warhammer",d:35,s:1.0,r:3,c:14,sp:0,ab:"Anvil Blow: Every 4th hit releases a shockwave for 30 damage."},
+  {t:"Melee",n:"Magma Reaver Axe",d:37,s:0.97,r:3.2,c:16,sp:0,ab:"Lava Split: Consecutive hits add 34% damage, up to 3 stacks."},
+  {t:"Melee",n:"Ironclad Halberd",d:39,s:0.94,r:2.5,c:18,sp:0,ab:"Rending Forge: Critical hits apply a wound dealing 20 damage over time."},
+  {t:"Melee",n:"Volcanic Shortblade",d:41,s:0.9,r:2.8,c:10,sp:0,ab:"Heat Splitter: Deals 24% extra damage to shields and constructed blocks."},
+  {t:"Melee",n:"Basalt Glaive",d:43,s:0.87,r:3,c:12,sp:0,ab:"Counterforged: A perfectly timed block empowers the next hit by 29%."},
+  {t:"Melee",n:"Scorchfang Gauntlets",d:45,s:0.83,r:3.2,c:14,sp:0,ab:"Molten Leap: A leap attack deals 34% damage and briefly knocks targets back."},
+  {t:"Melee",n:"Emberflame Scythe",d:47,s:0.8,r:2.5,c:16,sp:0,ab:"Twin Ignite: The final combo hit strikes twice for 19% damage each."},
+  {t:"Melee",n:"Forgeblood Katana",d:49,s:0.76,r:2.8,c:18,sp:0,ab:"Hunter's Brand: Hitting a marked target deals 24% extra damage for 3 seconds."},
+  {t:"Melee",n:"Cinder Mace",d:51,s:0.72,r:3,c:10,sp:0,ab:"Ruinous Flare: A wide sweep hits nearby enemies for 29% damage."},
+  {t:"Melee",n:"Emberking's Cleaver",d:53,s:0.69,r:3.2,c:12,sp:0,ab:"Last Melt: Below 30% health, heavy attacks gain 34% damage."},
+  //__JS3C__
+  // ---- Ranged (12) ----
+  {t:"Ranged",n:"Cinderbow",d:14.2,s:1.13,r:19.5,c:8,sp:0,ab:"Piercing Ember: Projectiles pierce 2 targets and deal 19% damage after each."},
+  {t:"Ranged",n:"Magma Repeater",d:15.4,s:1.26,r:24.5,c:10,sp:0,ab:"Quickdraw Forge: After 3 seconds, the next shot deals 24% damage."},
+  {t:"Ranged",n:"Ironclad Longbow",d:16.6,s:1.37,r:29.5,c:12,sp:0,ab:"Ricochet Spark: Shots bounce to 4 nearby enemies for 29% damage."},
+  {t:"Ranged",n:"Volcanic Repeater",d:17.8,s:1.49,r:34.5,c:14,sp:0,ab:"Marked Target: Hits mark enemies; the next shot deals 34% bonus damage."},
+  {t:"Ranged",n:"Ember Hand-Cannon",d:19,s:1.13,r:19.5,c:16,sp:0,ab:"Volley Forge: Fire 2 projectiles in a spread, each dealing 19% damage."},
+  {t:"Ranged",n:"Basalt Throwing Knives",d:20.2,s:1.26,r:24.5,c:8,sp:0,ab:"Explosive Core: Every 3rd shot bursts for 26 area damage."},
+  {t:"Ranged",n:"Molten Javelin Launcher",d:21.4,s:1.37,r:29.5,c:10,sp:0,ab:"Longshot Melt: Damage increases by 29% when fired beyond 19.2 blocks."},
+  {t:"Ranged",n:"Cinder Slingshot",d:22.6,s:1.49,r:34.5,c:12,sp:0,ab:"Snare Ember: A hit slows the target by 34% for 5 seconds."},
+  {t:"Ranged",n:"Ironclad Rifle",d:23.8,s:1.13,r:19.5,c:14,sp:0,ab:"Rapid Cycle: After a hit, the next reload is 19% faster."},
+  {t:"Ranged",n:"Volcanic Chakram",d:25,s:1.26,r:24.5,c:16,sp:0,ab:"Ricochet Return: A returning projectile can hit once more for 24% damage."},
+  {t:"Ranged",n:"Magma Dartcaster",d:26.2,s:1.37,r:29.5,c:8,sp:0,ab:"Weakpoint: Critical hits deal 29% additional damage."},
+  {t:"Ranged",n:"Emberking's Ballista",d:27.4,s:1.49,r:34.5,c:10,sp:0,ab:"Suppressing Fire: Consecutive hits reduce enemy attack speed by 34% briefly."},
+  //__JS3D__
+  // ---- Mage (12) ----
+  {t:"Mage",n:"Cinder Staff",d:18.4,s:0.78,r:15.2,c:8.8,sp:0,ab:"Elemental Burst: Release a burst dealing 21 damage in a small area."},
+  {t:"Mage",n:"Magma Wand",d:23.4,s:0.9,r:19.2,c:10.3,sp:0,ab:"Arcane Chain: Spell jumps to 3 targets for 24% damage per jump."},
+  {t:"Mage",n:"Ironclad Tome",d:28.4,s:1.02,r:23.2,c:11.8,sp:0,ab:"Charged Cast: Holding the cast for 4 seconds increases spell damage by 29%."},
+  {t:"Mage",n:"Volcanic Grimoire",d:33.4,s:1.14,r:27.2,c:13.3,sp:0,ab:"Rune Field: Creates a field dealing 36 damage per second for 5 seconds."},
+  {t:"Mage",n:"Ember Orb",d:18.4,s:0.78,r:15.2,c:14.8,sp:0,ab:"Phase Bolt: A bolt passes through enemies and deals 19% damage."},
+  {t:"Mage",n:"Basalt Runeblade",d:23.4,s:0.9,r:19.2,c:8.8,sp:0,ab:"Overchannel: Spend extra energy to deal 24% damage, with a brief cooldown."},
+  {t:"Mage",n:"Molten Spellbook",d:28.4,s:1.02,r:23.2,c:10.3,sp:0,ab:"Status Hex: Spells apply a world-themed effect for 4 seconds."},
+  {t:"Mage",n:"Cinder Scepter",d:33.4,s:1.14,r:27.2,c:11.8,sp:0,ab:"Echo Cast: Every 5th spell repeats at 34% power."},
+  {t:"Mage",n:"Emberking's Focus",d:18.4,s:0.78,r:15.2,c:13.3,sp:0,ab:"Gravity Well: Pulls enemies together before dealing 21 damage."},
+  {t:"Mage",n:"Forge Codex",d:23.4,s:0.9,r:19.2,c:14.8,sp:0,ab:"Prismatic Shot: spell damage varies from 15.1 to 37.8 depending on the cast."},
+  {t:"Mage",n:"Magma Crystal Rod",d:28.4,s:1.02,r:23.2,c:8.8,sp:0,ab:"Mana Siphon: A hit restores 4 energy, once every 29 seconds."},
+  {t:"Mage",n:"Emberking's Sigil",d:33.4,s:1.14,r:27.2,c:10.3,sp:0,ab:"Reality Ripple: A delayed second pulse deals 34% of the first hit."},
+  // ---- Healer (12) ----
+  {t:"Healer",n:"Cinder Lifebow",d:5.9,s:0.93,r:58,c:4.2,sp:10.3,ab:"Kindred Pulse: A hit heals you for 10.3 and nearby allies for 5.6."},
+  {t:"Healer",n:"Magma Restoration Staff",d:7.1,s:1.08,r:73,c:5.4,sp:12.7,ab:"Long Mercy: Effective range increases to 73 blocks; damage falls off at close range."},
+  {t:"Healer",n:"Ironclad Mending Wand",d:8.3,s:1.23,r:88,c:6.6,sp:15.2,ab:"Rejuvenating Mark: A hit heals you for 15.2 and grants 5 health over time."},
+  {t:"Healer",n:"Volcanic Vitality Scepter",d:9.5,s:1.38,r:103,c:7.8,sp:17.6,ab:"Cleansebeam: A hit heals 17.6 and removes one minor negative effect from you."},
+  {t:"Healer",n:"Ember Mercy Orb",d:5.9,s:0.93,r:58,c:9.2,sp:10.3,ab:"Sanctuary Thread: Healing a target grants you a 12% damage-reduction shield for 4 seconds."},
+  {t:"Healer",n:"Basalt Renewal Tome",d:7.1,s:1.08,r:73,c:4.2,sp:12.7,ab:"Vital Return: Every 5th hit restores an extra 12.7 health."},
+  {t:"Healer",n:"Molten Blooming Rod",d:8.3,s:1.23,r:88,c:5.4,sp:15.2,ab:"Blooming Impact: A hit deals 8.3 damage and releases a small healing bloom for 15.2."},
+  {t:"Healer",n:"Cinder Sanctuary Bell",d:9.5,s:1.38,r:103,c:6.6,sp:17.6,ab:"Soul Link: A hit heals you for 17.6; healing increases by 12% below half health."},
+  {t:"Healer",n:"Emberking's Kindness Chakram",d:5.9,s:0.93,r:58,c:8,sp:10.3,ab:"Beacon: Marks a target; your next hit heals you for 10.3 extra health."},
+  {t:"Healer",n:"Forge Soul Lantern",d:7.1,s:1.08,r:73,c:9.2,sp:12.7,ab:"Renewal Chain: The beam can pass through 3 allies or targets; each hit heals you for 12.7."},
+  {t:"Healer",n:"Magma Grace Needle",d:8.3,s:1.23,r:88,c:4.2,sp:15.2,ab:"Gentle Critical: Critical hits deal 8.3 damage and heal you for 15.2 instead of normal healing."},
+  {t:"Healer",n:"Emberking's Revival Focus",d:9.5,s:1.38,r:103,c:5.4,sp:17.6,ab:"Overflow: Healing beyond your maximum grants a temporary shield equal to 13 health."},
 ];
 const WEAPON_ICON = {Melee:'⚔️',Ranged:'🏹',Mage:'🪄',Healer:'💚'};
 //__JS4__
@@ -458,6 +539,12 @@ function buildCraftList(){
     arr.forEach((w,i)=>{
       const tier = i+1;
       const req = tierMat(tier);
+      // Pyroclast weapons are the higher tiers (13–24) — require Ember materials
+      const pyro = (cls==='Melee'&&i>=12)||(cls==='Ranged'&&i>=12)||(cls==='Mage'&&i>=12)||(cls==='Healer'&&i>=12);
+      if (pyro){
+        req.iron = tier-11; req.copper = tier-11; req.blackstone = tier-11;
+        if (tier>=18){ req.molten = tier-16; req.emberstone = tier-16; }
+      }
       list.push({kind:'Weapon', icon:WEAPON_ICON[cls], name:w.n, req:req,
         desc:`${cls} · ${w.d} dmg · ${w.ab.split(':')[0]}`});
     });
@@ -473,8 +560,14 @@ function buildCraftList(){
     {kind:'Gear', icon:'🧪', name:'Seed Tonic', req:{flower:3, spore:1, moss:1}, desc:'Restores 40 HP on use.'},
     {kind:'Gear', icon:'🧪', name:'Verdant Elixir', req:{crystal:2, root:2, flower:2}, desc:'Restores full HP.'},
     {kind:'Summon', icon:'🌀', name:'Guardian Summon Sigil', req:{heartwood:3, crystal:5, obsidian:3, spore:2}, desc:'Unlocks the Summon Stones. Craft a Sigil, then craft a summoning stone to call a guardian to you.', summon:true},
-    {kind:'Mat', icon:'🪵', name:'Placeable: Grass Block', req:{dirt:1, leaf:1}, desc:'Converts to placeable grass.'},
-    {kind:'Mat', icon:'🧱', name:'Placeable: Stone Block', req:{stone:1}, desc:'Converts to placeable stone.'},
+    {kind:'Mat', icon:'🪵', name:'Placeable: Grass Block', req:{dirt:1, leaf:1}, placeBlock:'grass', desc:'Converts to placeable grass.'},
+    {kind:'Mat', icon:'🧱', name:'Placeable: Stone Block', req:{stone:1}, placeBlock:'stone', desc:'Converts to placeable stone.'},
+    // ---- World 2 · Pyroclast — The Ember (placeable blocks + gear) ----
+    {kind:'Mat', icon:'⬛', name:'Placeable: Blackstone Block', req:{blackstone:1}, placeBlock:'blackstone', desc:'Converts to placeable blackstone.'},
+    {kind:'Mat', icon:'🔶', name:'Placeable: Ember Stone Block', req:{emberstone:1}, placeBlock:'emberstone', desc:'Converts to placeable ember stone.'},
+    {kind:'Mat', icon:'🌋', name:'Placeable: Molten Core Block', req:{molten:1, cinder:1}, placeBlock:'molten', desc:'Converts to a placeable molten core (glows).'},
+    {kind:'Gear', icon:'🛡️', name:'Emberforged Armor', req:{iron:8, blackstone:6, cinder:4}, desc:'+50% max HP, +30% fire resist.'},
+    {kind:'Gear', icon:'🧪', name:'Magma Tonic', req:{molten:2, cinder:1, copper:2}, desc:'Restores 60 HP on use.'},
   ];
   list.push(...gear);
   // Guardian summoning stones. Shown for every guardian; they are only
@@ -487,6 +580,8 @@ function buildCraftList(){
     {bossId:'Mycelord',      bossName:'Mycelord',         icon:'🍄', req:{mushroom:4, spore:3, moss:3},   desc:'Calls Mycelord to your location. Consumable.'},
     {bossId:'BlightedElder', bossName:'The Blighted Elder',icon:'💀', req:{ash:4, obsidian:3, spore:2},   desc:'Calls the Blighted Elder to your location. Consumable.'},
     {bossId:'Rootwarden',    bossName:'The Rootwarden',   icon:'🌳', req:{heartwood:3, crystal:4, obsidian:3}, desc:'Calls the Rootwarden (final guardian) to your location. Consumable.'},
+    // ---- World 2 · Pyroclast — The Ember ----
+    {bossId:'MoltenKing',    bossName:'The Molten King',  icon:'🌋', req:{molten:4, emberstone:3, iron:3, obsidian:2}, desc:'Calls The Molten King (Pyroclast guardian) to your location. Consumable.'},
   ];
   for (const bs of BOSS_SUMMON){
     list.push({kind:'Summon', icon:bs.icon, name:'Summon Stone: '+bs.bossName,
@@ -525,16 +620,26 @@ const BOSSES = {
     desc:"A corrupted elder of the Ashbound Blight. Spews ash and wither waves.",
     phases:3,
   },
+  // ---- World 2 · Pyroclast — The Ember ----
+  MoltenKing:{
+    name:'The Molten King', hp:6200, dmg:72, xp:5200,
+    color:'#3a1a0f', eye:'#fbbf24',
+    desc:"Master of the First Forge's weapons, now a living furnace. FORGE. PROTECT. DESTROY.",
+    phases:3,
+  },
 };
 //__JS6__
 
 /* ---------- Enemies ---------- */
 const ENEMIES = {
   slime:      {n:'Forest Slime',   hp:24,  dmg:6,  xp:14,  w:24, h:18, speed:40,  color:'#4ade80', type:'ground', drop:'meat'},
-  beetle:     {n:'Armored Beetle', hp:60,  dmg:12, xp:30,  w:28, h:20, speed:55,  color:'#8a5a2f', type:'ground', drop:'beetle'},
-  vine:       {n:'Thorn Vine',     hp:80,  dmg:16, xp:40,  w:30, h:30, speed:30,  color:'#2f5d3a', type:'ground', drop:'root'},
-  sporeling:  {n:'Sporeling',      hp:50,  dmg:14, xp:34,  w:26, h:26, speed:48,  color:'#c084fc', type:'fly',    drop:'spore'},
-  blighted:   {n:'Ashbound Shade', hp:95,  dmg:20, xp:55,  w:30, h:34, speed:52,  color:'#1a140f', type:'ground', drop:'ash'},
+  beetle:     {n:'Armored Beetle', hp:60,  dmg:9, xp:30,  w:28, h:20, speed:55,  color:'#8a5a2f', type:'ground', drop:'beetle'},
+  vine:       {n:'Thorn Vine',     hp:80,  dmg:10, xp:40,  w:30, h:30, speed:30,  color:'#2f5d3a', type:'ground', drop:'root'},
+  sporeling:  {n:'Sporeling',      hp:50,  dmg:11, xp:34,  w:26, h:26, speed:48,  color:'#c084fc', type:'fly',    drop:'spore'},
+  blighted:   {n:'Ashbound Shade', hp:95,  dmg:16, xp:55,  w:30, h:34, speed:52,  color:'#1a140f', type:'ground', drop:'ash'},
+  // ---- World 2 · Pyroclast — The Ember ----
+  emberwisp:  {n:'Ember Wisp',     hp:55,  dmg:12, xp:38,  w:26, h:26, speed:56,  color:'#f59e0b', type:'fly',    drop:'cinder'},
+  slaggolem:  {n:'Slag Golem',     hp:120, dmg:18, xp:70,  w:38, h:38, speed:34,  color:'#6b2a1a', type:'ground', drop:'molten'},
 };
 //__JS7__
 
@@ -666,7 +771,7 @@ const G = {
   materials:{},
   crafted:{},       // set of crafted weapon/gear names
   ownedWeapons:[],  // array of weapon objects the player has
-  armor:{mossbound:false, rootwarden:false},
+  armor:{mossbound:false, rootwarden:false, emberforged:false},
   bossActive:null,
   bossKills:{},
   seedCollected:false,
@@ -807,6 +912,59 @@ function _texBlock(id){
       for(let i=0;i<6;i++) put(4+(rnd()*7|0),4+(rnd()*8|0),_li(pod,0.3));
       for(let py=4;py<8;py++) put(5,py,_li(pod,0.4));
       break; }
+    // ---- World 2 · Pyroclast — The Ember ----
+    case B.BLACKSTONE: {
+      noiseFill(_hexp('#2b2420'),0.18,rnd);
+      for(let i=0;i<8;i++){ let px=(rnd()*16|0),py=(rnd()*16|0); for(let s=0;s<4;s++){ put(px,py,_li(base,0.18)); px=(px+1)%S; py=(py+1)%S; } }
+      for(let i=0;i<6;i++) put((rnd()*16|0),(rnd()*16|0),_hexp('#f97316'));
+      break; }
+    case B.LAVA: {
+      const l1=_hexp('#f97316'), l2=_hexp('#fbbf24'), l0=_hexp('#c2410c');
+      for(let py=0;py<S;py++)for(let px=0;px<S;px++){ const r=rnd(); const c=r<0.35?l0:(r<0.7?l1:l2); put(px,py,_li(c,(rnd()-0.5)*0.3)); }
+      for(let i=0;i<5;i++){ put((rnd()*16|0),(rnd()*16|0),_hexp('#fff7ed')); }
+      break; }
+    case B.CINDER: {
+      const ash=_hexp('#4a3324');
+      noiseFill(ash,0.3,rnd);
+      for(let i=0;i<10;i++){ const px=1+(rnd()*14|0),py=1+(rnd()*14|0); put(px,py,_li(ash,0.2)); put((px+1)%S,py,_sh(ash,0.3)); }
+      for(let i=0;i<5;i++) put((rnd()*16|0),(rnd()*16|0),_hexp('#7c2d12'));
+      break; }
+    case B.IRONORE: {
+      noiseFill(_hexp('#6b7180'),0.14,rnd);
+      const ore=_hexp('#c7d0dd');
+      for(let i=0;i<4;i++){ const px=2+(rnd()*12|0),py=2+(rnd()*12|0); put(px,py,ore); put((px+1)%S,py,_li(ore,0.3)); put(px,(py+1)%S,_sh(ore,0.2)); put((px+1)%S,(py+1)%S,ore); }
+      break; }
+    case B.COPPERORE: {
+      noiseFill(_hexp('#6b7180'),0.14,rnd);
+      const ore=_hexp('#f0a860');
+      for(let i=0;i<4;i++){ const px=2+(rnd()*12|0),py=2+(rnd()*12|0); put(px,py,ore); put((px+1)%S,py,_li(ore,0.3)); put(px,(py+1)%S,_sh(ore,0.25)); put((px+1)%S,(py+1)%S,ore); }
+      break; }
+    case B.EMBERSTONE: {
+      const bg=_hexp('#5a2a1a'), em=_hexp('#ef4444');
+      noiseFill(bg,0.2,rnd);
+      for(let i=0;i<6;i++){ let px=(rnd()*16|0),py=(rnd()*16|0); for(let s=0;s<5;s++){ put(px,py,_li(em,0.3)); px=(px+(rnd()<0.5?1:-1)+16)%S; py=(py+1)%S; } }
+      for(let i=0;i<6;i++) put((rnd()*16|0),(rnd()*16|0),_li(em,0.4));
+      break; }
+    case B.MOLTEN: {
+      const bg=_hexp('#ff5a1f'), core=_hexp('#ffd24a');
+      noiseFill(bg,0.22,rnd);
+      for(let py=4;py<12;py++)for(let px=4;px<12;px++){ const dx=px-7.5,dy=py-7.5,d=Math.sqrt(dx*dx+dy*dy); if(d<4) put(px,py,_mix(core,bg,d/4)); }
+      for(let i=0;i<6;i++) put((rnd()*16|0),(rnd()*16|0),_li(core,0.4));
+      break; }
+    case B.FURNACE: {
+      const stone=_hexp('#3a2a1c');
+      noiseFill(stone,0.16,rnd);
+      for(let py=0;py<S;py+=4) for(let px=0;px<S;px++) put(px,py,_sh(stone,0.3));
+      for(let px=0;px<S;px+=4) for(let py=0;py<S;py++) put(px,py,_sh(stone,0.25));
+      for(let py=4;py<12;py++)for(let px=5;px<11;px++){ const dx=px-7.5,dy=py-7.5,d=Math.sqrt(dx*dx+dy*dy); if(d<3.5) put(px,py,_mix(_hexp('#f59e0b'),stone,d/3.5)); }
+      put(7,7,_li(_hexp('#ffd24a'),0.3)); put(8,7,_li(_hexp('#ffd24a'),0.3));
+      break; }
+    case B.ASHGATE: {
+      const ob=_hexp('#15110d'), em=_hexp('#5b2109');
+      noiseFill(ob,0.18,rnd);
+      for(let py=2;py<14;py++)for(let px=5;px<11;px++){ const dx=px-7.5,dy=py-7.5,d=Math.abs(dx)+Math.abs(dy); if(d<4) put(px,py,_mix(em,ob,d/4)); }
+      for(let py=0;py<S;py++){ put(4,py,_li(ob,0.2)); put(11,py,_li(ob,0.2)); }
+      break; }
     default: noiseFill(base,0.2,rnd);
   }
   x.putImageData(img,0,0);
@@ -868,6 +1026,19 @@ function buildItemSprites(){
   tex['Summon Stone: Mycelord']= _sprite((x,R,F)=>{ F('#241f2e'); R(1,1,14,14,'#332844'); R(2,2,2,2,'#5a4a7a'); R(11,11,2,2,'#5a4a7a'); R(3,3,1,1,'#c084fc'); R(6,6,4,5,'#c084fc'); R(7,5,2,1,'#e9d5ff'); R(8,10,1,1,'#a855f7'); });
   tex['Summon Stone: The Blighted Elder']= _sprite((x,R,F)=>{ F('#15110d'); R(1,1,14,14,'#2a1f16'); R(2,2,2,2,'#4a3524'); R(11,11,2,2,'#4a3524'); R(3,3,1,1,'#ef4444'); R(5,6,2,2,'#ef4444'); R(9,6,2,2,'#ef4444'); R(7,9,2,3,'#7f1d1d'); });
   tex['Summon Stone: The Rootwarden']= _sprite((x,R,F,C)=>{ F('#0f1a12'); R(1,1,14,14,'#1f4a2a'); C(8,8,4,'#4ade80'); C(8,8,2,'#a7f3d0'); R(8,2,2,2,'#4ade80'); R(3,10,2,2,'#2f6b3a'); R(11,10,2,2,'#2f6b3a'); });
+  // ---- World 2 · Pyroclast — The Ember materials ----
+  tex.blackstone = _sprite((x,R,F)=>{ F('#2b2420'); R(2,2,12,12,'#3a2a20'); R(4,4,2,2,'#5a4a35'); R(9,9,3,3,'#1c150e'); R(3,10,1,1,'#f97316'); R(11,4,1,1,'#f97316'); });
+  tex.cinder     = _sprite((x,R,F,C)=>{ F('rgba(0,0,0,0)'); C(8,8,5,'#4a3324'); C(8,8,3,'#7c2d12'); C(7,6,1,'#f97316'); C(9,8,1,'#fbbf24'); C(8,5,1,'#f97316'); });
+  tex.iron       = _sprite((x,R,F,C)=>{ F('rgba(0,0,0,0)'); C(8,8,5,'#6b7180'); C(8,8,4,'#8a8f9c'); C(7,7,1,'#c7d0dd'); R(6,6,3,1,'#c7d0dd'); R(6,9,3,1,'#7c8798'); });
+  tex.copper     = _sprite((x,R,F,C)=>{ F('rgba(0,0,0,0)'); C(8,8,5,'#b0793f'); C(8,8,4,'#d99a5a'); C(7,7,1,'#f0a860'); R(6,6,3,1,'#f0a860'); R(6,9,3,1,'#8a5a2f'); });
+  tex.emberstone = _sprite((x,R,F)=>{ F('#5a2a1a'); R(2,2,12,12,'#6b3a24'); R(4,4,3,3,'#ef4444'); R(9,9,3,3,'#c2410c'); R(5,5,1,1,'#fbbf24'); R(10,10,1,1,'#fbbf24'); });
+  tex.molten     = _sprite((x,R,F,C)=>{ F('rgba(0,0,0,0)'); C(8,8,6,'#ff5a1f'); C(8,8,4,'#ffd24a'); C(8,8,2,'#fff7ed'); R(8,1,2,2,'#f97316'); R(3,10,2,2,'#c2410c'); R(11,10,2,2,'#c2410c'); });
+  tex['Summon Stone: The Molten King']= _sprite((x,R,F,C)=>{ F('#15110d'); R(1,1,14,14,'#3a1a0f'); C(8,8,4,'#f97316'); C(8,8,2,'#ffd24a'); R(8,2,2,2,'#fbbf24'); R(3,10,2,2,'#c2410c'); R(11,10,2,2,'#c2410c'); });
+  tex['Placeable: Blackstone Block']= _sprite((x,R,F)=>{ F('#2b2420'); R(1,1,14,1,'#3a2a20'); R(1,14,14,1,'#1c150e'); R(1,1,1,14,'#3a2a20'); R(14,1,1,14,'#1c150e'); R(6,6,4,4,'#5a4a35'); });
+  tex['Placeable: Ember Stone Block']= _sprite((x,R,F)=>{ F('#5a2a1a'); R(1,1,14,1,'#6b3a24'); R(1,14,14,1,'#3a1a0f'); R(4,4,3,3,'#ef4444'); R(9,9,3,3,'#c2410c'); R(5,5,1,1,'#fbbf24'); });
+  tex['Placeable: Molten Core Block']= _sprite((x,R,F,C)=>{ F('#ff5a1f'); C(8,8,5,'#ffd24a'); C(8,8,3,'#fff7ed'); R(2,2,2,2,'#c2410c'); R(12,12,2,2,'#c2410c'); });
+  tex['Emberforged Armor']= _sprite((x,R,F)=>{ F('rgba(0,0,0,0)'); R(4,3,8,10,'#3a2a20'); R(4,3,8,2,'#f97316'); R(6,5,4,6,'#2b1a12'); R(7,7,2,3,'#fbbf24'); R(8,4,1,1,'#ef4444'); });
+  tex['Magma Tonic']= _sprite((x,R,F)=>{ F('rgba(0,0,0,0)'); R(6,2,4,2,'#9aa2b3'); R(5,4,6,10,'#f97316'); R(5,7,6,6,'#fbbf24'); R(6,5,1,7,'#fff7ed'); R(6,9,4,1,'#c2410c'); });
 }
 function itemSpriteCanvas(key){
   if (G.itemtex && G.itemtex[key]) return G.itemtex[key];
@@ -959,6 +1130,46 @@ function generateWorld(){
   veins(B.HEARTWOOD, 10, 2);
   veins(B.SPORPOD, 20, 1);
 
+  // ---- World 2 · Pyroclast — The Ember (west region, x 0..140) ----
+  // Iron / copper / emberstone / molten ore veins throughout the stone layer
+  const pveins = (block, count, size)=>{
+    for (let i=0;i<count;i++){
+      const x=irand(1,140), y=irand(55,H-2);
+      for (let a=-size;a<=size;a++) for (let b=-size;b<=size;b++){
+        if (Math.random()<0.5){ const nx=x+a, ny=y+b; if (get(nx,ny)===B.STONE) set(nx,ny,block); }
+      }
+    }
+  };
+  pveins(B.IRONORE, 26, 2);
+  pveins(B.COPPERORE, 22, 2);
+  pveins(B.EMBERSTONE, 16, 2);
+  pveins(B.MOLTEN, 10, 2);
+  // Lava fields on the surface (open lava pits)
+  for (let z=0;z<3;z++){
+    const zx = irand(20, 120);
+    const s = surf[zx];
+    for (let x=zx-irand(6,12); x<zx+irand(6,12); x++){
+      if (x<1||x>=W-1) continue;
+      const sy = surf[x];
+      for (let y=sy; y<sy+irand(3,6); y++){ set(x,y,B.LAVA); }
+      for (let y=sy-1; y<sy+2; y++){ if (get(x,y)!==B.LAVA && Math.random()<0.5) set(x,y,B.CINDER); }
+    }
+    // blackstone ring around each field
+    for (let x=zx-16; x<zx+16; x++){
+      if (x<1||x>=W-1) continue;
+      const sy = surf[x];
+      if (get(x,sy)===B.GRASS && Math.random()<0.5) set(x,sy,B.BLACKSTONE);
+    }
+  }
+  // The Great Forge (unbreakable furnace) at x~70
+  const fx = 70, fs = surf[fx];
+  for (let y=fs-4; y<fs; y++) for (let x=fx-2; x<=fx+2; x++) set(x,y,B.BLACKSTONE);
+  set(fx, fs-2, B.FURNACE);
+  set(fx-2, fs-1, B.MOLTEN); set(fx+2, fs-1, B.MOLTEN);
+  // Ashbound Gate (portal to Pyroclast) at the far west edge
+  set(8, surf[8]-2, B.ASHGATE); set(9, surf[9]-2, B.ASHGATE);
+  set(8, surf[8]-1, B.BLACKSTONE); set(9, surf[9]-1, B.BLACKSTONE);
+
   // Corrupted zones (3 areas)
   for (let z=0;z<3;z++){
     const zx = irand(60, W-60);
@@ -1031,6 +1242,7 @@ function generateWorld(){
 function maxHP(){
   let hp = 100;
   if (G.armor.mossbound) hp = Math.round(hp*1.3);
+  if (G.armor.emberforged) hp = Math.round(hp*1.5);
   if (G.armor.rootwarden) hp = Math.round(hp*1.8);
   return hp;
 }
@@ -1214,7 +1426,7 @@ function gainXP(n){
 }
 function addItem(kind, count, wx, wy){
   G.materials[kind] = (G.materials[kind]||0) + count;
-  if (wx!==undefined) addFloatText(wx, wy, '+'+count+' '+MATERIALS[kind].icon, '#a7f3d0', 14);
+  if (wx!==undefined) addFloatText(wx, wy, '+'+count+' '+(MATERIALS[kind]||{}).icon||'❓', '#a7f3d0', 14);
   updateInventoryUI();
 }
 //__JS11__
@@ -1226,6 +1438,11 @@ function pickEnemyKind(){
                     tileAt(px, Math.floor(G.player.y/T)-2)===B.OBSIDIAN;
   const night = G.night;
   const r = Math.random();
+  // Pyroclast (The Ember) biome — the western third of the map
+  if (px < 140){
+    if (r<0.35) return 'emberwisp';
+    return 'slaggolem';
+  }
   if (corrupted) return r<0.6 ? 'blighted' : 'sporeling';
   if (night) return r<0.4?'blighted':(r<0.7?'vine':'slime');
   return r<0.5?'slime':(r<0.75?'beetle':(r<0.9?'vine':'sporeling'));
@@ -1364,6 +1581,15 @@ function doBossAttack(e, d){
         for (let i=0;i<14;i++){ const a=i/14*Math.PI*2; spawnEnemyProjectile(e.x,e.y, a, e.dmg*0.55, '#f87171', 7, 280); }
       } else { spawnEnemyProjectile(e.x,e.y, ang, e.dmg*1.3, '#b91c1c', 12, 380); }
       break;
+    case 'MoltenKing':
+      if (e.pattern===0){ // molten spray
+        for (let i=-2;i<=2;i++) spawnEnemyProjectile(e.x,e.y, ang+i*0.2, e.dmg*0.8, '#f97316', 9, 470);
+      } else if (e.pattern===1){ // lava geyser — radial burst
+        for (let i=0;i<16;i++){ const a=i/16*Math.PI*2; spawnEnemyProjectile(e.x,e.y, a, e.dmg*0.6, '#fbbf24', 8, 320); }
+      } else { // molten charge
+        e.vx = (e.x<G.player.x? -1:1)*Math.sqrt(2*GRAVITY*2.4*T); e.vy=-Math.sqrt(2*GRAVITY*1.7*T);
+      }
+      break;
   }
 }
 //__JS13__
@@ -1420,6 +1646,7 @@ function damagePlayer(dmg){
   if (p.dead) return;
   let resist = 0;
   if (G.armor.mossbound) resist+=0.15;
+  if (G.armor.emberforged) resist+=0.18;
   if (G.armor.rootwarden) resist+=0.3;
   dmg *= (1-resist);
   p.hp -= dmg;
@@ -1472,6 +1699,13 @@ function updatePlayer(dt){
     p.vy = -Math.sqrt(2*GRAVITY*2.3*T);
   }
   physMove(p, dt);
+  // lava / molten hazard: standing in open lava burns the player
+  if (p.lavaT>0) p.lavaT-=dt;
+  const feetTx = Math.floor(p.x/T), feetTy = Math.floor((p.y+p.h/2-1)/T);
+  const headTx = Math.floor(p.x/T), headTy = Math.floor((p.y-p.h/2)/T);
+  if (tileAt(feetTx,feetTy)===B.LAVA || tileAt(headTx,headTy)===B.LAVA){
+    if (p.lavaT<=0){ p.lavaT=0.5; damagePlayer(12); }
+  }
   // regen
   p.regenTimer += dt;
   if (p.regenTimer>4 && p.hp<p.hpMax){ p.regenTimer=0; p.hp=Math.min(p.hpMax, p.hp+2); }
@@ -1528,7 +1762,7 @@ function placeAtTile(tx,ty){
   }
   if (!item || item.type!=='block') return;
   const blockId = item.block;
-  if ((G.materials[item.mat]||0) <= 0){ toast('No material: '+MATERIALS[item.mat].n); return; }
+  if ((G.materials[item.mat]||0) <= 0){ toast('No material: '+(MATERIALS[item.mat]||{}).n||item.mat); return; }
   // don't place inside player
   const p=G.player;
   if (tx*T < p.x+p.w/2 && (tx+1)*T > p.x-p.w/2 && ty*T < p.y+p.h/2 && (ty+1)*T > p.y-p.h/2) return;
@@ -1751,7 +1985,8 @@ function renderHotbar(){
   });
 }
 function blockIcon(b){
-  const map={ [B.GRASS]:'🟩',[B.DIRT]:'🟤',[B.STONE]:'🪨',[B.WOOD]:'🪵',[B.LEAVES]:'🍃',[B.TORCH]:'🕯️',[B.DOOR]:'🚪',[B.MOSS]:'🌿',[B.CRYSTAL]:'💎',[B.CRACK]:'⬜',[B.CORRUPT]:'☠️',[B.OBSIDIAN]:'⬛',[B.HEARTWOOD]:'🌳',[B.SPORPOD]:'🫧' };
+  const map={ [B.GRASS]:'🟩',[B.DIRT]:'🟤',[B.STONE]:'🪨',[B.WOOD]:'🪵',[B.LEAVES]:'🍃',[B.TORCH]:'🕯️',[B.DOOR]:'🚪',[B.MOSS]:'🌿',[B.CRYSTAL]:'💎',[B.CRACK]:'⬜',[B.CORRUPT]:'☠️',[B.OBSIDIAN]:'⬛',[B.HEARTWOOD]:'🌳',[B.SPORPOD]:'🫧',
+    [B.BLACKSTONE]:'⬛',[B.LAVA]:'🔥',[B.CINDER]:'🌋',[B.IRONORE]:'⚙️',[B.COPPERORE]:'🟠',[B.EMBERSTONE]:'🔶',[B.MOLTEN]:'🌋',[B.FURNACE]:'🔥',[B.ASHGATE]:'🚪' };
   return map[b]||'▫️';
 }
 function canAfford(req){
@@ -1783,13 +2018,13 @@ function renderInventory(){
   for (const k in G.materials){
     if ((G.materials[k]||0)<=0) continue;
     any=true;
-    const m=MATERIALS[k];
+    const m=MATERIALS[k]||{n:k, icon:'❓'};
     const d=document.createElement('div');
     d.className='itemCell';
-    d.innerHTML=`<div class="iicon">${m.icon}</div><div class="iname">${m.n}</div><div class="icount">×${G.materials[k]}</div>`;
+    d.innerHTML=`<div class="iicon">${m.icon||'❓'}</div><div class="iname">${m.n}</div><div class="icount">×${G.materials[k]}</div>`;
     // swap the emoji for a dedicated 16x16 pixel sprite (one per material)
     const ii=d.querySelector('.iicon');
-    if (!attachItemIcon(ii, k)) ii.textContent=m.icon;
+    if (!attachItemIcon(ii, k)) ii.textContent=m.icon||'❓';
     ig.appendChild(d);
   }
   if (!any) ig.innerHTML='<div class="dim" style="padding:12px">No materials yet — go mine the world.</div>';
@@ -1806,7 +2041,7 @@ function renderInventory(){
     let reqHtml='';
     for (const k in c.req){
       const have=G.materials[k]||0;
-      reqHtml += `<span class="reqchip ${have>=c.req[k]?'ok':'no'}">${MATERIALS[k].icon}${c.req[k]}</span>`;
+      reqHtml += `<span class="reqchip ${have>=c.req[k]?'ok':'no'}">${(MATERIALS[k]||{}).icon||'❓'}${c.req[k]}</span>`;
     }
     const desc = c.desc + (sigilLocked ? ' Requires the Guardian Summon Sigil.' : '');
     // distinct pixel sprite per craftable item (weapon class / gear / summon)
@@ -1838,8 +2073,10 @@ function renderInventory(){
           // gear
           if (c.name==='Mossbound Armor'){ G.armor.mossbound=true; toast('Mossbound Armor equipped'); }
           else if (c.name==='Rootwarden Armor'){ G.armor.rootwarden=true; toast('Rootwarden Armor equipped'); }
+          else if (c.name==='Emberforged Armor'){ G.armor.emberforged=true; G.player.hpMax=maxHP(); G.player.hp=Math.min(G.player.hpMax,G.player.hp+50); toast('Emberforged Armor equipped (+50% max HP)'); }
           else if (c.name.startsWith('Seed Tonic')) addItem('meat',1);
           else if (c.name.startsWith('Verdant Elixir')){ G.player.hp=G.player.hpMax; toast('Fully restored!'); }
+          else if (c.name.startsWith('Magma Tonic')){ G.player.hp=Math.min(G.player.hpMax,G.player.hp+60); addFloatText(G.player.x,G.player.y-G.player.h/2-6,'+60','#4ade80',16); toast('Magma Tonic: +60 HP'); }
           else toast('Crafted: '+c.name);
         }
         renderInventory(); renderHotbar();
@@ -2208,7 +2445,7 @@ function loadGame(){
     G.world = {tiles:d.world, surf:d.surf, spawnX:d.spawnX, spawnY:d.spawnY, hx:d.hx, hs:d.hs};
     G.materials = d.materials||{};
     G.crafted = d.crafted||{};
-    G.armor = d.armor||{mossbound:false,rootwarden:false};
+    G.armor = Object.assign({mossbound:false,rootwarden:false,emberforged:false}, d.armor||{});
     G.bossKills = d.bossKills||{};
     G.day = d.day||1; G.time=d.time||0;
     G.hotbar = d.hotbar && d.hotbar.length? d.hotbar : defaultHotbar();
